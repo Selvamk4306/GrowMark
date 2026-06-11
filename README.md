@@ -1,128 +1,416 @@
 # GrowMark 🌱
 
-GrowMark is a comprehensive mobile application built with React Native and Expo, designed to help shop owners and small businesses manage their inventory, track daily sales, analyze performance, and receive actionable growth insights. 
+GrowMark is a comprehensive mobile and web application built with React Native and Expo, designed to help shop owners and small businesses manage inventory, track daily sales, analyze performance, and receive actionable growth insights.
 
-## 🚀 Key Features
+---
 
-### 🔐 Authentication & Onboarding
-*   **Secure Authentication:** Powered by Supabase, featuring standard Email/Password login and seamless Google Sign-In integration.
-*   **Guided Onboarding:** A step-by-step setup process covering Language Selection, Shop Details Setup, Working Days configuration, and Initial Item Catalog setup.
+# 🚀 Key Features
 
-### 📊 Dashboard & Analytics
-*   **Comprehensive Overview:** A centralized dashboard (`app/dashboard/index.tsx`) providing an at-a-glance view of business metrics.
-*   **Sales Tracking:** Easy-to-use interface for recording daily sales and transactions (`app/dashboard/sales-entry.tsx`).
-*   **Inventory Management:** Add, edit, and track items/products available in the shop (`app/dashboard/manage-items.tsx`).
-*   **Advanced Reporting:** Visual charts and graphs (powered by `react-native-gifted-charts`) to analyze sales trends and revenue over time (`app/dashboard/reports.tsx`).
-*   **Daily Analysis:** In-depth breakdown of daily performance (`app/dashboard/daily-analysis.tsx`).
-*   **Business Health Score:** A unique metric calculating the overall health and performance of the business (`app/dashboard/health-score.tsx`).
-*   **Growth Tips:** Actionable advice and tips tailored to help the business expand and improve (`app/dashboard/growth-tips.tsx`).
+## 🔐 Authentication & Onboarding
 
-### ⚙️ User Preferences & Settings
-*   **Multi-language Support:** Choose preferred languages for localized app experience.
-*   **Profile Management:** Manage user details and shop configurations (`app/dashboard/profile.tsx`).
-*   **Smart Alerts:** Notifications for important business milestones or required actions (`app/dashboard/alerts.tsx`).
+* Secure Authentication powered by Supabase Auth
+* Email/Password Login
+* Google Sign-In Integration
+* Guided Onboarding Process:
 
-## 🛠️ Technology Stack
+  * Language Selection
+  * Shop Setup
+  * Working Days Configuration
+  * Product Setup
 
-*   **Framework:** [React Native](https://reactnative.dev/)
-*   **Platform/Toolchain:** [Expo](https://expo.dev/) (Managed Workflow)
-*   **Routing:** [Expo Router](https://docs.expo.dev/router/introduction/) (File-based routing)
-*   **Backend as a Service:** [Supabase](https://supabase.com/) (Database & Authentication)
-*   **Authentication Providers:** Supabase Auth, Google Sign-In (`@react-native-google-signin/google-signin`)
-*   **UI Components & Animations:** React Native Reanimated, Expo Vector Icons
-*   **Data Visualization:** `react-native-gifted-charts`
-*   **Storage:** `@react-native-async-storage/async-storage`
+---
 
-## 📁 Project Structure
+## 📊 Dashboard & Analytics
 
-The project utilizes Expo Router's file-based routing mechanism.
+### Dashboard
+
+* Business Health Score
+* Revenue Summary
+* Profit Summary
+* Alert Overview
+* Performance Snapshot
+
+### Sales Tracking
+
+* Daily Item-Level Sales Entry
+* Backdated Entry (up to 30 days)
+* Auto-load Existing Data
+* Edit Previous Records
+
+### Inventory Management
+
+* Add Products
+* Edit Products
+* Delete Products
+* Set Daily Targets
+* Set Weekly Targets
+
+### Reporting & Visualization
+
+* Weekly Revenue Charts
+* Sales Trend Analysis
+* Weekly Performance Summary
+* Top Performing Products
+* Alert Statistics
+
+### Business Health Monitoring
+
+* Business Health Score (0–100)
+* Performance Classification
+* Revenue Growth Tracking
+* Profit Margin Analysis
+
+### Growth Recommendations
+
+* Rule-Based Recommendation Engine
+* Product Performance Suggestions
+* Revenue Improvement Tips
+* Inventory Optimization Suggestions
+
+---
+
+## ⚙️ User Preferences & Settings
+
+### Profile Management
+
+* Shop Information
+* Owner Details
+* Working Days Configuration
+
+### Language Support
+
+* English
+* Tamil
+* Hindi
+* Telugu
+* Kannada
+* Malayalam
+
+### Leave Management
+
+* Leave
+* Holiday
+* Festival
+* Emergency
+
+Leave days are automatically excluded from:
+
+* Alert Generation
+* Consecutive Failure Detection
+* Business Health Score Calculation
+* Weekly Reports
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+* React Native
+* Expo
+* TypeScript
+* Expo Router
+
+## Backend
+
+* Supabase
+* PostgreSQL Database
+* Supabase Authentication
+
+## UI & Visualization
+
+* React Native Reanimated
+* Expo Vector Icons
+* React Native Gifted Charts
+
+## Storage
+
+* AsyncStorage
+
+---
+
+# 🗄️ Database Schema
+
+GrowMark uses PostgreSQL through Supabase.
+
+## owners
+
+Stores shop owner information.
+
+| Column       | Type      |
+| ------------ | --------- |
+| id           | UUID      |
+| user_id      | UUID      |
+| shop_name    | TEXT      |
+| shop_type    | TEXT      |
+| working_days | TEXT[]    |
+| language     | TEXT      |
+| created_at   | TIMESTAMP |
+
+---
+
+## items
+
+Stores product information.
+
+| Column        | Type    |
+| ------------- | ------- |
+| id            | UUID    |
+| owner_id      | UUID    |
+| item_name     | TEXT    |
+| selling_price | NUMERIC |
+| cost_price    | NUMERIC |
+| daily_target  | INTEGER |
+| weekly_target | INTEGER |
+
+---
+
+## daily_sales
+
+Stores daily sales records.
+
+| Column        | Type    |
+| ------------- | ------- |
+| id            | UUID    |
+| owner_id      | UUID    |
+| item_id       | UUID    |
+| sale_date     | DATE    |
+| quantity_sold | INTEGER |
+| total_revenue | NUMERIC |
+| total_profit  | NUMERIC |
+
+---
+
+## alerts
+
+Stores generated alerts.
+
+| Column       | Type      |
+| ------------ | --------- |
+| id           | UUID      |
+| owner_id     | UUID      |
+| item_id      | UUID      |
+| severity     | TEXT      |
+| message      | TEXT      |
+| triggered_at | TIMESTAMP |
+
+---
+
+## health_scores
+
+Stores weekly health score calculations.
+
+| Column             | Type      |
+| ------------------ | --------- |
+| id                 | UUID      |
+| owner_id           | UUID      |
+| score              | NUMERIC   |
+| revenue_growth     | NUMERIC   |
+| profit_margin      | NUMERIC   |
+| target_achievement | NUMERIC   |
+| expense_control    | NUMERIC   |
+| calculated_at      | TIMESTAMP |
+
+---
+
+## leave_days
+
+Stores non-working days.
+
+| Column     | Type |
+| ---------- | ---- |
+| id         | UUID |
+| owner_id   | UUID |
+| leave_date | DATE |
+| leave_type | TEXT |
+| remarks    | TEXT |
+
+---
+
+# ⚙️ Core Algorithms
+
+## 1. Daily Threshold Check
+
+Evaluates item performance against daily targets.
+
+Classification:
+
+* Met Target
+* Below Target
+* Zero Sales
+* Dead Stock
+
+---
+
+## 2. Consecutive Failure Detection
+
+Counts consecutive days below target.
+
+Alert Levels:
+
+* Warning
+* Alert
+* Critical
+* Dead Stock
+
+Leave days and non-working days are excluded.
+
+---
+
+## 3. Business Health Score
+
+Formula:
+
+Score =
+(Revenue Growth × 0.30)
+
+* (Profit Margin × 0.30)
+* (Target Achievement × 0.20)
+* (Expense Control × 0.20)
+
+Component Weights:
+
+| Component          | Weight |
+| ------------------ | ------ |
+| Revenue Growth     | 30%    |
+| Profit Margin      | 30%    |
+| Target Achievement | 20%    |
+| Expense Control    | 20%    |
+
+---
+
+Score Classification:
+
+* 80–100 → Healthy
+* 50–79 → Needs Attention
+* 0–49 → Poor Performer
+
+---
+
+## 4. Recommendation Engine
+
+Analyzes:
+
+* Consecutive Misses
+* Dead Stock Items
+* Revenue Decline
+* Low Profit Margin
+* Overperforming Products
+
+Generates actionable growth tips.
+
+---
+
+# 🔄 Application Workflow
+
+1. User Registration / Login
+2. Shop Setup
+3. Working Days Configuration
+4. Product Setup
+5. Daily Sales Entry
+6. Threshold Evaluation
+7. Alert Generation
+8. Health Score Calculation
+9. Recommendation Generation
+10. Dashboard & Reports Display
+
+---
+
+# 🔒 Security Features
+
+* Supabase Authentication
+* Google OAuth
+* Row Level Security (RLS)
+* Session Persistence
+* User Data Isolation
+* Secure API Access
+
+---
+
+# 📁 Project Structure
 
 ```text
 GrowMark/
-├── app/                      # Main application routes
-│   ├── auth/                 # Login and Signup screens
-│   ├── dashboard/            # Core app features (Sales, Reports, Inventory, etc.)
-│   ├── onboarding/           # Initial setup screens for new users
-│   ├── _layout.tsx           # Global layout configuration
-│   └── index.tsx             # Entry point / Redirector
-├── components/               # Reusable UI components
-│   ├── ui/                   # Base UI elements
-│   ├── CustomBottomNav.tsx   # Custom bottom navigation bar
-│   ├── DatePickerModal.tsx   # Date selection component
-│   └── ...                   # Other shared components
-├── lib/                      # External service configurations
-│   ├── supabase.ts           # Supabase client initialization
-│   └── GoogleAuth.ts         # Google Sign-In configuration
-├── assets/                   # Static assets (images, fonts, icons)
-├── constants/                # App-wide constants (Colors, Themes, etc.)
-├── hooks/                    # Custom React hooks
-├── .env                      # Environment variables (API keys)
-├── app.json                  # Expo configuration
-└── package.json              # Project dependencies and scripts
+├── app/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── onboarding/
+│   ├── _layout.tsx
+│   └── index.tsx
+├── components/
+├── lib/
+├── assets/
+├── constants/
+├── hooks/
+├── .env
+├── app.json
+└── package.json
 ```
 
-## 💻 Local Development Setup
+# 💻 Local Development Setup
 
-### Prerequisites
-*   Node.js (v18 or newer recommended)
-*   npm or yarn
-*   Expo Go app installed on your physical device OR an Android/iOS Emulator set up on your machine.
-*   Supabase project set up for backend services.
+## Installation
 
-### Installation
+```bash
+git clone https://github.com/Selvamk4306/GrowMark.git
+cd GrowMark
+npm install
+```
 
-1.  **Clone the repository** (if you haven't already):
-    ```bash
-    git clone https://github.com/Selvamk4306/GrowMark.git
-    cd GrowMark
-    ```
+### Environment Variables
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+```env
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-3.  **Environment Variables:**
-    Ensure you have a `.env` file in the root directory with the necessary Supabase and Google Sign-in credentials.
-    ```env
-    EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-    EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-    # Add other required keys (e.g., Google Web Client ID)
-    ```
-
-### Running the App
-
-Start the Expo development server:
+### Run Application
 
 ```bash
 npx expo start
 ```
 
-*   **To run on an Android Emulator:** Press `a` in the terminal.
-*   **To run on an iOS Simulator:** Press `i` in the terminal (Requires macOS).
-*   **To run on a physical device:** Scan the QR code shown in the terminal using the Expo Go app (Android) or the Camera app (iOS).
+Android:
 
-## 📜 Available Scripts
+```bash
+npm run android
+```
 
-*   `npm start`: Starts the Expo development server.
-*   `npm run android`: Compiles and runs the app on an Android device/emulator (Requires native Android setup).
-*   `npm run ios`: Compiles and runs the app on an iOS simulator (Requires macOS and Xcode).
-*   `npm run web`: Starts the app in a web browser.
-*   `npm run lint`: Runs ESLint to find and fix styling/syntax issues.
-*   `npm run reset-project`: A custom script to reset the project state (use with caution).
+Web:
 
-## 🚀 Building & Deployment
+```bash
+npm run web
+```
 
-The project is configured for Expo Application Services (EAS).
+---
 
-To build the app for production (APK/AAB or IPA), you can use EAS Build:
+# 📜 Available Scripts
 
-1. Install EAS CLI: `npm install -g eas-cli`
-2. Login to your Expo account: `eas login`
-3. Configure the project: `eas build:configure`
-4. Run a build:
-   * Android: `eas build --platform android`
-   * iOS: `eas build --platform ios`
+```bash
+npm start
+npm run android
+npm run ios
+npm run web
+npm run lint
+npm run reset-project
+```
 
-## 📄 License and Legal
-*   Please refer to the **Terms of Use** and **Privacy Policy** within the app for usage guidelines.
+---
+
+# 🚀 Deployment
+
+Using Expo Application Services (EAS):
+
+```bash
+npm install -g eas-cli
+eas login
+eas build:configure
+eas build --platform android
+eas build --platform ios
+```
+
+---
+
+# 📄 License & Legal
+
+Please refer to the application's Privacy Policy and Terms of Use for detailed information regarding usage, data handling, and user responsibilities.
