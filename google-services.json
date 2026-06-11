@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "734565557552",
+    "project_id": "aesthetic-fx-457505-d1",
+    "storage_bucket": "aesthetic-fx-457505-d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:734565557552:android:f2f6246dc2ccf042e9d4f5",
+        "android_client_info": {
+          "package_name": "com.selvamk.growmark"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "734565557552-mvvg7nhr26lle42dvjmkq8l61n3s9hbj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.selvamk.growmark",
+            "certificate_hash": "73c8c05da4b1d282ef60d536bb34af5153dc81f6"
+          }
+        },
+        {
+          "client_id": "734565557552-hsqqg9uppjf3tpucn0f91jr62rbl9uet.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApbkSbRDrPxEpg2APyoo3HCTk-fBPH06k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "734565557552-hsqqg9uppjf3tpucn0f91jr62rbl9uet.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

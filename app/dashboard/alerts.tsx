@@ -1,0 +1,158 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { Colors } from '../../constants/colors';
+import { supabase } from '../../lib/supabase';
+import { useFocusEffect } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '../../hooks/useTranslation';
+
+const FILTERS = ['All', 'Warning', 'Alert', 'Critical', 'Dead Stock'];
+
+export default function AlertsScreen() {
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState<any[]>([]);
+  const [activeFilter, setActiveFilter] = useState('All');
+
+  const fetchAlerts = async () => {
+    setLoading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: owner } = await supabase.from('owners').select('id').eq('user_id', session.user.id).single();
+      if (!owner) return;
+
+      let query = supabase
+        .from('alerts')
+        .select('*, items(item_name)')
+        .eq('owner_id', owner.id)
+        .order('triggered_at', { ascending: false });
+
+      const { data } = await query;
+      if (data) setAlerts(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAlerts();
+    }, [])
+  );
+
+  const markAsRead = async (id: string, status: boolean) => {
+    try {
+      await supabase.from('alerts').update({ is_read: status }).eq('id', id);
+      setAlerts(alerts.map(a => a.id === id ? { ...a, is_read: status } : a));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getAlertColor = (level: string) => {
+    switch (level) {
+      case 'Critical': return Colors.danger;
+      case 'Dead Stock': return Colors.deadstock;
+      case 'Alert': return Colors.warning;
+      case 'Warning': return Colors.accent;
+      default: return Colors.primary;
+    }
+  };
+
+  const filteredAlerts = activeFilter === 'All' ? [...alerts] : alerts.filter(a => a.alert_level === activeFilter);
+
+  const severityMap: Record<string, number> = { 'Dead Stock': 4, 'Critical': 3, 'Alert': 2, 'Warning': 1 };
+  filteredAlerts.sort((a, b) => (severityMap[b.alert_level] || 0) - (severityMap[a.alert_level] || 0));
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>{t('Alerts')}</Text>
+      </View>
+
+      <View style={styles.filterContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+          {FILTERS.map(filter => (
+            <TouchableOpacity 
+              key={filter} 
+              style={[styles.filterPill, activeFilter === filter && styles.filterPillActive]}
+              onPress={() => setActiveFilter(filter)}
+            >
+              <Text style={[styles.filterText, activeFilter === filter && styles.filterTextActive]}>{t(filter)}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
+      {loading ? (
+        <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
+      ) : filteredAlerts.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>No active alerts found.</Text>
+        </View>
+      ) : (
+        <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
+          {filteredAlerts.map(alert => (
+            <View key={alert.id} style={[styles.card, { borderLeftColor: getAlertColor(alert.alert_level) }, alert.is_read && styles.cardRead]}>
+              <View style={styles.cardHeader}>
+                <View style={[styles.badge, { backgroundColor: getAlertColor(alert.alert_level) }]}>
+                  <Text style={styles.badgeText}>{t(alert.alert_level)}</Text>
+                </View>
+                <Text style={styles.itemName}>{alert.items?.item_name}</Text>
+                <TouchableOpacity style={styles.dismissBtn} onPress={() => markAsRead(alert.id, !alert.is_read)}>
+                  <Ionicons 
+                    name={alert.is_read ? "refresh-circle" : "checkmark-circle"} 
+                    size={24} 
+                    color={alert.is_read ? Colors.textSecondary : Colors.success} 
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.dateContainer}>
+                <Ionicons name="calendar-outline" size={12} color={Colors.textSecondary} />
+                <Text style={styles.dateText}>
+                  {new Date(alert.triggered_at).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                </Text>
+              </View>
+              <Text style={styles.message}>{t(alert.alert_message)}</Text>
+              {alert.suggested_action && (
+                <Text style={styles.action}>{alert.suggested_action}</Text>
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: Colors.background, paddingTop: 50 },
+  header: { padding: 20, paddingBottom: 10 },
+  title: { fontSize: 28, fontWeight: 'bold', color: Colors.primary },
+  filterContainer: { paddingBottom: 10 },
+  filterScroll: { paddingHorizontal: 20, gap: 10 },
+  filterPill: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card },
+  filterPillActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  filterText: { color: Colors.textSecondary, fontSize: 14, fontWeight: '500' },
+  filterTextActive: { color: Colors.card },
+  loader: { flex: 1, justifyContent: 'center' },
+  emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyText: { color: Colors.textSecondary, fontSize: 16 },
+  content: { flex: 1, paddingHorizontal: 20 },
+  scrollContent: { paddingBottom: 40 },
+  card: { backgroundColor: Colors.card, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border, borderLeftWidth: 4 },
+  cardRead: { opacity: 0.6, backgroundColor: Colors.border },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
+  badgeText: { color: Colors.card, fontSize: 10, fontWeight: 'bold' },
+  itemName: { fontSize: 16, fontWeight: 'bold', color: Colors.textPrimary, flex: 1 },
+  dismissBtn: { padding: 4 },
+  message: { fontSize: 14, color: Colors.textPrimary, marginBottom: 8 },
+  action: { fontSize: 12, fontStyle: 'italic', color: Colors.textSecondary },
+  dateContainer: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 8 },
+  dateText: { fontSize: 12, color: Colors.textSecondary },
+});

@@ -1,24 +1,35 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { AppState } from 'react-native';
+import { LanguageProvider } from '../context/LanguageContext';
+import { GlobalProvider } from '../context/GlobalContext';
+import { LogBox } from 'react-native';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+LogBox.ignoreLogs([
+  'There was an error during concurrent rendering but React was able to recover by instead synchronously rendering the entire root.',
+  'There was an error during concurrent rendering'
+]);
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const router = useRouter();
+  useEffect(() => {
+    // The AppState listener has been removed so splash screen doesn't show when returning from background.
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GlobalProvider>
+      <LanguageProvider>
+        <StatusBar style="dark" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="auth/login" />
+          <Stack.Screen name="auth/signup" />
+          <Stack.Screen name="onboarding/shop-setup" />
+          <Stack.Screen name="onboarding/item-setup" />
+          <Stack.Screen name="dashboard" />
+        </Stack>
+      </LanguageProvider>
+    </GlobalProvider>
   );
 }
