@@ -1,0 +1,28 @@
+{
+  "name": "growmark-appium-tests",
+  "version": "1.0.0",
+  "description": "Appium E2E automated testing suite for GrowMark mobile application",
+  "main": "dist/runner.js",
+  "scripts": {
+    "test": "ts-node runner.ts",
+    "test:live": "ts-node runner.ts --live",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "minimist": "^1.2.8"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/minimist": "^1.2.5",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.24",
+    "@wdio/cli": "^8.32.4",
+    "@wdio/globals": "^8.32.4",
+    "chai": "^4.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "webdriverio": "^8.32.4",
+    "@wdio/globals": "^8.32.4"
+  }
+}

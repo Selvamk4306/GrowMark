@@ -1,13 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, ScrollView, Animated, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../../constants/colors';
-import { supabase } from '../../lib/supabase';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Animated, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from '../../hooks/useTranslation';
-import { Ionicons } from '@expo/vector-icons';
-import { signInWithGoogle } from '../../lib/GoogleAuth';
+import { supabase } from '../../lib/supabase';
 
 // This handles the redirect back from the browser
 WebBrowser.maybeCompleteAuthSession();
@@ -174,8 +172,26 @@ export default function LoginScreen() {
             onPress={async () => {
               try {
                 setGoogleLoading(true);
-                await signInWithGoogle();
-                router.replace('/' as any);
+                let signInWithGoogleFn;
+                try {
+                  const module = require('../../lib/GoogleAuth');
+                  signInWithGoogleFn = module.signInWithGoogle;
+                } catch (e) {
+                  // Catch dynamic loading error (e.g. native module issues)
+                }
+
+                if (!signInWithGoogleFn) {
+                  Alert.alert(
+                    'Google Sign-In Unavailable',
+                    'Google Sign-In is a native module and is not supported in the standard Expo Go app. To use Google Sign-In, please run a native build (e.g., "npm run android") or sign in using Email/Password.'
+                  );
+                  return;
+                }
+
+                const res = await signInWithGoogleFn();
+                if (res) {
+                  router.replace('/' as any);
+                }
               } catch (err: any) {
                 // @react-native-google-signin/google-signin will handle some errors internally
                 // If the user cancels the login, we shouldn't necessarily show an ugly error, but an alert is fine for now
