@@ -1,4 +1,4 @@
-name: Appium Tests
+name: GrowMark E2E Tests
 
 on:
   push:
@@ -7,22 +7,98 @@ on:
     branches: [main, master]
 
 jobs:
-  test:
+  web-e2e:
+    name: Web Selenium E2E
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install Selenium test dependencies
+        working-directory: testing/selenium
+        run: npm install
+
+      - name: Build and export web app
+        run: npx expo export:web --output-dir web-build
+
+      - name: Serve exported web app
+        run: |
+          npx http-server web-build -p 5000 -c-1 &
+          npx wait-on http://localhost:5000
+        shell: bash
+
+      - name: Run Selenium web tests
+        working-directory: testing/selenium
+        env:
+          WEB_APP_URL: http://localhost:5000
+        run: npm test
+
+      - name: Upload web Excel report
+        uses: actions/upload-artifact@v4
+        with:
+          name: growmark-web-test-report
+          path: testing/selenium/GrowMark-Web-Test-Report.xlsx
+
+  mobile-e2e:
+    name: Mobile Appium E2E
+    runs-on: ubuntu-latest
+    needs: web-e2e
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          emulator-name: test-emulator
+          force-avd-creation: true
+
+      - name: Install Appium test dependencies
         working-directory: appium-tests
         run: npm install
 
-      - name: Run Appium tests
+      - name: Build Android debug APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+        shell: bash
+
+      - name: Install app on emulator
+        run: adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+        shell: bash
+
+      - name: Start Appium server
+        run: |
+          cd appium-tests
+          npx appium --port 4723 --log-level error &
+          sleep 10
+        shell: bash
+
+      - name: Run Appium mobile tests
         working-directory: appium-tests
-        run: npm test
+        run: npm run test:live
+
+      - name: Upload mobile Excel report
+        uses: actions/upload-artifact@v4
+        with:
+          name: growmark-mobile-test-report
+          path: appium-tests/GrowMark-Test-Results.xlsx
