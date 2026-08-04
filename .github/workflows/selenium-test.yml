@@ -1,0 +1,50 @@
+name: GrowMark Web Selenium E2E Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch: {}
+
+jobs:
+  web-e2e:
+    name: Web Selenium E2E
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install Selenium test dependencies
+        working-directory: testing/selenium
+        run: npm install
+
+      - name: Build and export web app
+        run: npx expo export:web web-build
+
+      - name: Serve exported web app
+        run: |
+          npx http-server web-build -p 5000 -c-1 &
+          npx wait-on http://localhost:5000
+        shell: bash
+
+      - name: Run Selenium web tests
+        working-directory: testing/selenium
+        env:
+          WEB_APP_URL: http://localhost:5000
+        run: npm test
+
+      - name: Upload web Excel report
+        uses: actions/upload-artifact@v4
+        with:
+          name: growmark-web-test-report
+          path: testing/selenium/GrowMark-Web-Test-Report.xlsx
