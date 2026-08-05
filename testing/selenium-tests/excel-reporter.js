@@ -42,6 +42,9 @@ class ExcelReporter {
             testName: test.title,
             status: 'Passed',
             duration: Math.round(test._duration || 0),
+            inputData: test.inputData || '',
+            expectedResult: test.expectedResult || '',
+            actualResult: test.actualResult || '',
             error: ''
         });
     }
@@ -53,6 +56,9 @@ class ExcelReporter {
             testName: test.title,
             status: 'Failed',
             duration: Math.round(test._duration || 0),
+            inputData: test.inputData || '',
+            expectedResult: test.expectedResult || '',
+            actualResult: test.actualResult || '',
             error: error.message || 'Unknown Error'
         });
     }
@@ -64,6 +70,9 @@ class ExcelReporter {
             testName: test.title,
             status: 'Skipped',
             duration: 0,
+            inputData: test.inputData || '',
+            expectedResult: test.expectedResult || '',
+            actualResult: test.actualResult || '',
             error: ''
         });
     }
@@ -89,7 +98,7 @@ class ExcelReporter {
         // ── ROW 1: Big Title ──
         ws.mergeCells('B1:F1');
         const titleCell = ws.getCell('B1');
-        titleCell.value = 'GROWMARK MOBILE APP - AUTOMATED TESTING REPORT';
+        titleCell.value = 'GROWMARK WEB APP - AUTOMATED TESTING REPORT';
         titleCell.font = { bold: true, size: 16, color: { argb: WHITE }, name: 'Arial' };
         titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: NAVY } };
         titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -239,9 +248,9 @@ class ExcelReporter {
                 `TC${String(idx + 1).padStart(3, '0')}`,
                 mod,
                 result.testName,
-                '',
-                '',
-                '',
+                result.inputData || '',
+                result.expectedResult || '',
+                result.actualResult || '',
                 result.status,
                 result.duration,
                 result.error || ''

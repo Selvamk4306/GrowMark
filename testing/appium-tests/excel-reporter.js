@@ -42,6 +42,9 @@ class ExcelReporter {
             testName: test.title,
             status: 'Passed',
             duration: Math.round(test._duration || 0),
+            inputData: test.inputData || '',
+            expectedResult: test.expectedResult || '',
+            actualResult: test.actualResult || '',
             error: ''
         });
     }
@@ -53,6 +56,9 @@ class ExcelReporter {
             testName: test.title,
             status: 'Failed',
             duration: Math.round(test._duration || 0),
+            inputData: test.inputData || '',
+            expectedResult: test.expectedResult || '',
+            actualResult: test.actualResult || '',
             error: error.message || 'Unknown Error'
         });
     }
@@ -64,6 +70,9 @@ class ExcelReporter {
             testName: test.title,
             status: 'Skipped',
             duration: 0,
+            inputData: test.inputData || '',
+            expectedResult: test.expectedResult || '',
+            actualResult: test.actualResult || '',
             error: ''
         });
     }
@@ -239,9 +248,9 @@ class ExcelReporter {
                 `TC${String(idx + 1).padStart(3, '0')}`,
                 mod,
                 result.testName,
-                '',
-                '',
-                '',
+                result.inputData || '',
+                result.expectedResult || '',
+                result.actualResult || '',
                 result.status,
                 result.duration,
                 result.error || ''
