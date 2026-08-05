@@ -49,6 +49,7 @@ class ExcelReporter extends WDIOReporter {
     }
 
     onTestFail(test, error) {
+        const errorMessage = error && (error.message || error.name || String(error)) || 'Unknown Error';
         this.summary.failed++;
         this.summary.total++;
         this.testResults.push({
@@ -58,7 +59,7 @@ class ExcelReporter extends WDIOReporter {
             inputData: test.inputData || '',
             expectedResult: test.expectedResult || '',
             actualResult: test.actualResult || '',
-            error: error.message || 'Unknown Error'
+            error: errorMessage
         });
     }
 

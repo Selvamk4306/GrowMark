@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="320" failures="0" errors="0" skipped="0">
+  <testsuite name="GrowMark Functionality Test Plan" timestamp="2026-08-05T23:28:45" time="0.146" tests="0" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="GrowMark Functionality Test Plan"/>
+      <property name="capabilities" value="chrome.150_0_7871_187.windows"/>
+      <property name="file" value="file:///S:/Final_Year_Project/GrowMark/testing/functionality-tests/specs/generated.functionality.spec.js"/>
+    </properties>
+  </testsuite>
+  <testsuite name="UI UX Testing" timestamp="2026-08-05T23:28:45" time="0.036" tests="80" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="UI/UX Testing"/>
+      <property name="capabilities" value="chrome.150_0_7871_187.windows"/>
+      <property name="file" value="file:///S:/Final_Year_Project/GrowMark/testing/functionality-tests/specs/generated.functionality.spec.js"/>
+    </properties>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 001 Verify app launch displays the GrowMark splash screen" time="0.006"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 002 Verify app title and logo are visible on the login screen" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 003 Verify login form fields are aligned and labelled" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 004 Verify login button is styled consistently across themes" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 005 Verify signup navigation link is visible from login" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 006 Verify onboarding progress indicator appears correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 007 Verify shop setup screen has clear field labels" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 008 Verify item setup form fields are spaced correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 009 Verify working days selection UI is responsive" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 010 Verify dashboard header remains visible on scroll" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 011 Verify alerts screen cards are visually consistent" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 012 Verify growth tips cards display readable text" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 013 Verify health score summary graph is visible" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 014 Verify report screen uses consistent font sizes" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 015 Verify profile screen avatar and user info are aligned" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 016 Verify sidebar or bottom navigation uses active highlighting" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 017 Verify language selection screen displays flags icons" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 018 Verify privacy policy text is scrollable" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 019 Verify terms of use layout adapts to mobile widths" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 020 Verify dashboard cards display shadows and spacing consistently" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 021 Verify the app responds correctly in dark mode" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 022 Verify the app responds correctly in light mode" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 023 Verify buttons use accessible tap targets" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 024 Verify text contrast meets readability standards" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 025 Verify dropdown menus are fully visible on open" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 026 Verify back navigation controls are visible and correct" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 027 Verify error messages appear in the right location" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 028 Verify success messages use appropriate colors" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 029 Verify form placeholders remain visible when fields are empty" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 030 Verify form labels do not overlap inputs" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 031 Verify the login screen displays an accessibility hint" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 032 Verify the signup screen spacing is consistent" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 033 Verify the onboarding flow displays an active step indicator" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 034 Verify the dashboard home screen has proper padding" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 035 Verify the metrics summary uses clear typographic hierarchy" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 036 Verify graph legends are visible and readable" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 037 Verify report filters are easy to locate" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 038 Verify sales entry fields are grouped logically" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 039 Verify input fields maintain consistent width" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 040 Verify touch controls are reachable with thumb on mobile" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 041 Verify the profile edit button is easy to find" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 042 Verify alerts use distinguishable icons" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 043 Verify growth tips list is easy to scan" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 044 Verify Health Score visualizations load without truncation" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 045 Verify management screens show clear section headings" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 046 Verify the onboarding buttons are consistent in appearance" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 047 Verify language selection text remains readable in all languages" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 048 Verify navigation animations are fluid and not jarring" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 049 Verify the main menu displays active page state" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 050 Verify confirm dialogs use clear action labels" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 051 Verify toast messages do not block important content" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 052 Verify the search element is prominent if present" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 053 Verify the web dashboard layout adapts to desktop widths" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 054 Verify the web dashboard layout adapts to tablet widths" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 055 Verify the web dashboard layout adapts to mobile widths" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 056 Verify the login button remains visible after keyboard open" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 057 Verify form step indicator is visible on multi step flows" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 058 Verify secondary actions are visually distinct" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 059 Verify the help or info icons have tooltips" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 060 Verify buttons with icons have accessible labels" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 061 Verify editable fields use clear visual affordances" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 062 Verify the app uses consistent color palette across screens" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 063 Verify item setup screen supports large text sizes" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 064 Verify dashboard charts render without overlaps" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 065 Verify report export button is clearly labeled" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 066 Verify profile update confirmation is visible" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 067 Verify there is sufficient spacing between list items" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 068 Verify the navigation bar remains accessible on scroll" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 069 Verify web alerts page header is consistently aligned" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 070 Verify keyboard focus state is visible" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 071 Verify the app handles orientation change gracefully" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 072 Verify page titles update correctly on navigation" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 073 Verify the date selector is easy to use" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 074 Verify the style of disabled controls is distinct" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 075 Verify required field markers are visible" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 076 Verify the app does not show overflow content" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 077 Verify modal dialogs center on screen" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 078 Verify confirmation screens are easy to understand" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 079 Verify the dashboard uses a consistent card layout" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.UI/UX_Testing" name="TestCase UIUX 080 Verify links and buttons have sufficient spacing" time="0"/>
+  </testsuite>
+  <testsuite name="Functional Testing" timestamp="2026-08-05T23:28:45" time="0.034" tests="120" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Functional Testing"/>
+      <property name="capabilities" value="chrome.150_0_7871_187.windows"/>
+      <property name="file" value="file:///S:/Final_Year_Project/GrowMark/testing/functionality-tests/specs/generated.functionality.spec.js"/>
+    </properties>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 001 Verify successful login with valid credentials" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 002 Verify redirect to onboarding when first time user signs in" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 003 Verify signup completes and user lands on the onboarding flow" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 004 Verify shop setup saves selected shop type" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 005 Verify item setup saves a new inventory item" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 006 Verify sales entry adds a sale record successfully" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 007 Verify dashboard summary updates after sales entry" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 008 Verify growth tips load from the backend" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 009 Verify alerts screen displays unread alerts" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 010 Verify health score calculates correctly for sample data" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 011 Verify profile updates persist after save" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 012 Verify privacy policy page loads correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 013 Verify terms of use page loads correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 014 Verify language switch updates app text immediately" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 015 Verify daily analysis screen loads metrics for selected date range" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 016 Verify report export triggers Excel download" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 017 Verify shop setup form returns to next step after valid input" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 018 Verify onboarding sequence can be completed end to end" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 019 Verify logout clears session and returns to login" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 020 Verify forgot password flow can be started from login" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 021 Verify dashboard manage items link opens the item list" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 022 Verify sales entry calculates totals accurately" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 023 Verify payment option selection updates sales entry total" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 024 Verify alerts can be marked as read" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 025 Verify health score metrics refresh after data update" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 026 Verify report filters update displayed results" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 027 Verify profile avatar change persists after save" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 028 Verify onboarding language choice persists across pages" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 029 Verify shop setup can edit previously saved values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 030 Verify item setup supports multiple items in one session" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 031 Verify sales entry can handle corrected quantities" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 032 Verify auth token renewal works before session expiry" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 033 Verify dashboard cards navigate to drill down details" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 034 Verify alerts page supports pagination or infinite scroll" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 035 Verify growth tips content updates with fresh recommendations" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 036 Verify user profile address fields save correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 037 Verify onboarding skip back controls work without data loss" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 038 Verify language select persists after logout login" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 039 Verify daily analysis exports accurate date based metrics" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 040 Verify report summary displays correct total sales" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 041 Verify sales entry screen recovers from network failure gracefully" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 042 Verify health score recalculates when underlying data changes" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 043 Verify item delete action removes item from inventory" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 044 Verify item edit action updates item details correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 045 Verify onboarding shop setup allows navigation to previous steps" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 046 Verify dashboard refresh reloads latest metrics" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 047 Verify signup email validation rejects invalid values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 048 Verify login form blocks submission on empty fields" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 049 Verify profile save returns success confirmation" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 050 Verify alerts dismiss action removes alert from UI" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 051 Verify growth tip detail view opens correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 052 Verify sales entry form preserves unsaved inputs during navigation" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 053 Verify report export handles large datasets" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 054 Verify web navigation works across top level pages" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 055 Verify dashboard graphs load without data errors" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 056 Verify alert details show complete message content" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 057 Verify shop setup page validates mandatory fields" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 058 Verify item setup supports numeric cost and price values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 059 Verify working days screen saves selected days" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 060 Verify working days selection displays saved values upon revisit" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 061 Verify app handles slow backend responses on login" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 062 Verify user can change password from profile if available" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 063 Verify report generation does not crash on empty dataset" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 064 Verify dashboard refresh after sales entry shows updated totals" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 065 Verify login error messages display for wrong credentials" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 066 Verify sign up duplicate email error is displayed" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 067 Verify item list updates after adding a new item" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 068 Verify item search returns matching inventory" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 069 Verify dashboard metric tiles show correct values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 070 Verify navigation drawer reveals correct menu items" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 071 Verify report generation works end to end" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 072 Verify alerts count updates after reading alerts" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 073 Verify manual sales entry can be submitted and saved" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 074 Verify form reset clears temporary input values" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 075 Verify profile fields display current saved data" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 076 Verify dropdown selection changes update dependent fields" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 077 Verify onboarding completion sets user status to active" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 078 Verify error handling on failed profile save" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 079 Verify page breadcrumbs update during navigation" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 080 Verify multi step history is preserved when going back" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 081 Verify daily analysis displays totals by date segment" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 082 Verify report export respects selected filters" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 083 Verify alerts page loads within acceptable time" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 084 Verify growth tips refresh when new data arrives" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 085 Verify login session persists across refresh" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 086 Verify shop setup page can load existing configuration" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 087 Verify new item form validates numeric pricing" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 088 Verify price fields reject text values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 089 Verify custom search filters work on dashboard" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 090 Verify onboarding task status updates after completion" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 091 Verify report UI matches the selected report type" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 092 Verify dashboard quick actions execute correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 093 Verify sales entry summary updates after field changes" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 094 Verify item category selection updates item metadata" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 095 Verify alert details include actionable links if present" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 096 Verify language variations render correctly in menus" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 097 Verify web page reload preserves authenticated state" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 098 Verify navigation to privacy policy works from footer" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 099 Verify terms of use page loads from footer link" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 100 Verify app can recover from temporary storage failure" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 101 Verify user can view the history of recent sales" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 102 Verify dashboard cards update after user profile change" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 103 Verify app shows loading indicator during long operations" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 104 Verify update forms show validation feedback after submit" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 105 Verify onboarding screens load in proper sequence" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 106 Verify alerts remain visible until dismissed" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 107 Verify growth tips page supports scrolling for long lists" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 108 Verify the help section loads content when opened" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 109 Verify profile page handles missing optional fields" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 110 Verify sales entry summary shows correct net profit" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 111 Verify onboarding screens do not allow skipping required inputs" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 112 Verify settings page content loads without errors" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 113 Verify report details drill downs show correct annotations" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 114 Verify item setup supports multiple categories if available" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 115 Verify item list sorting functions correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 116 Verify dashboard metric refresh retains previous filters" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 117 Verify session timeout returns user to login screen" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 118 Verify profile fields save when navigating away and back" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 119 Verify onboarding data is retained after app restart" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Functional_Testing" name="TestCase FUNC 120 Verify full login to dashboard workflow completes successfully" time="0"/>
+  </testsuite>
+  <testsuite name="Unit Testing" timestamp="2026-08-05T23:28:45" time="0.029" tests="60" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Unit Testing"/>
+      <property name="capabilities" value="chrome.150_0_7871_187.windows"/>
+      <property name="file" value="file:///S:/Final_Year_Project/GrowMark/testing/functionality-tests/specs/generated.functionality.spec.js"/>
+    </properties>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 001 Verify date formatting helper returns expected format" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 002 Verify score calculation function returns correct score for sample input" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 003 Verify sales total utility sums values correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 004 Verify profit margin calculation handles zero cost gracefully" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 005 Verify currency formatting utility outputs expected string" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 006 Verify input sanitization helper removes invalid characters" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 007 Verify item price validation function rejects non numeric input" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 008 Verify email validation helper accepts valid addresses" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 009 Verify password strength checker returns expected flags" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 010 Verify array sorting helper orders items correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 011 Verify data filtering utility returns matching records" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 012 Verify string truncation helper works for long text" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 013 Verify object merge utility retains expected fields" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 014 Verify analytics data aggregator returns correct totals" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 015 Verify localization helper resolves language keys" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 016 Verify theme helper returns correct color values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 017 Verify validation helper rejects illegal characters" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 018 Verify discount calculation utility handles edge cases" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 019 Verify array dedupe helper removes duplicates" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 020 Verify form state helper initializes with defaults" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 021 Verify revenue projection function returns correct estimate" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 022 Verify navigation path helper formats routes correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 023 Verify metadata extraction helper parses expected values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 024 Verify user preference helper returns saved defaults" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 025 Verify error message formatter returns readable text" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 026 Verify settings validation helper catches invalid options" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 027 Verify data transformation helper normalizes input values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 028 Verify notification helper formats alerts correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 029 Verify boolean flag helper returns expected truthiness" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 030 Verify timestamp helper converts values to locale strings" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 031 Verify API response parser handles success payloads" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 032 Verify API error parser returns correct error messages" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 033 Verify calculation helper handles missing values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 034 Verify list pagination helper slices data correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 035 Verify chart data mapper returns expected series" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 036 Verify analytics helper computes averages correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 037 Verify report label helper formats headings" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 038 Verify conditional helper returns fallback values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 039 Verify export filename helper sanitizes names" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 040 Verify state merge utility combines objects correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 041 Verify callback helper invokes functions safely" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 042 Verify session storage helper retrieves persisted values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 043 Verify auth token helper validates token expiry" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 044 Verify feature flag helper enables disables values" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 045 Verify route guard helper blocks unauthorized access" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 046 Verify object key helper returns list of keys" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 047 Verify safe parse helper handles invalid JSON" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 048 Verify format helper returns locale specific date strings" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 049 Verify field placeholder helper returns visible text" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 050 Verify currency conversion helper calculates correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 051 Verify input masking helper masks phone numbers correctly" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 052 Verify value compare helper returns expected equality" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 053 Verify filter builder helper generates correct query strings" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 054 Verify setting defaults helper returns fallback values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 055 Verify route metadata helper extracts page titles" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 056 Verify boolean string parser returns proper booleans" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 057 Verify numeric parsing helper returns valid numbers" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 058 Verify configuration helper returns app settings" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 059 Verify string replace helper substitutes tokens correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Unit_Testing" name="TestCase UNIT 060 Verify validation helper logs invalid field keys" time="0.001"/>
+  </testsuite>
+  <testsuite name="Validation Testing" timestamp="2026-08-05T23:28:45" time="0.046" tests="60" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Validation Testing"/>
+      <property name="capabilities" value="chrome.150_0_7871_187.windows"/>
+      <property name="file" value="file:///S:/Final_Year_Project/GrowMark/testing/functionality-tests/specs/generated.functionality.spec.js"/>
+    </properties>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 001 Verify login form rejects empty email" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 002 Verify login form rejects empty password" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 003 Verify signup rejects empty full name" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 004 Verify signup rejects invalid email format" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 005 Verify signup rejects weak password" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 006 Verify signup rejects mismatched confirm password" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 007 Verify shop setup rejects empty shop name" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 008 Verify shop setup rejects missing shop type" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 009 Verify shop setup rejects invalid phone number format" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 010 Verify item setup rejects empty item name" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 011 Verify item setup rejects non numeric cost" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 012 Verify item setup rejects non numeric selling price" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 013 Verify item setup rejects selling price lower than cost" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 014 Verify item setup rejects zero cost price" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 015 Verify item setup rejects zero selling price" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 016 Verify working days rejects selecting no days" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 017 Verify profile update rejects empty required fields" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 018 Verify sales entry rejects empty quantity" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 019 Verify sales entry rejects negative quantity" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 020 Verify sales entry rejects zero price" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 021 Verify sales entry rejects invalid discount values" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 022 Verify search input rejects unsupported characters" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 023 Verify report filter rejects invalid date range" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 024 Verify language selection rejects unsupported locale" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 025 Verify profile form rejects invalid phone number" time="0.008"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 026 Verify onboarding date fields reject invalid dates" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 027 Verify payment amount validation handles empty field" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 028 Verify login rejects blocked or inactive accounts" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 029 Verify password reset rejects invalid email" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 030 Verify required checkbox validation is enforced" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 031 Verify dashboard filter validation rejects invalid values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 032 Verify item quantity validation rejects decimals if not allowed" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 033 Verify currency field formatting is validated" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 034 Verify file upload validation rejects incorrect file type" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 035 Verify image field validation rejects oversize files" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 036 Verify email uniqueness validation on signup" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 037 Verify referral code validation handles invalid codes" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 038 Verify address field validation rejects special characters if disallowed" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 039 Verify zip code validation accepts only valid postal codes" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 040 Verify discount field rejects percentages outside 0 100" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 041 Verify required field indicators display on empty submission" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 042 Verify terms acceptance is required before signup" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 043 Verify user can t save profile with invalid date of birth" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 044 Verify dashboard settings reject invalid configuration values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 045 Verify report export validation rejects unsupported format" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 046 Verify name field validation rejects overlength values" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 047 Verify password strength validation works" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 048 Verify validation messages are displayed for each invalid field" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 049 Verify active field auto validation triggers on blur" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 050 Verify form clearance resets validation state" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 051 Verify promo code field validation handles invalid input" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 052 Verify app prevents duplicate entries for unique item names" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 053 Verify sales return reason validation rejects too short input" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 054 Verify mandatory onboarding step validation prevents skipping" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 055 Verify analytics date selection rejects end date before start date" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 056 Verify app blocks submission when critical API data is missing" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 057 Verify profile email validation rejects incorrect formatting" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 058 Verify subscription or plan selection validation rejects unsupported options" time="0"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 059 Verify phone number field validation handles international prefixes correctly" time="0.001"/>
+    <testcase classname="chrome.150_0_7871_187.windows.GrowMark_Functionality_Test_Plan.Validation_Testing" name="TestCase VAL 060 Verify validation UI updates after correcting invalid input" time="0">
+      <system-out><![CDATA[
+COMMAND: DELETE /session/9a62d11636dbaa9442a84801b21df6f5 - {}
+RESULT: {}
+]]></system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

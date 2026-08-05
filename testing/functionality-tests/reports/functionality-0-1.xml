@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="1" failures="0" errors="0" skipped="0">
+  <testsuite name="Health Score screen" timestamp="2026-08-05T23:29:01" time="4.781" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="0"/>
+      <property name="suiteName" value="Health Score screen"/>
+      <property name="capabilities" value="chrome.150_0_7871_187.windows"/>
+      <property name="file" value="file:///S:/Final_Year_Project/GrowMark/testing/functionality-tests/specs/health-score.real.spec.js"/>
+    </properties>
+    <testcase classname="chrome.150_0_7871_187.windows.Health_Score_screen" name="loads correctly" time="4.779">
+      <system-out><![CDATA[
+COMMAND: DELETE /session/5de09bf39d8a20e7b24e44e06461c87e - {}
+RESULT: {}
+]]></system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

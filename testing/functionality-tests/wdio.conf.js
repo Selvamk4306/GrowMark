@@ -15,7 +15,7 @@ exports.config = {
     }],
     logLevel: 'error',
     bail: 0,
-    baseUrl: 'http://localhost:5000',
+    baseUrl: process.env.WEB_APP_URL || 'http://localhost:8081',
     waitforTimeout: 10000,
     connectionRetryTimeout: 120000,
     connectionRetryCount: 3,
