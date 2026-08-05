@@ -25,7 +25,7 @@ jobs:
         run: npm install
 
       - name: Install Selenium test dependencies
-        working-directory: testing/selenium
+        working-directory: testing/selenium-tests
         run: npm install
 
       - name: Build and export web app
@@ -38,7 +38,7 @@ jobs:
         shell: bash
 
       - name: Run Selenium web tests
-        working-directory: testing/selenium
+        working-directory: testing/selenium-tests
         env:
           WEB_APP_URL: http://localhost:5000
         run: npm test
@@ -47,4 +47,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: growmark-web-test-report
-          path: testing/selenium/GrowMark-Web-Test-Report.xlsx
+          path: testing/selenium-tests/GrowMark-Web-Test-Report.xlsx
