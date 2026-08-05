@@ -28,9 +28,20 @@ jobs:
         working-directory: testing/functionality-tests
         run: npm install
 
-      - name: Run functionality tests
+      - name: Build and export web app
+        run: npx expo export . --output-dir web-build --platform web
+
+      - name: Serve exported web app
+        run: |
+          npx http-server web-build -p 5000 -c-1 &
+          npx wait-on http://localhost:5000
+        shell: bash
+
+      - name: Run full functionality test suite
         working-directory: testing/functionality-tests
-        run: npm test 2>&1 | tee functionality-test.log
+        env:
+          WEB_APP_URL: http://localhost:5000
+        run: npm run test:all 2>&1 | tee functionality-test.log
 
       - name: Upload functionality artifacts
         if: always()

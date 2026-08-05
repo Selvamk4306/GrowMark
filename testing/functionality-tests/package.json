@@ -5,6 +5,7 @@
   "main": "excel-reporter.js",
   "scripts": {
     "test": "npx wdio run wdio.conf.js",
+    "test:all": "npx wdio run wdio.conf.js",
     "test:health-score": "npx wdio run wdio.conf.js --spec ./specs/health-score.real.spec.js",
     "report": "node generate-report.js",
     "report:catalog": "node generate-report.js"
