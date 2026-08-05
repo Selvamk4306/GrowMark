@@ -1,0 +1,35 @@
+name: GrowMark Functionality Tests
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch: {}
+
+jobs:
+  functionality-tests:
+    name: Functionality Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Verify functionality-tests folder
+        run: |
+          echo "Functionality tests directory: testing/functionality-tests"
+          ls -R testing/functionality-tests
+
+      - name: Placeholder for functionality tests
+        run: |
+          echo "No automated functionality tests implemented yet."
+          echo "Add specs under testing/functionality-tests/specs and update this workflow to execute them."
