@@ -34,12 +34,15 @@ jobs:
 
       - name: Run Appium Tests
         working-directory: ./testing/appium-tests
-        # We use a headless mode or run the Android Emulator Action here in a full setup
-        run: npx wdio run wdio.conf.js || echo "Tests finished with some failures."
+        run: npx wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
 
-      - name: Upload Excel Test Report
+      - name: Upload Appium Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Appium-Test-Report
-          path: testing/appium-tests/Test_Report.xlsx
+          name: Appium-Test-Artifacts
+          path: |
+            testing/appium-tests/Test_Report.xlsx
+            testing/appium-tests/reports/**/*.xml
+            testing/appium-tests/appium-test.log
           retention-days: 14

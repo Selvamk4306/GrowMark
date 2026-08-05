@@ -30,14 +30,15 @@ jobs:
 
       - name: Run functionality tests
         working-directory: testing/functionality-tests
-        run: npm test
+        run: npm test 2>&1 | tee functionality-test.log
 
-      - name: Generate functionality test catalog report
-        working-directory: testing/functionality-tests
-        run: npm run report:catalog
-
-      - name: Upload functionality Excel report
+      - name: Upload functionality artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: growmark-functionality-test-report
-          path: testing/functionality-tests/Functionality_Test_Report.xlsx
+          name: growmark-functionality-test-artifacts
+          path: |
+            testing/functionality-tests/Functionality_Test_Report.xlsx
+            testing/functionality-tests/reports/**/*.xml
+            testing/functionality-tests/functionality-test.log
+          retention-days: 14

@@ -41,10 +41,15 @@ jobs:
         working-directory: testing/selenium-tests
         env:
           WEB_APP_URL: http://localhost:5000
-        run: npm test
+        run: npm test 2>&1 | tee selenium-test.log
 
-      - name: Upload web Excel report
+      - name: Upload Selenium Artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: growmark-web-test-report
-          path: testing/selenium-tests/GrowMark-Web-Test-Report.xlsx
+          name: growmark-web-test-artifacts
+          path: |
+            testing/selenium-tests/Test_Report.xlsx
+            testing/selenium-tests/reports/**/*.xml
+            testing/selenium-tests/selenium-test.log
+          retention-days: 14

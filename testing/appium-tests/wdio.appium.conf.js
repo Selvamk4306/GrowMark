@@ -30,7 +30,11 @@ exports.config = {
     framework: 'mocha',
     reporters: [
         'spec',
-        [ExcelReporter, {}]
+        [ExcelReporter, {}],
+        ['junit', {
+            outputDir: './reports',
+            outputFileFormat: (options) => `appium-${options.cid}.xml`
+        }]
     ],
     mochaOpts: {
         ui: 'bdd',

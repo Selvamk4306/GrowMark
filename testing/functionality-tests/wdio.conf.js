@@ -22,7 +22,11 @@ exports.config = {
     framework: 'mocha',
     reporters: [
         'spec',
-        [ExcelReporter, {}]
+        [ExcelReporter, {}],
+        ['junit', {
+            outputDir: './reports',
+            outputFileFormat: (options) => `functionality-${options.cid}.xml`
+        }]
     ],
     mochaOpts: {
         ui: 'bdd',
