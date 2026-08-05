@@ -24,3 +24,4 @@ Each category contains a unique set of test cases, totaling over 300 unique test
 1. Review `test-plan.md` for the overall breakdown.
 2. Use the category-specific `test-cases/*.md` files to track implementation.
 3. Add executable tests under `specs/` as automation is built out.
+4. Generate the Excel analysis report by running `npm run report` inside `testing/functionality-tests`.

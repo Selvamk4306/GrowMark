@@ -42,3 +42,4 @@ It includes readiness criteria for all categories and a status model for automat
 - This folder currently contains a comprehensive case catalog.
 - Actual test automation can be implemented using this structure.
 - Each category can be converted to executable specs in the `specs/` folder.
+- Use `npm run report` inside `testing/functionality-tests` to generate `Functionality_Test_Report.xlsx` with summary counts, category details, and deployability guidance.
