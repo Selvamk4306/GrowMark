@@ -32,6 +32,10 @@ jobs:
         working-directory: testing/functionality-tests
         run: npm test
 
+      - name: Generate functionality test catalog report
+        working-directory: testing/functionality-tests
+        run: npm run report:catalog
+
       - name: Upload functionality Excel report
         uses: actions/upload-artifact@v4
         with:

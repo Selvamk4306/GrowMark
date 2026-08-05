@@ -5,7 +5,8 @@
   "main": "excel-reporter.js",
   "scripts": {
     "test": "npx wdio run wdio.conf.js",
-    "report": "node generate-report.js"
+    "report": "node generate-report.js",
+    "report:catalog": "node generate-report.js"
   },
   "keywords": ["growmark", "functionality", "testing", "excel"],
   "author": "",
