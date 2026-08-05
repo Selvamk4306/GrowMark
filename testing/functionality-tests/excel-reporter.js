@@ -1,5 +1,6 @@
 const ExcelJS = require('exceljs');
 const path = require('path');
+const WDIOReporter = require('@wdio/reporter').default;
 
 const reportPath = path.join(__dirname, 'Functionality_Test_Report.xlsx');
 
@@ -15,9 +16,9 @@ const LIGHT_RED = 'FFFDEDED';
 const GRAY = 'FFF5F7FA';
 const DARK_TEXT = 'FF1A1A2E';
 
-class ExcelReporter {
+class ExcelReporter extends WDIOReporter {
     constructor(options) {
-        this.options = options;
+        super(options);
         this.workbook = new ExcelJS.Workbook();
         this.summarySheet = this.workbook.addWorksheet('Summary');
         this.detailsSheet = this.workbook.addWorksheet('Details');
