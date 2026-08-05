@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { getStartOfWeek, formatDate } from '../../hooks/useBusinessLogic';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateDynamic } from '@/lib/translationService';
 import { useGlobal } from '../../context/GlobalContext';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -97,7 +98,7 @@ const xAxisLabelTextStyle = { color: '#6B7280', fontSize: 10 };
 // ─── Main screen ─────────────────────────────────────────────────────────────
 export default function ReportsScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(getStartOfWeek(new Date()));
   const [revenueData, setRevenueData] = useState<any[]>([]);
@@ -248,13 +249,15 @@ export default function ReportsScreen() {
         };
       });
 
+      const translatedBestItem = await translateDynamic(bestItem, language);
+
       if (isComponentMounted.current) {
         setRevenueData(revData);
         setTrendData(revData);
         setSummary({
           totalRevenue: totRev,
           totalProfit: totProf,
-          bestItem,
+          bestItem: translatedBestItem,
           activeAlerts: alerts ? alerts.length : 0,
         });
       }
@@ -263,7 +266,7 @@ export default function ReportsScreen() {
     } finally {
       if (isComponentMounted.current) setLoading(false);
     }
-  }, []);
+  }, [language]);
 
   // ─── focus effect ──────────────────────────────────────────────────────────
   useFocusEffect(

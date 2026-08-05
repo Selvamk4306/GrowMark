@@ -92,26 +92,40 @@ export async function runThresholdCheck(ownerId: string, itemId: string, dateStr
 }
 
 export async function runConsecutiveFailureDetection(ownerId: string, itemId: string, endDateStr: string) {
-  // Always evaluate alert status based on Today's date to ensure "Current Health"
-  const today = formatDate(new Date());
-  const endDate = new Date(today + 'T00:00:00');
-  const startDate = new Date(endDate);
-  startDate.setDate(endDate.getDate() - 6); // Last 7 days from Today
+  const refDateStr = endDateStr || formatDate(new Date());
+  const refDate = new Date(refDateStr + 'T00:00:00');
 
+  // Look back up to 14 calendar days to find 7 working days
+  const startDate = new Date(refDate);
+  startDate.setDate(refDate.getDate() - 14);
 
   const { data: owner } = await supabase.from('owners').select('*').eq('id', ownerId).single();
   const workingDays = owner?.working_days || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  // Delete alerts older than 7 days in Supabase
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  await supabase
+    .from('alerts')
+    .delete()
+    .eq('owner_id', ownerId)
+    .lt('triggered_at', sevenDaysAgo.toISOString());
 
   const { data: leaves } = await supabase
     .from('shop_leaves')
     .select('leave_date')
     .eq('owner_id', ownerId)
     .gte('leave_date', formatDate(startDate))
-    .lte('leave_date', formatDate(endDate));
+    .lte('leave_date', refDateStr);
 
   const leaveDates = leaves ? leaves.map(l => l.leave_date) : [];
 
-  const { data: item } = await supabase.from('items').select('min_daily_target, min_weekly_target, item_name').eq('id', itemId).single();
+  const { data: item } = await supabase
+    .from('items')
+    .select('min_daily_target, min_weekly_target, item_name')
+    .eq('id', itemId)
+    .single();
+
   if (!item) return;
 
   const { data: sales } = await supabase
@@ -119,51 +133,56 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
     .select('sale_date, quantity_sold')
     .eq('item_id', itemId)
     .gte('sale_date', formatDate(startDate))
-    .lte('sale_date', formatDate(endDate))
+    .lte('sale_date', refDateStr)
     .order('sale_date', { ascending: false });
-
 
   if (!sales) return;
 
   let consecutiveMisses = 0;
-  let weeklyTotal = 0;
   let zeroSalesDays = 0;
-  let last3DaysMet = true;
-  let last3DaysSalesCount = 0;
+  let weeklyTotal = 0;
   let todayQty = 0;
   let workingDaysChecked = 0;
+  let countingConsecutive = true;
+  let countingZeroSales = true;
+  let last3DaysSalesCount = 0;
 
-  // Since sales might be missing for some days, we should check calendar days.
-  let currentDate = new Date(endDate);
+  let currentDate = new Date(refDate);
   for (let i = 0; workingDaysChecked < 7 && i < 14; i++) {
     const curDateStr = formatDate(currentDate);
     const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
-    
-    if (!workingDays.includes(dayName)) {
-      currentDate.setDate(currentDate.getDate() - 1);
-      continue;
-    }
 
-    if (leaveDates.includes(curDateStr)) {
+    // Skip non-working days & leave days
+    if (!workingDays.includes(dayName) || leaveDates.includes(curDateStr)) {
       currentDate.setDate(currentDate.getDate() - 1);
       continue;
     }
 
     const saleForDay = sales.find(s => s.sale_date === curDateStr);
-    const qty = saleForDay ? saleForDay.quantity_sold : 0;
+    const qty = saleForDay ? Number(saleForDay.quantity_sold) || 0 : 0;
+
+    if (workingDaysChecked === 0) {
+      todayQty = qty;
+    }
 
     weeklyTotal += qty;
-    if (qty === 0) zeroSalesDays++;
-
-    if (workingDaysChecked === 0) todayQty = qty;
-
-    if (qty < item.min_daily_target) {
-      if (workingDaysChecked === consecutiveMisses) consecutiveMisses++;
-      if (workingDaysChecked < 3) last3DaysMet = false;
-    }
 
     if (workingDaysChecked < 3 && qty > 0) {
       last3DaysSalesCount++;
+    }
+
+    // Consecutive zero sales check from refDate backwards
+    if (qty === 0 && countingZeroSales) {
+      zeroSalesDays++;
+    } else {
+      countingZeroSales = false;
+    }
+
+    // Consecutive misses check from refDate backwards
+    if (qty < item.min_daily_target && countingConsecutive) {
+      consecutiveMisses++;
+    } else {
+      countingConsecutive = false;
     }
 
     workingDaysChecked++;
@@ -173,123 +192,94 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
   const todayMetTarget = todayQty >= item.min_daily_target;
   const weeklyMetTarget = weeklyTotal >= item.min_weekly_target;
 
+  // Calculate appropriate alert level based strictly on targets
   let calculatedLevel: 'Warning' | 'Alert' | 'Critical' | 'Dead Stock' | null = null;
-  if (zeroSalesDays === 7) {
+
+  if (zeroSalesDays >= 7) {
     calculatedLevel = 'Dead Stock';
-  } else if (!weeklyMetTarget) {
+  } else if (!todayMetTarget) {
+    if (consecutiveMisses >= 3) {
+      calculatedLevel = 'Critical';
+    } else if (consecutiveMisses === 2) {
+      calculatedLevel = 'Alert';
+    } else if (consecutiveMisses === 1) {
+      calculatedLevel = 'Warning';
+    }
+  } else if (workingDaysChecked >= 7 && !weeklyMetTarget) {
+    // Only flag weekly critical at end of full week if weekly target missed
     calculatedLevel = 'Critical';
-  } else if (consecutiveMisses >= 3) {
-    calculatedLevel = 'Alert';
-  } else if (consecutiveMisses >= 1) {
-    calculatedLevel = 'Warning';
   }
 
-  // Fetch all active alerts for this item
+  // Fetch active alerts for this item
   const { data: activeAlerts } = await supabase
     .from('alerts')
     .select('*')
     .eq('item_id', itemId)
     .eq('is_read', false);
 
-  if (activeAlerts && activeAlerts.length > 0) {
-    // We take the most recent one to potentially update, and we'll handle the rest
-    const existingAlert = activeAlerts[0];
-    const otherAlertIds = activeAlerts.slice(1).map(a => a.id);
+  const resolveAllAlerts = async () => {
+    await supabase
+      .from('alerts')
+      .update({ is_read: true })
+      .eq('item_id', itemId)
+      .eq('is_read', false);
+  };
 
-    const resolveAlerts = async () => {
-      await supabase.from('alerts').update({ is_read: true }).eq('item_id', itemId).eq('is_read', false);
-    };
-
-    // 1. Dead Stock Clearing (3 consecutive days of sales > 0)
-    if (existingAlert.alert_level === 'Dead Stock') {
-      if (last3DaysSalesCount === 3) {
-        await resolveAlerts();
-        return;
+  // IF today's target is MET:
+  if (todayMetTarget) {
+    if (activeAlerts && activeAlerts.length > 0) {
+      const hasDeadStock = activeAlerts.some(a => a.alert_level === 'Dead Stock');
+      if (hasDeadStock) {
+        // Dead stock requires 3 consecutive days of sales to resolve
+        if (last3DaysSalesCount >= 3) {
+          await resolveAllAlerts();
+        }
+      } else {
+        // Warning, Alert, or Critical are IMMEDIATELY resolved when daily target is met!
+        await resolveAllAlerts();
       }
     }
+    return;
+  }
 
-    // 2. Weekly Target Clearing
-    if (existingAlert.alert_level === 'Critical' && weeklyMetTarget) {
-      await resolveAlerts();
-      return;
-    }
+  // IF today's target was NOT met:
+  if (calculatedLevel) {
+    const variation = getRandomItem(ALERT_VARIATIONS[calculatedLevel]);
+    const message = `${item.item_name}: ${variation.msg}`;
 
-    // 3. Daily Performance Logic
-    if (todayMetTarget) {
-      if (existingAlert.alert_level === 'Warning') {
-        // Warning -> Resolve all alerts for this item
-        await resolveAlerts();
-        return;
-      } else if (existingAlert.alert_level === 'Alert') {
-        // Alert -> Downgrade to Warning
-        const variation = getRandomItem(ALERT_VARIATIONS['Warning']);
-        await supabase.from('alerts').update({
-          alert_level: 'Warning',
-          alert_message: `${item.item_name}: ${variation.msg}`,
-          suggested_action: variation.action,
-          triggered_at: new Date().toISOString()
-        }).eq('id', existingAlert.id);
+    if (activeAlerts && activeAlerts.length > 0) {
+      const existingAlert = activeAlerts[0];
+      const extraAlertIds = activeAlerts.slice(1).map(a => a.id);
 
-        // Clean up duplicates
-        if (otherAlertIds.length > 0) {
-          await supabase.from('alerts').update({ is_read: true }).in('id', otherAlertIds);
-        }
-        return;
-      } else if (existingAlert.alert_level === 'Critical') {
-        // Critical -> Clear if last 3 days met, else Downgrade to Warning
-        if (last3DaysMet) {
-          await resolveAlerts();
-        } else {
-          const variation = getRandomItem(ALERT_VARIATIONS['Warning']);
-          await supabase.from('alerts').update({
-            alert_level: 'Warning',
-            alert_message: `${item.item_name}: ${variation.msg}`,
-            suggested_action: variation.action,
-            triggered_at: new Date().toISOString()
-          }).eq('id', existingAlert.id);
-
-          // Clean up duplicates
-          if (otherAlertIds.length > 0) {
-            await supabase.from('alerts').update({ is_read: true }).in('id', otherAlertIds);
-          }
-        }
-        return;
-      }
-    }
-
-    // 4. Update if no clearing happened but level changed
-    if (calculatedLevel) {
-      const variation = getRandomItem(ALERT_VARIATIONS[calculatedLevel]);
+      // Update existing alert to new level and message
       await supabase.from('alerts').update({
         alert_level: calculatedLevel,
-        alert_message: `${item.item_name}: ${variation.msg}`,
+        alert_message: message,
         days_missed: consecutiveMisses,
         suggested_action: variation.action,
         triggered_at: new Date().toISOString()
       }).eq('id', existingAlert.id);
 
-      // Clean up duplicates
-      if (otherAlertIds.length > 0) {
-        await supabase.from('alerts').update({ is_read: true }).in('id', otherAlertIds);
+      // Clean up extra duplicate alerts if any
+      if (extraAlertIds.length > 0) {
+        await supabase.from('alerts').update({ is_read: true }).in('id', extraAlertIds);
       }
     } else {
-      // If no new alert level and not cleared by rules above, resolve everything for this item
-      await resolveAlerts();
+      // Insert new alert
+      await supabase.from('alerts').insert({
+        owner_id: ownerId,
+        item_id: itemId,
+        alert_level: calculatedLevel,
+        alert_message: message,
+        days_missed: consecutiveMisses,
+        suggested_action: variation.action,
+        is_read: false,
+        triggered_at: new Date().toISOString()
+      });
     }
-  } else if (calculatedLevel) {
-
-    // No existing alert, but new problem detected
-    const variation = getRandomItem(ALERT_VARIATIONS[calculatedLevel]);
-    await supabase.from('alerts').insert({
-      owner_id: ownerId,
-      item_id: itemId,
-      alert_level: calculatedLevel,
-      alert_message: `${item.item_name}: ${variation.msg}`,
-      days_missed: consecutiveMisses,
-      suggested_action: variation.action,
-      is_read: false,
-      triggered_at: new Date().toISOString()
-    });
+  } else {
+    // If no alert condition applies, resolve active alerts
+    await resolveAllAlerts();
   }
 }
 

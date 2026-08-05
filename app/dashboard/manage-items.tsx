@@ -5,9 +5,10 @@ import { supabase } from '../../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateBatch } from '@/lib/translationService';
 
 export default function ManageItemsScreen() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [items, setItems] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -33,7 +34,11 @@ export default function ManageItemsScreen() {
     const { data: owner } = await supabase.from('owners').select('id').eq('user_id', session.user.id).single();
     if (owner) {
       const { data } = await supabase.from('items').select('*').eq('owner_id', owner.id);
-      if (data) setItems(data);
+      if (data) {
+        const names = data.map((item: any) => item.item_name);
+        const translatedNames = await translateBatch(names, language);
+        setItems(data.map((item: any, i: number) => ({ ...item, item_name: translatedNames[i] })));
+      }
     }
     setLoading(false);
   };
@@ -41,7 +46,7 @@ export default function ManageItemsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchItems();
-    }, [])
+    }, [language])
   );
 
   const handleDelete = (id: string, name: string) => {

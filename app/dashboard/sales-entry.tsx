@@ -6,6 +6,7 @@ import DatePickerModal from '../../components/DatePickerModal';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateBatch } from '@/lib/translationService';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -28,7 +29,7 @@ export default function SalesEntryScreen() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [workingDays, setWorkingDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
   const [isLeaveDay, setIsLeaveDay] = useState(false);
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   const fetchItemsAndSales = async (dateStr: string) => {
     setLoading(true);
@@ -83,7 +84,9 @@ export default function SalesEntryScreen() {
             quantity: existingSale ? existingSale.quantity_sold : 0,
           };
         });
-        setItems(entries);
+        const names = entries.map(e => e.item_name);
+        const translatedNames = await translateBatch(names, language);
+        setItems(entries.map((e, i) => ({ ...e, item_name: translatedNames[i] })));
       }
 
     } catch (error) {
@@ -95,7 +98,7 @@ export default function SalesEntryScreen() {
 
   useEffect(() => {
     fetchItemsAndSales(selectedDate);
-  }, [selectedDate]);
+  }, [selectedDate, language]);
 
   const updateQuantity = (id: string, delta: number) => {
     setItems(items.map(item => {

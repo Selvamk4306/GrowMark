@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
+import { clearTranslationCache } from '../../lib/translationService';
 
 const LANGUAGES = [
   { display: 'English', key: 'English' },
@@ -21,6 +22,7 @@ export default function LanguageScreen() {
   const { t } = useTranslation();
 
   const handleSelect = async (key: string) => {
+    clearTranslationCache();
     await setLanguage(key);
   };
 

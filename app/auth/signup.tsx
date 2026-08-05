@@ -86,13 +86,15 @@ export default function SignupScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Back Button */}
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.9)" />
-        </TouchableOpacity>
+        {/* Top Header Bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.9)" />
+          </TouchableOpacity>
+        </View>
 
         {/* Top Section - Logo & Branding */}
         <View style={styles.topSection}>
@@ -236,21 +238,22 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 40,
   },
+  topBar: {
+    paddingTop: 52,
+    paddingHorizontal: 24,
+    alignItems: 'flex-start',
+  },
   backButton: {
-    position: 'absolute',
-    top: 56,
-    left: 20,
     width: 42,
     height: 42,
     borderRadius: 21,
     backgroundColor: 'rgba(255,255,255,0.12)',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 10,
   },
   topSection: {
     alignItems: 'center',
-    marginTop: 80,
+    marginTop: 20,
     marginBottom: 24,
   },
   logo: {

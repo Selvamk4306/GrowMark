@@ -5,11 +5,12 @@ import { supabase } from '../../lib/supabase';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateDynamic } from '@/lib/translationService';
 
 const FILTERS = ['All', 'Warning', 'Alert', 'Critical', 'Dead Stock'];
 
 export default function AlertsScreen() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeFilter, setActiveFilter] = useState('All');
@@ -23,14 +24,43 @@ export default function AlertsScreen() {
       const { data: owner } = await supabase.from('owners').select('id').eq('user_id', session.user.id).single();
       if (!owner) return;
 
-      let query = supabase
+      // 1. Delete alerts older than 7 days from Supabase
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      await supabase
+        .from('alerts')
+        .delete()
+        .eq('owner_id', owner.id)
+        .lt('triggered_at', sevenDaysAgo.toISOString());
+
+      // 2. Retrieve ONLY active alerts from the last 3 days
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const { data } = await supabase
         .from('alerts')
         .select('*, items(item_name)')
         .eq('owner_id', owner.id)
+        .eq('is_read', false)
+        .gte('triggered_at', threeDaysAgo.toISOString())
         .order('triggered_at', { ascending: false });
 
-      const { data } = await query;
-      if (data) setAlerts(data);
+      if (data) {
+        const translatedAlerts = await Promise.all(
+          data.map(async (alert: any) => ({
+            ...alert,
+            items: alert.items
+              ? { ...alert.items, item_name: await translateDynamic(alert.items.item_name, language) }
+              : alert.items,
+            suggested_action: alert.suggested_action
+              ? await translateDynamic(alert.suggested_action, language)
+              : alert.suggested_action,
+          }))
+        );
+        setAlerts(translatedAlerts);
+      } else {
+        setAlerts([]);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -41,13 +71,15 @@ export default function AlertsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchAlerts();
-    }, [])
+    }, [language])
   );
 
-  const markAsRead = async (id: string, status: boolean) => {
+  const dismissAlert = async (id: string) => {
     try {
-      await supabase.from('alerts').update({ is_read: status }).eq('id', id);
-      setAlerts(alerts.map(a => a.id === id ? { ...a, is_read: status } : a));
+      // Mark as read in DB
+      await supabase.from('alerts').update({ is_read: true }).eq('id', id);
+      // Immediately remove from screen so it is completely gone (not faded)
+      setAlerts(prev => prev.filter(a => a.id !== id));
     } catch (error) {
       console.error(error);
     }
@@ -92,22 +124,22 @@ export default function AlertsScreen() {
         <ActivityIndicator size="large" color={Colors.primary} style={styles.loader} />
       ) : filteredAlerts.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No active alerts found.</Text>
+          <Text style={styles.emptyText}>{t('No active alerts found.')}</Text>
         </View>
       ) : (
         <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
           {filteredAlerts.map(alert => (
-            <View key={alert.id} style={[styles.card, { borderLeftColor: getAlertColor(alert.alert_level) }, alert.is_read && styles.cardRead]}>
+            <View key={alert.id} style={[styles.card, { borderLeftColor: getAlertColor(alert.alert_level) }]}>
               <View style={styles.cardHeader}>
                 <View style={[styles.badge, { backgroundColor: getAlertColor(alert.alert_level) }]}>
                   <Text style={styles.badgeText}>{t(alert.alert_level)}</Text>
                 </View>
                 <Text style={styles.itemName}>{alert.items?.item_name}</Text>
-                <TouchableOpacity style={styles.dismissBtn} onPress={() => markAsRead(alert.id, !alert.is_read)}>
+                <TouchableOpacity style={styles.dismissBtn} onPress={() => dismissAlert(alert.id)}>
                   <Ionicons 
-                    name={alert.is_read ? "refresh-circle" : "checkmark-circle"} 
+                    name="checkmark-circle" 
                     size={24} 
-                    color={alert.is_read ? Colors.textSecondary : Colors.success} 
+                    color={Colors.success} 
                   />
                 </TouchableOpacity>
               </View>

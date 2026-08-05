@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { INSIGHT_VARIATIONS } from '../../hooks/useBusinessLogic';
+import { useTranslation } from '../../hooks/useTranslation';
+import { translateBatch } from '@/lib/translationService';
 
 function getRandomItem(arr: any[]) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -12,13 +14,14 @@ function getRandomItem(arr: any[]) {
 
 export default function GrowthTipsScreen() {
   const router = useRouter();
+  const { language } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [tips, setTips] = useState<{ title: string, desc: string, icon: any }[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       generateTips();
-    }, [])
+    }, [language])
   );
 
   const generateTips = async () => {
@@ -73,7 +76,11 @@ export default function GrowthTipsScreen() {
         newTips.push({ title: v.title, desc: v.desc, icon: 'star' });
       }
 
-      setTips(newTips);
+      const titles = newTips.map(tip => tip.title);
+      const descs = newTips.map(tip => tip.desc);
+      const translatedTitles = await translateBatch(titles, language);
+      const translatedDescs = await translateBatch(descs, language);
+      setTips(newTips.map((tip, i) => ({ ...tip, title: translatedTitles[i], desc: translatedDescs[i] })));
 
     } catch (error) {
       console.error(error);

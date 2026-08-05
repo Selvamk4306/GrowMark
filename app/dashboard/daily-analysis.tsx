@@ -7,9 +7,10 @@ import DatePickerModal from '../../components/DatePickerModal';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateBatch } from '@/lib/translationService';
 
 export default function DailyAnalysisScreen() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<string>(formatDate(new Date()));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -67,7 +68,10 @@ export default function DailyAnalysisScreen() {
             color
           };
         });
-        setAnalysis(processed);
+        const itemNames = processed.map((p: any) => p.name || '');
+        const translatedNames = await translateBatch(itemNames, language);
+        const translatedProcessed = processed.map((p: any, i: number) => ({ ...p, name: translatedNames[i] }));
+        setAnalysis(translatedProcessed);
         setSummary({ revenue: revTotal, profit: profTotal, metTarget: metCount });
       } else {
         setAnalysis([]);
@@ -82,7 +86,7 @@ export default function DailyAnalysisScreen() {
 
   useEffect(() => {
     fetchAnalysis(selectedDate);
-  }, [selectedDate]);
+  }, [selectedDate, language]);
 
   return (
     <View style={styles.container}>

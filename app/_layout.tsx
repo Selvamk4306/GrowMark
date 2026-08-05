@@ -8,7 +8,12 @@ import { LogBox } from 'react-native';
 
 LogBox.ignoreLogs([
   'There was an error during concurrent rendering but React was able to recover by instead synchronously rendering the entire root.',
-  'There was an error during concurrent rendering'
+  'There was an error during concurrent rendering',
+  // Ignore specific React Native Web warnings that trigger a bug in LogBox overlay (Cannot read properties of undefined (reading 'map'))
+  '"shadow*" style props are deprecated',
+  'Image: style.resizeMode is deprecated',
+  'Animated: `useNativeDriver` is not supported',
+  'props.pointerEvents is deprecated'
 ]);
 
 export default function RootLayout() {

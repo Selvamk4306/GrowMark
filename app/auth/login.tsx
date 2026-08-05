@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Animated, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTranslation } from '../../hooks/useTranslation';
 import { supabase } from '../../lib/supabase';
@@ -76,13 +76,17 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Back Button */}
-        <TouchableOpacity
-          onPress={() => router.replace('/onboarding/language-select' as any)}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={20} color="rgba(255,255,255,0.9)" />
-        </TouchableOpacity>
+        {/* Top Header Bar */}
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            onPress={() => router.replace('/onboarding/language-select' as any)}
+            style={styles.langPrefButton}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="language-outline" size={16} color="#F4A833" style={{ marginRight: 6 }} />
+            <Text style={styles.langPrefText}>{t('Language Preference')}</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Top Section - Logo & Branding */}
         <View style={styles.topSection}>
@@ -238,21 +242,29 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 40,
   },
-  backButton: {
-    position: 'absolute',
-    top: 56,
-    left: 20,
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+  topBar: {
+    paddingTop: 52,
+    paddingHorizontal: 24,
+    alignItems: 'flex-start',
+  },
+  langPrefButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  langPrefText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
   },
   topSection: {
     alignItems: 'center',
-    marginTop: 80,
+    marginTop: 20,
     marginBottom: 30,
   },
   logo: {

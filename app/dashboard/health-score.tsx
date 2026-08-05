@@ -76,11 +76,12 @@ export default function HealthScoreScreen() {
       const { data: owner } = await supabase.from('owners').select('id').eq('user_id', session.user.id).single();
       if (!owner) return;
 
+      const currentWeekStartStr = formatDate(getStartOfWeek(new Date()));
       const { data } = await supabase
         .from('health_scores')
         .select('*')
         .eq('owner_id', owner.id)
-        .order('week_start_date', { ascending: false })
+        .eq('week_start_date', currentWeekStartStr)
         .maybeSingle();
       
       let finalData = data;

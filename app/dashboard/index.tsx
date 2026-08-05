@@ -9,12 +9,13 @@ import { Colors } from '../../constants/colors';
 import { useGlobal } from '../../context/GlobalContext';
 import { calculateBusinessHealthScore, formatDate, getStartOfWeek } from '../../hooks/useBusinessLogic';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateDynamic } from '@/lib/translationService';
 import { supabase } from '../../lib/supabase';
 
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [healthScore, setHealthScore] = useState<any>(null);
@@ -70,12 +71,13 @@ export default function DashboardScreen() {
         .single();
 
       if (!owner) return;
-      setUsername(owner.username);
+      const translatedName = await translateDynamic(owner.username || '', language);
+      setUsername(translatedName);
 
       const now = new Date();
       const todayStr = `${now.getFullYear()}-${String(
         now.getMonth() + 1).padStart(2, '0')}-${String(
-        now.getDate()).padStart(2, '0')}`;
+          now.getDate()).padStart(2, '0')}`;
 
       const { data: todayLeave } = await supabase
         .from('shop_leaves')
@@ -88,12 +90,13 @@ export default function DashboardScreen() {
       setIsTodayLeave(isTodayLeaveVal);
       await AsyncStorage.setItem('cached_is_today_leave', JSON.stringify(isTodayLeaveVal));
 
-      // Health Score (Latest)
+      // Health Score (Current Week)
+      const currentWeekStartStr = formatDate(getStartOfWeek(new Date()));
       const { data: hsData } = await supabase
         .from('health_scores')
         .select('*')
         .eq('owner_id', owner.id)
-        .order('week_start_date', { ascending: false })
+        .eq('week_start_date', currentWeekStartStr)
         .maybeSingle();
 
       let finalHsData = hsData;
@@ -117,30 +120,28 @@ export default function DashboardScreen() {
 
       // Today's Summary
       let activeDateStr = todayStr;
-      
+
       if (isTodayLeaveVal) {
         let lastWorkingDateStr = todayStr;
         for (let i = 1; i <= 7; i++) {
           const checkDate = new Date(now);
           checkDate.setDate(checkDate.getDate() - i);
-          const checkStr = `${checkDate.getFullYear()}-${
-            String(checkDate.getMonth()+1).padStart(2,'0')}-${
-            String(checkDate.getDate()).padStart(2,'0')}`;
-          
+          const checkStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+
           const { data: leaveCheck } = await supabase
             .from('shop_leaves')
             .select('id')
             .eq('owner_id', owner.id)
             .eq('leave_date', checkStr)
             .maybeSingle();
-          
+
           const { data: salesCheck } = await supabase
             .from('daily_sales')
             .select('id')
             .eq('owner_id', owner.id)
             .eq('sale_date', checkStr)
             .limit(1);
-          
+
           if (!leaveCheck && salesCheck && salesCheck.length > 0) {
             lastWorkingDateStr = checkStr;
             break;
@@ -237,7 +238,7 @@ export default function DashboardScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchDashboardData();
-    }, [])
+    }, [language])
   );
 
   useEffect(() => {
@@ -308,13 +309,15 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      
+
       {/* HEADER */}
       <View style={styles.topBar}>
-        <View>
-          <Text style={styles.brand}>GrowMark</Text>
-          <Text style={styles.headerSubtext}>
-            {t('Business Performance Monitor')}
+        <View style={{ flex: 1, marginRight: 12 }}>
+          <Text style={styles.greetingHeader} numberOfLines={2}>
+            {getGreeting()}, {username}
+          </Text>
+          <Text style={styles.greetingSubtext}>
+            {t('Track your business performance in real-time')}
           </Text>
         </View>
 
@@ -338,45 +341,33 @@ export default function DashboardScreen() {
           />
         }
       >
-
-        {/* GREETING */}
-        <View style={styles.greetingWrapper}>
-          <Text style={styles.greeting}>
-            {getGreeting()}, {username} 👋
-          </Text>
-
-          {isTodayLeave && (
-            <View style={{
-              backgroundColor: '#FEF3C7',
-              borderRadius: 10,
-              padding: 12,
-              marginBottom: 12,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-              borderWidth: 1,
-              borderColor: '#F59E0B',
-            }}>
-              <Text style={{ fontSize: 16 }}>🏖️</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={{ 
-                  fontSize: 13, 
-                  fontWeight: 'bold', 
-                  color: '#854F0B' 
-                }}>
-                  {t('Shop is on Leave Today')}
-                </Text>
-                <Text style={{ fontSize: 12, color: '#854F0B' }}>
-                  {t('Showing data from last working day')}
-                </Text>
-              </View>
+        {isTodayLeave && (
+          <View style={{
+            backgroundColor: '#FEF3C7',
+            borderRadius: 10,
+            padding: 12,
+            marginBottom: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            borderWidth: 1,
+            borderColor: '#F59E0B',
+          }}>
+            <Text style={{ fontSize: 16 }}>🏖️</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{
+                fontSize: 13,
+                fontWeight: 'bold',
+                color: '#854F0B'
+              }}>
+                {t('Shop is on Leave Today')}
+              </Text>
+              <Text style={{ fontSize: 12, color: '#854F0B' }}>
+                {t('Showing data from last working day')}
+              </Text>
             </View>
-          )}
-
-          <Text style={styles.greetingText}>
-            {t('Track your business performance in real-time')}
-          </Text>
-        </View>
+          </View>
+        )}
 
         {/* HEALTH SCORE CARD */}
         <TouchableOpacity
@@ -651,11 +642,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 50,
-    paddingBottom: 15,
-    backgroundColor: Colors.card,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingBottom: 18,
+    backgroundColor: Colors.primary,
+    borderBottomWidth: 0,
   },
+  greetingHeader: { fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' },
+  greetingSubtext: { fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 3 },
   brand: { fontSize: 24, fontWeight: 'bold', color: Colors.primary },
   topRight: { flexDirection: 'row', alignItems: 'center', gap: 15 },
   iconButton: { position: 'relative' },

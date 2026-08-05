@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useTranslation } from '../../hooks/useTranslation';
+import { translateDynamic } from '@/lib/translationService';
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<any>(null);
@@ -15,22 +16,27 @@ export default function ProfileScreen() {
   const [editedWorkingDays, setEditedWorkingDays] = useState<string[]>([]);
   const [updating, setUpdating] = useState(false);
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   useFocusEffect(
     useCallback(() => {
       fetchProfile();
-    }, [])
+    }, [language])
   );
 
   const fetchProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-
     const { data: owner } = await supabase.from('owners').select('*').eq('user_id', session.user.id).single();
     if (owner) {
+      const translatedName = await translateDynamic(owner.username || '', language);
+      const translatedShopName = await translateDynamic(owner.shop_name || '', language);
+      const translatedShopType = await translateDynamic(owner.shop_type || '', language);
       setProfile({
         ...owner,
+        username: translatedName,
+        shop_name: translatedShopName,
+        shop_type: translatedShopType,
         email: session.user.email,
       });
       setEditedName(owner.username || '');
