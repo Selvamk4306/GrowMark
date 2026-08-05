@@ -1,4 +1,4 @@
-name: Appium Automated E2E Tests
+name: GrowMark Appium Automated E2E Tests
 
 on:
   push:
