@@ -24,12 +24,16 @@ jobs:
       - name: Install root dependencies
         run: npm install
 
-      - name: Verify functionality-tests folder
-        run: |
-          echo "Functionality tests directory: testing/functionality-tests"
-          ls -R testing/functionality-tests
+      - name: Install functionality test dependencies
+        working-directory: testing/functionality-tests
+        run: npm install
 
-      - name: Placeholder for functionality tests
-        run: |
-          echo "No automated functionality tests implemented yet."
-          echo "Add specs under testing/functionality-tests/specs and update this workflow to execute them."
+      - name: Run functionality tests
+        working-directory: testing/functionality-tests
+        run: npm test
+
+      - name: Upload functionality Excel report
+        uses: actions/upload-artifact@v4
+        with:
+          name: growmark-functionality-test-report
+          path: testing/functionality-tests/Functionality_Test_Report.xlsx
