@@ -23,9 +23,16 @@ on:
       - 'package.json'
   workflow_dispatch:
 
+# Cancel any in-progress run when a new one is triggered
+concurrency:
+  group: appium-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   appium-tests:
-    runs-on: macos-13
+    # Ubuntu runners start immediately (no queue) and support Android
+    # emulator via KVM hardware acceleration — much faster than macos-13.
+    runs-on: ubuntu-latest
     timeout-minutes: 90
 
     steps:
@@ -42,6 +49,13 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+
+      # Enable KVM hardware acceleration for Android emulator on Ubuntu
+      - name: Enable KVM for Android Emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       # ─── CACHE: Root node_modules ────────────────────────────────────
       - name: Cache Root node_modules
@@ -71,9 +85,6 @@ jobs:
         run: npm install
 
       # ─── CACHE: Built APK ────────────────────────────────────────────
-      # Key is a hash of all files that affect the APK output.
-      # If app source, config, or dependencies haven't changed → skip
-      # the entire expo prebuild + Gradle build and reuse the cached APK.
       - name: Cache Built APK
         uses: actions/cache@v4
         id: cache-apk
@@ -81,7 +92,7 @@ jobs:
           path: cached-app.apk
           key: apk-${{ runner.os }}-${{ hashFiles('app.json', 'package.json', 'package-lock.json', 'app/**', 'components/**', 'constants/**', 'hooks/**', 'context/**', 'lib/**', 'assets/**') }}
 
-      - name: Cache Gradle (used only on APK cache miss)
+      - name: Cache Gradle (on APK cache miss only)
         if: steps.cache-apk.outputs.cache-hit != 'true'
         uses: actions/cache@v4
         with:
@@ -102,7 +113,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon -q
 
-      - name: Save APK to cache location
+      - name: Save built APK to cache location
         if: steps.cache-apk.outputs.cache-hit != 'true'
         run: cp android/app/build/outputs/apk/debug/app-debug.apk cached-app.apk
 
