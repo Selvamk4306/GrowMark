@@ -11,8 +11,10 @@ on:
 
 jobs:
   appium-tests:
-    runs-on: macos-latest
-    timeout-minutes: 60
+    # macOS-13 = Intel x86_64 runner — required for x86_64 Android emulator.
+    # macos-latest is now Apple Silicon (M1/arm64) which does NOT support x86_64 AVDs.
+    runs-on: macos-13
+    timeout-minutes: 90
 
     steps:
       - name: Checkout Code
@@ -29,12 +31,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses
-        run: yes | sdkmanager --licenses || true
-
       - name: Install Root Dependencies
         run: npm install
 
@@ -45,7 +41,7 @@ jobs:
         working-directory: ./android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          ./gradlew assembleDebug --no-daemon -q
 
       - name: Install Appium Test Dependencies
         working-directory: ./testing/appium-tests
@@ -59,12 +55,16 @@ jobs:
           APP_PATH: ${{ github.workspace }}/android/app/build/outputs/apk/debug/app-debug.apk
           CI: true
         with:
-          api-level: 31
-          target: google_apis
+          api-level: 30
+          target: default
           arch: x86_64
           profile: pixel_4
           disable-animations: true
+          # Speed up emulator boot — no GPU window, software renderer, no audio/boot-anim
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: |
+            adb wait-for-device
+            adb shell input keyevent 82
             cd testing/appium-tests
             npx wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
 
