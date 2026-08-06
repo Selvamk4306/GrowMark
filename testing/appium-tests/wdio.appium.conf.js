@@ -50,4 +50,34 @@ exports.config = {
         ui: 'bdd',
         timeout: 120000
     },
+
+    // Wait for splash screen (1.5s) + any redirect to finish before each test suite.
+    // On fresh install, the app goes to language-select instead of login.
+    // This hook sets the language flag and navigates to login so all tests start consistently.
+    before: async function () {
+        // Give the splash screen time to finish its 1.5s delay + navigation
+        await browser.pause(4000);
+
+        // If the app is on the language-select screen, press the first language option
+        // to set the language and proceed to login
+        try {
+            const langScreen = await $('//*[@text="English"]');
+            if (await langScreen.isExisting()) {
+                await langScreen.click();
+                await browser.pause(1000);
+
+                // Look for a Continue/Next button if present
+                const continueBtn = await $('//*[@text="Continue"]');
+                if (await continueBtn.isExisting()) {
+                    await continueBtn.click();
+                    await browser.pause(1500);
+                }
+            }
+        } catch (e) {
+            // Not on language screen — that's fine
+        }
+
+        // Final wait for login screen to render
+        await browser.pause(2000);
+    },
 };
