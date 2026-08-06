@@ -118,6 +118,7 @@ export default function SignupScreen() {
           ]}>
             <Ionicons name="person-outline" size={18} color="rgba(255,255,255,0.7)" style={{ marginRight: 10 }} />
             <TextInput
+              testID="signup-name-input"
               style={styles.fieldInput}
               placeholder={t('Enter your full name')}
               placeholderTextColor="#FFFFFF"
@@ -137,6 +138,7 @@ export default function SignupScreen() {
           ]}>
             <Ionicons name="mail-outline" size={18} color="rgba(255,255,255,0.7)" style={{ marginRight: 10 }} />
             <TextInput
+              testID="signup-email-input"
               style={styles.fieldInput}
               placeholder={t('Enter your email')}
               placeholderTextColor="#FFFFFF"
@@ -157,6 +159,7 @@ export default function SignupScreen() {
           ]}>
             <Ionicons name="lock-closed-outline" size={18} color="rgba(255,255,255,0.7)" style={{ marginRight: 10 }} />
             <TextInput
+              testID="signup-password-input"
               style={styles.fieldInput}
               placeholder={t('Create a password')}
               placeholderTextColor="#FFFFFF"
@@ -183,6 +186,7 @@ export default function SignupScreen() {
           ]}>
             <Ionicons name="shield-checkmark-outline" size={18} color="rgba(255,255,255,0.7)" style={{ marginRight: 10 }} />
             <TextInput
+              testID="signup-confirm-password-input"  
               style={styles.fieldInput}
               placeholder={t('Confirm your password')}
               placeholderTextColor="#FFFFFF"
@@ -203,6 +207,7 @@ export default function SignupScreen() {
 
           {/* Sign Up Button */}
           <TouchableOpacity
+            testID="signup-submit-button"
             style={styles.signupButton}
             onPress={handleSignup}
             disabled={loading}
@@ -219,7 +224,7 @@ export default function SignupScreen() {
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>{t('Already have an account?')} </Text>
             <Link href={"/auth/login" as any} asChild>
-              <TouchableOpacity>
+              <TouchableOpacity testID="go-to-login-button">
                 <Text style={styles.loginLink}>{t('Login')}</Text>
               </TouchableOpacity>
             </Link>

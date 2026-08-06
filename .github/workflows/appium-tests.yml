@@ -11,7 +11,7 @@ on:
 
 jobs:
   appium-tests:
-    runs-on: macos-latest # macOS is used commonly to have access to both Android and iOS emulators, or we can use ubuntu-latest for Android only
+    runs-on: macos-latest
 
     steps:
       - name: Checkout Code
@@ -22,19 +22,39 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies in appium-tests
-        working-directory: ./testing/appium-tests
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Install Root Dependencies
         run: npm install
 
-      # NOTE: For a real CI pipeline, you would compile your React Native / Expo app here (e.g. using EAS local build)
-      # and pass the resulting .apk or .app path to the wdio.conf.js.
-      # For now, we mock the build step assuming app.apk exists.
-      - name: Mock App Build (Placeholder)
-        run: touch app.apk
+      - name: Build Android APK
+        working-directory: ./android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
-      - name: Run Appium Tests
+      - name: Install Appium Dependencies
         working-directory: ./testing/appium-tests
-        run: npx wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
+        run: |
+          npm install
+          npx appium driver install uiautomator2
+
+      - name: Run Appium Tests in Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          APP_PATH: ${{ github.workspace }}/android/app/build/outputs/apk/debug/app-debug.apk
+        with:
+          api-level: 31
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4
+          script: |
+            cd testing/appium-tests
+            npx wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
 
       - name: Upload Appium Artifacts
         if: always()

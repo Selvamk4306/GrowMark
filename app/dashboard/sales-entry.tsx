@@ -230,7 +230,9 @@ export default function SalesEntryScreen() {
     >
       <View style={styles.header}>
         <Text style={styles.title}>{t('Sales Entry')}</Text>
-        <TouchableOpacity style={styles.dateSelector} onPress={() => setShowDatePicker(true)}>
+        <TouchableOpacity 
+        testID="date-selector-button"
+        style={styles.dateSelector} onPress={() => setShowDatePicker(true)}>
           <Ionicons name="calendar" size={18} color="#F4A833" />
           <Text style={styles.dateText}>{isToday ? t('Today') : selectedDate}</Text>
           <Ionicons name="chevron-down" size={14} color="#1E3A5F" />
@@ -272,6 +274,7 @@ export default function SalesEntryScreen() {
                   <Ionicons name="remove" size={18} color="#FFFFFF" />
                 </TouchableOpacity>
                 <TextInput
+                  testID={`quantity-input-${item.id}`}
                   style={styles.qtyInput}
                   value={String(item.quantity)}
                   keyboardType="numeric"
@@ -293,7 +296,9 @@ export default function SalesEntryScreen() {
 
       {!isLeaveDay && !loading && (
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit} disabled={submitting} activeOpacity={0.85}>
+          <TouchableOpacity 
+          testID="sales-submit-button"
+          style={styles.submitBtn} onPress={handleSubmit} disabled={submitting} activeOpacity={0.85}>
             {submitting ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
@@ -301,7 +306,9 @@ export default function SalesEntryScreen() {
             )}
           </TouchableOpacity>
           <View style={styles.leaveRow}>
-            <TouchableOpacity style={styles.markLeaveBtn} onPress={markAsLeave} disabled={submitting} activeOpacity={0.7}>
+            <TouchableOpacity  
+            testID="mark-leave-button"
+            style={styles.markLeaveBtn} onPress={markAsLeave} disabled={submitting} activeOpacity={0.7}>
               <Text style={styles.markLeaveText}>{t('Mark as Leave')}</Text>
             </TouchableOpacity>
           </View>

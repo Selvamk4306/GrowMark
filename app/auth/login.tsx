@@ -110,6 +110,7 @@ export default function LoginScreen() {
           ]}>
             <Ionicons name="mail-outline" size={18} color="rgba(255,255,255,0.7)" style={{ marginRight: 10 }} />
             <TextInput
+              testID="login-email-input"
               style={styles.fieldInput}
               placeholder={t('Enter your email')}
               placeholderTextColor="#FFFFFF"
@@ -130,6 +131,7 @@ export default function LoginScreen() {
           ]}>
             <Ionicons name="lock-closed-outline" size={18} color="rgba(255,255,255,0.7)" style={{ marginRight: 10 }} />
             <TextInput
+              testID="login-password-input"
               style={styles.fieldInput}
               placeholder={t('Enter your password')}
               placeholderTextColor="#FFFFFF"
@@ -139,7 +141,9 @@ export default function LoginScreen() {
               onFocus={() => setFocusedField('password')}
               onBlur={() => setFocusedField(null)}
             />
-            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <TouchableOpacity 
+            testID="login-password-toggle"
+            onPress={() => setShowPassword(!showPassword)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Ionicons
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={20}
@@ -150,6 +154,7 @@ export default function LoginScreen() {
 
           {/* Login Button */}
           <TouchableOpacity
+            testID="login-submit-button"
             style={styles.loginButton}
             onPress={handleLogin}
             disabled={loading}
@@ -223,7 +228,7 @@ export default function LoginScreen() {
           <View style={styles.signupContainer}>
             <Text style={styles.signupText}>{t("Don't have an account?")} </Text>
             <Link href={"/auth/signup" as any} asChild>
-              <TouchableOpacity>
+              <TouchableOpacity testID="go-to-signup-button">
                 <Text style={styles.signupLink}>{t('Sign up')}</Text>
               </TouchableOpacity>
             </Link>

@@ -1,15 +1,15 @@
+import { translateDynamic } from '@/lib/translationService';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../../constants/colors';
 import { useGlobal } from '../../context/GlobalContext';
 import { calculateBusinessHealthScore, formatDate, getStartOfWeek } from '../../hooks/useBusinessLogic';
 import { useTranslation } from '../../hooks/useTranslation';
-import { translateDynamic } from '@/lib/translationService';
 import { supabase } from '../../lib/supabase';
 
 
@@ -308,7 +308,9 @@ export default function DashboardScreen() {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container}
+    testID="dashboard-stats-card"
+    >
 
       {/* HEADER */}
       <View style={styles.topBar}>
@@ -322,6 +324,7 @@ export default function DashboardScreen() {
         </View>
 
         <TouchableOpacity
+          testID="nav-profile"
           style={styles.avatar}
           onPress={() => router.push('/dashboard/profile' as any)}
         >
@@ -509,6 +512,7 @@ export default function DashboardScreen() {
         <View style={styles.quickGrid}>
 
           <TouchableOpacity
+            testID="nav-sales-entry"
             style={styles.quickCard}
             onPress={() =>
               router.push('/dashboard/sales-entry' as any)
@@ -526,6 +530,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="nav-reports"
             style={styles.quickCard}
             onPress={() =>
               router.push('/dashboard/reports' as any)
@@ -560,6 +565,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="nav-profile"
             style={styles.quickCard}
             onPress={() =>
               router.push('/dashboard/profile' as any)
@@ -578,10 +584,20 @@ export default function DashboardScreen() {
         </View>
 
         {/* ALERTS */}
-        <Text style={styles.sectionTitle}>
-          {t('Recent Alerts')}
-        </Text>
-
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <Text style={styles.sectionTitle}>
+            {t('Recent Alerts')}
+          </Text>
+          <TouchableOpacity
+            testID="nav-alerts"          // ← ADD THIS
+            onPress={() => router.push('/dashboard/alerts' as any)}
+          >
+            <Text style={{ color: Colors.accent, fontWeight: '600', fontSize: 14 }}>
+              {t('View All')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
         {activeAlerts.length === 0 ? (
           <View style={styles.emptyCard}>
             <Ionicons

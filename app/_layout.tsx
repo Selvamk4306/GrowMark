@@ -5,6 +5,7 @@ import { AppState } from 'react-native';
 import { LanguageProvider } from '../context/LanguageContext';
 import { GlobalProvider } from '../context/GlobalContext';
 import { LogBox } from 'react-native';
+import React from 'react';
 
 LogBox.ignoreLogs([
   'There was an error during concurrent rendering but React was able to recover by instead synchronously rendering the entire root.',

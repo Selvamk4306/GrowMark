@@ -64,6 +64,7 @@ export default function ShopSetupScreen() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>{t('Shop Name')}</Text>
           <TextInput
+            testID="shop-name-input"
             style={styles.input}
             placeholder={t('Enter shop name')}
             value={shopName}
@@ -77,6 +78,7 @@ export default function ShopSetupScreen() {
             {SHOP_TYPES.map((type) => (
               <TouchableOpacity
                 key={type}
+                testID={`shop-type-${type.toLowerCase().replace(/\s+/g, '-')}`}
                 style={[styles.chip, shopType === type && styles.chipSelected]}
                 onPress={() => setShopType(type)}
               >
@@ -91,6 +93,7 @@ export default function ShopSetupScreen() {
         <View style={styles.inputContainer}>
           <Text style={styles.label}>{t('Location (Optional)')}</Text>
           <TextInput
+            testID="shop-location-input"
             style={styles.input}
             placeholder={t('City or Area')}
             value={location}
@@ -101,6 +104,7 @@ export default function ShopSetupScreen() {
 
       <View style={styles.footer}>
         <TouchableOpacity
+          testID="shop-setup-back-button"
           style={styles.backButton}
           onPress={handleBack}
           disabled={loading}
@@ -108,6 +112,7 @@ export default function ShopSetupScreen() {
           <Text style={styles.backButtonText}>{t('Back')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
+          testID="shop-setup-next-button"
           style={styles.nextButton}
           onPress={handleNext}
           disabled={loading}

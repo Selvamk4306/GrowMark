@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Alert, ActivityIndicator, Modal, ScrollView } from 'react-native';
-import { Colors } from '../../constants/colors';
-import { supabase } from '../../lib/supabase';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useFocusEffect } from 'expo-router';
-import { useTranslation } from '../../hooks/useTranslation';
 import { translateBatch } from '@/lib/translationService';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Colors } from '../../constants/colors';
+import { useTranslation } from '../../hooks/useTranslation';
+import { supabase } from '../../lib/supabase';
 
 export default function ManageItemsScreen() {
   const { t, language } = useTranslation();
@@ -201,11 +201,19 @@ export default function ManageItemsScreen() {
         <Text style={styles.targetText}>{t('Weekly Target')}: {item.min_weekly_target}</Text>
       </View>
       <View style={styles.actionsRow}>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => openEditModal(item)}>
+        <TouchableOpacity
+          testID={`edit-item-${item.id}`}
+          style={styles.actionBtn}
+          onPress={() => openEditModal(item)}
+        >
           <Ionicons name="pencil" size={16} color={Colors.primary} />
           <Text style={styles.actionText}>{t('Edit')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionBtn} onPress={() => handleDelete(item.id, item.item_name)}>
+        <TouchableOpacity
+          testID={`delete-item-${item.id}`}
+          style={styles.actionBtn}
+          onPress={() => handleDelete(item.id, item.item_name)}
+        >
           <Ionicons name="trash" size={16} color={Colors.danger} />
           <Text style={[styles.actionText, { color: Colors.danger }]}>{t('Delete')}</Text>
         </TouchableOpacity>
@@ -225,6 +233,7 @@ export default function ManageItemsScreen() {
       <View style={styles.searchContainer}>
         <Ionicons name="search" size={20} color={Colors.textSecondary} style={styles.searchIcon} />
         <TextInput
+          testID="search-items-input"
           style={styles.searchInput}
           placeholder={t('Search items...')}
           value={searchQuery}
@@ -329,7 +338,7 @@ export default function ManageItemsScreen() {
               >
                 <Text style={styles.cancelBtnText}>{t('Cancel')}</Text>
               </TouchableOpacity>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.modalBtn, styles.saveBtn]} 
                 onPress={handleUpdate}
                 disabled={updating}
@@ -427,6 +436,7 @@ export default function ManageItemsScreen() {
                 <Text style={styles.cancelBtnText}>{t('Cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity 
+                testID="add-item-button"
                 style={[styles.modalBtn, styles.saveBtn]} 
                 onPress={handleAdd}
                 disabled={adding}
