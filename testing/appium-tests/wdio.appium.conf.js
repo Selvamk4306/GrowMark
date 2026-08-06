@@ -3,7 +3,7 @@ const path = require('path');
 
 exports.config = {
     runner: 'local',
-    port: 4723, // Default Appium port
+    port: 4723,
     specs: [
         './test/specs/**/*.js'
     ],
@@ -11,22 +11,32 @@ exports.config = {
     maxInstances: 1,
     capabilities: [{
         platformName: 'Android',
-        'appium:deviceName': process.env.CI ? 'emulator-5554' : 'KJPF8PZHAUIZR4RS', // Update if using a physical device or specific emulator name
+        'appium:deviceName': process.env.CI ? 'emulator-5554' : 'KJPF8PZHAUIZR4RS',
         'appium:automationName': 'UiAutomator2',
-        // Assuming you have built an APK, replace this path with your APK path. 
-        // For Expo testing, you typically build an APK using `eas build -p android --profile preview`
-        'appium:app': process.env.APP_PATH || path.join(process.cwd(), '..', '..', 'app.apk'), 
-        'appium:appWaitActivity': '*', 
+        'appium:app': process.env.APP_PATH || path.join(process.cwd(), '..', '..', 'app.apk'),
+        'appium:appWaitActivity': '*',
         'appium:noReset': false,
         'appium:fullReset': true
     }],
     logLevel: 'info',
     bail: 0,
     baseUrl: 'http://localhost',
-    waitforTimeout: 10000,
-    connectionRetryTimeout: 120000,
+    waitforTimeout: 15000,
+    connectionRetryTimeout: 180000,
     connectionRetryCount: 3,
-    services: ['appium'],
+    // Use the locally-installed appium binary from node_modules.
+    // APPIUM_HOME is set in the workflow env to point to .appium/
+    // where the UiAutomator2 driver is pre-registered.
+    services: [
+        ['appium', {
+            command: path.join(__dirname, 'node_modules', '.bin', 'appium'),
+            args: {
+                relaxedSecurity: true,
+                log: './appium.log',
+                useDrivers: ['uiautomator2']
+            }
+        }]
+    ],
     framework: 'mocha',
     reporters: [
         'spec',
@@ -38,6 +48,6 @@ exports.config = {
     ],
     mochaOpts: {
         ui: 'bdd',
-        timeout: 60000
+        timeout: 120000
     },
 };

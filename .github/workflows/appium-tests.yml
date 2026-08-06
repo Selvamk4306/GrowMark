@@ -106,11 +106,24 @@ jobs:
           key: avd-api30-${{ runner.os }}-x86_64
           restore-keys: avd-api30-${{ runner.os }}-
 
+      # Register UiAutomator2 driver with Appium using APPIUM_HOME so
+      # Appium 3.x can find the locally-installed driver at runtime.
+      - name: Register UiAutomator2 Driver with Appium
+        working-directory: ./testing/appium-tests
+        env:
+          APPIUM_HOME: ${{ github.workspace }}/testing/appium-tests/.appium
+        run: |
+          node_modules/.bin/appium driver install uiautomator2 --source=local node_modules/appium-uiautomator2-driver
+          echo "Registered drivers:"
+          node_modules/.bin/appium driver list --installed
+
+      # ─── RUN TESTS ───────────────────────────────────────────────────
       - name: Run Appium Tests in Android Emulator
         uses: reactivecircus/android-emulator-runner@v2
         env:
           APP_PATH: ${{ github.workspace }}/cached-app.apk
           CI: true
+          APPIUM_HOME: ${{ github.workspace }}/testing/appium-tests/.appium
         with:
           api-level: 30
           target: default
@@ -123,7 +136,7 @@ jobs:
             adb wait-for-device
             adb shell input keyevent 82
             cd testing/appium-tests
-            npx wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
+            ./node_modules/.bin/wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
 
       - name: Upload Appium Artifacts
         if: always()
