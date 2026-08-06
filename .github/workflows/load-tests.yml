@@ -4,21 +4,19 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'testing/load-tests/**'
-      - '.github/workflows/load-tests.yml'
   pull_request:
     branches:
       - main
-    paths:
-      - 'testing/load-tests/**'
-      - '.github/workflows/load-tests.yml'
   workflow_dispatch:
+
+concurrency:
+  group: load-tests-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   load-test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Code
@@ -29,7 +27,6 @@ jobs:
         with:
           node-version: '22'
 
-      # ─── CACHE: Load test node_modules ──────────────────────────────
       - name: Cache Load Test node_modules
         uses: actions/cache@v4
         id: cache-load-nm

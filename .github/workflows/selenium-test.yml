@@ -3,44 +3,61 @@ name: GrowMark Web Selenium E2E Tests
 on:
   push:
     branches: [main, master]
-    paths:
-      - 'testing/selenium-tests/**'
-      - '.github/workflows/selenium-test.yml'
   pull_request:
     branches: [main, master]
-    paths:
-      - 'testing/selenium-tests/**'
-      - '.github/workflows/selenium-test.yml'
   workflow_dispatch: {}
+
+concurrency:
+  group: selenium-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   web-e2e:
     name: Web Selenium E2E
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+
+      - name: Cache Root node_modules
+        uses: actions/cache@v4
+        id: cache-root-nm
+        with:
+          path: node_modules
+          key: selenium-root-nm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: selenium-root-nm-${{ runner.os }}-
 
       - name: Install root dependencies
+        if: steps.cache-root-nm.outputs.cache-hit != 'true'
         run: npm install
 
+      - name: Cache Selenium test node_modules
+        uses: actions/cache@v4
+        id: cache-selenium-nm
+        with:
+          path: testing/selenium-tests/node_modules
+          key: selenium-nm-${{ runner.os }}-${{ hashFiles('testing/selenium-tests/package-lock.json') }}
+          restore-keys: selenium-nm-${{ runner.os }}-
+
       - name: Install Selenium test dependencies
+        if: steps.cache-selenium-nm.outputs.cache-hit != 'true'
         working-directory: testing/selenium-tests
         run: npm install
 
       - name: Build and export web app
-        run: npx expo export . --output-dir web-build --platform web
+        run: npx expo export --platform web --output-dir web-build
 
       - name: Serve exported web app
         run: |
           npx http-server web-build -p 5000 -c-1 &
-          npx wait-on http://localhost:5000
+          npx wait-on http://localhost:5000 --timeout 60000
         shell: bash
 
       - name: Run Selenium web tests
@@ -53,7 +70,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: growmark-web-test-artifacts
+          name: Selenium-Test-Artifacts
           path: |
             testing/selenium-tests/Test_Report.xlsx
             testing/selenium-tests/reports/**/*.xml
