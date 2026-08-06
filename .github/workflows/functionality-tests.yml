@@ -13,13 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Install root dependencies
         run: npm install
@@ -29,12 +28,13 @@ jobs:
         run: npm install
 
       - name: Build and export web app
-        run: npx expo export . --output-dir web-build --platform web
+        run: npx expo export --platform web --output-dir web-build
 
       - name: Serve exported web app
         run: |
           npx http-server web-build -p 5000 -c-1 &
-          npx wait-on http://localhost:5000
+          sleep 5
+          npx wait-on http://localhost:5000 --timeout 30000
         shell: bash
 
       - name: Run full functionality test suite
