@@ -1,0 +1,13 @@
+{
+  "name": "growmark-load-tests",
+  "version": "1.0.0",
+  "description": "Baseline and load testing for GrowMark",
+  "main": "load-test.js",
+  "scripts": {
+    "test": "node load-test.js"
+  },
+  "dependencies": {
+    "autocannon": "^7.15.0",
+    "exceljs": "^4.4.0"
+  }
+}
