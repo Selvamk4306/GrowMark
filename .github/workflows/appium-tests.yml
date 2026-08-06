@@ -4,9 +4,23 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'testing/appium-tests/**'
+      - '.github/workflows/appium-tests.yml'
+      - 'app/**'
+      - 'components/**'
+      - 'app.json'
+      - 'package.json'
   pull_request:
     branches:
       - main
+    paths:
+      - 'testing/appium-tests/**'
+      - '.github/workflows/appium-tests.yml'
+      - 'app/**'
+      - 'components/**'
+      - 'app.json'
+      - 'package.json'
   workflow_dispatch:
 
 jobs:
