@@ -27,11 +27,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: testing/load-tests/package-lock.json
+          node-version: '22'
+
+      # ─── CACHE: Load test node_modules ──────────────────────────────
+      - name: Cache Load Test node_modules
+        uses: actions/cache@v4
+        id: cache-load-nm
+        with:
+          path: testing/load-tests/node_modules
+          key: load-nm-${{ runner.os }}-${{ hashFiles('testing/load-tests/package-lock.json') }}
+          restore-keys: load-nm-${{ runner.os }}-
 
       - name: Install Load Test Dependencies
+        if: steps.cache-load-nm.outputs.cache-hit != 'true'
         working-directory: ./testing/load-tests
         run: npm install
 
