@@ -13,8 +13,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true;
 
     async function initializeAuth() {
+      console.log('[DEBUG] initializeAuth start');
       try {
+        console.log('[DEBUG] initializeAuth: calling supabase.auth.getSession()');
         const { data, error } = await supabase.auth.getSession();
+        console.log('[DEBUG] initializeAuth: getSession returned:', { data, error });
         if (error) {
           console.error('Error fetching session:', error);
           if (mounted) {
@@ -29,12 +32,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(data.session);
           if (data.session) {
             try {
+              console.log('[DEBUG] initializeAuth: fetching owner data for user ID:', data.session.user.id);
               const { data: ownerData, error: ownerError } = await supabase
                 .from('owners')
                 .select('*')
                 .eq('user_id', data.session.user.id)
                 .single();
               
+              console.log('[DEBUG] initializeAuth: owner data fetched:', { ownerData, ownerError });
               if (!ownerError && ownerData) {
                 setOwner(ownerData);
               } else {
@@ -55,6 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setOwner(null);
         }
       } finally {
+        console.log('[DEBUG] initializeAuth finally block. Mounted:', mounted);
         if (mounted) {
           setLoading(false);
         }
@@ -64,30 +70,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
 
     const { data: { subscription } } = 
-      supabase.auth.onAuthStateChange(async (_, session) => {
-        if (mounted) {
-          setSession(session);
-          if (session) {
-            try {
-              const { data: ownerData, error: ownerError } = await supabase
-                .from('owners')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .single();
-              
-              if (!ownerError && ownerData) {
-                setOwner(ownerData);
-              } else {
+      supabase.auth.onAuthStateChange((_, session) => {
+        // Defer database query to prevent Supabase internal client deadlock
+        setTimeout(async () => {
+          if (mounted) {
+            setSession(session);
+            if (session) {
+              try {
+                const { data: ownerData, error: ownerError } = await supabase
+                  .from('owners')
+                  .select('*')
+                  .eq('user_id', session.user.id)
+                  .single();
+                
+                if (!ownerError && ownerData) {
+                  setOwner(ownerData);
+                } else {
+                  setOwner(null);
+                }
+              } catch (err) {
+                console.error('Error fetching owner data:', err);
                 setOwner(null);
               }
-            } catch (err) {
-              console.error('Error fetching owner data:', err);
+            } else {
               setOwner(null);
             }
-          } else {
-            setOwner(null);
           }
-        }
+        }, 0);
       });
 
     return () => {
