@@ -113,7 +113,7 @@ jobs:
         env:
           APPIUM_HOME: ${{ github.workspace }}/testing/appium-tests/.appium
         run: |
-          node_modules/.bin/appium driver install uiautomator2 --source=local node_modules/appium-uiautomator2-driver
+          node_modules/.bin/appium driver install --source=local node_modules/appium-uiautomator2-driver
           echo "Registered drivers:"
           node_modules/.bin/appium driver list --installed
 
