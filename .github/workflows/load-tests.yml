@@ -1,4 +1,4 @@
-name: GrowMark Load Tests (Manual Only — PASSED)
+name: GrowMark Load Tests
 
 # ✅ Tests passed. Disabled from automatic push/PR triggers.
 # Run manually via: Actions → GrowMark Load Tests → Run workflow
