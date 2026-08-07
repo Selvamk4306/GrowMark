@@ -4,11 +4,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Animated, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { PieChart } from 'react-native-gifted-charts';
 import { Colors } from '../../constants/colors';
 import { useGlobal } from '../../context/GlobalContext';
-import { calculateBusinessHealthScore, formatDate, getStartOfWeek } from '../../hooks/useBusinessLogic';
+import { calculateBusinessHealthScore, formatDate, getStartOfWeek, INSIGHT_VARIATIONS } from '../../hooks/useBusinessLogic';
 import { useTranslation } from '../../hooks/useTranslation';
 import { supabase } from '../../lib/supabase';
 
@@ -26,16 +26,21 @@ export default function DashboardScreen() {
   const animatedScore = useRef(new Animated.Value(0)).current;
   const [displayScore, setDisplayScore] = useState(0);
   const [isTodayLeave, setIsTodayLeave] = useState(false);
+  const [itemCount, setItemCount] = useState<number>(0);
+  const [growthTip, setGrowthTip] = useState<{ title: string; desc: string } | null>(null);
+  const [togglingStatus, setTogglingStatus] = useState(false);
 
   const fetchDashboardData = async () => {
     let hasCache = false;
     // Step 1: Load from cache immediately
     try {
-      const [cachedHealth, cachedSummary, cachedAlerts, cachedLeave] = await Promise.all([
+      const [cachedHealth, cachedSummary, cachedAlerts, cachedLeave, cachedItemCount, cachedGrowthTip] = await Promise.all([
         AsyncStorage.getItem('cached_health_score'),
         AsyncStorage.getItem('cached_today_summary'),
         AsyncStorage.getItem('cached_active_alerts'),
-        AsyncStorage.getItem('cached_is_today_leave')
+        AsyncStorage.getItem('cached_is_today_leave'),
+        AsyncStorage.getItem('cached_item_count'),
+        AsyncStorage.getItem('cached_growth_tip')
       ]);
 
       if (cachedHealth) {
@@ -50,6 +55,12 @@ export default function DashboardScreen() {
       }
       if (cachedLeave) {
         setIsTodayLeave(JSON.parse(cachedLeave));
+      }
+      if (cachedItemCount) {
+        setItemCount(Number(cachedItemCount));
+      }
+      if (cachedGrowthTip) {
+        setGrowthTip(JSON.parse(cachedGrowthTip));
       }
     } catch (e) {
       console.warn('Failed to load cache', e);
@@ -227,10 +238,125 @@ export default function DashboardScreen() {
       }));
       setRevenueTrend(trendData);
 
+      // Fetch registered items count
+      const { count: itemsCountVal } = await supabase
+        .from('items')
+        .select('*', { count: 'exact', head: true })
+        .eq('owner_id', owner.id);
+      
+      const finalCount = itemsCountVal || 0;
+      setItemCount(finalCount);
+      await AsyncStorage.setItem('cached_item_count', String(finalCount));
+
+      // Fetch dynamic growth tip
+      const getRandomItem = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)];
+      const { data: tipAlerts } = await supabase
+        .from('alerts')
+        .select('*')
+        .eq('owner_id', owner.id)
+        .eq('is_read', false);
+      
+      const { data: tipHs } = await supabase
+        .from('health_scores')
+        .select('*')
+        .eq('owner_id', owner.id)
+        .order('week_start_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const calculatedTips = [];
+      if (tipAlerts) {
+        const hasConsecutiveMisses = tipAlerts.some(a => a.days_missed >= 3);
+        if (hasConsecutiveMisses) {
+          const v = getRandomItem(INSIGHT_VARIATIONS['Combo']);
+          calculatedTips.push({ title: v.title, desc: v.desc });
+        }
+
+        const hasDeadStock = tipAlerts.some(a => a.alert_level === 'Dead Stock');
+        if (hasDeadStock) {
+          calculatedTips.push({
+            title: 'Dead Stock Detected',
+            desc: 'An item has zero movement. Consider a heavy clearance discount.'
+          });
+        }
+      }
+
+      if (tipHs) {
+        if (tipHs.revenue_growth < 100) {
+          const v = getRandomItem(INSIGHT_VARIATIONS['Revenue Drop']);
+          calculatedTips.push({ title: v.title, desc: v.desc });
+        }
+        if (tipHs.profit_margin < 20) {
+          const v = getRandomItem(INSIGHT_VARIATIONS['Low Margin']);
+          calculatedTips.push({ title: v.title, desc: v.desc });
+        }
+      }
+
+      if (calculatedTips.length === 0) {
+        const v = getRandomItem(INSIGHT_VARIATIONS['Default']);
+        calculatedTips.push({ title: v.title, desc: v.desc });
+      }
+
+      const selectedTip = getRandomItem(calculatedTips);
+      const translatedTitle = await translateDynamic(selectedTip.title, language);
+      const translatedDesc = await translateDynamic(selectedTip.desc, language);
+      const finalTip = { title: translatedTitle, desc: translatedDesc };
+
+      setGrowthTip(finalTip);
+      await AsyncStorage.setItem('cached_growth_tip', JSON.stringify(finalTip));
+
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleShopStatus = async () => {
+    if (togglingStatus) return;
+    setTogglingStatus(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const { data: owner } = await supabase
+        .from('owners')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .single();
+
+      if (!owner) return;
+
+      const now = new Date();
+      const todayStr = `${now.getFullYear()}-${String(
+        now.getMonth() + 1).padStart(2, '0')}-${String(
+          now.getDate()).padStart(2, '0')}`;
+
+      if (isTodayLeave) {
+        // Mark as open by deleting from shop_leaves
+        await supabase
+          .from('shop_leaves')
+          .delete()
+          .eq('owner_id', owner.id)
+          .eq('leave_date', todayStr);
+      } else {
+        // Mark as leave by inserting into shop_leaves
+        await supabase
+          .from('shop_leaves')
+          .insert({
+            owner_id: owner.id,
+            leave_date: todayStr,
+            leave_type: 'Leave'
+          });
+      }
+
+      // Re-fetch data to update metrics and UI
+      await fetchDashboardData();
+    } catch (err) {
+      console.error('Failed to toggle shop status:', err);
+    } finally {
+      setTogglingStatus(false);
     }
   };
 
@@ -504,84 +630,113 @@ export default function DashboardScreen() {
           </LinearGradient>
         </TouchableOpacity>
 
-        {/* QUICK ACTIONS */}
-        <Text style={styles.sectionTitle}>
-          {t('Quick Actions')}
-        </Text>
+        {/* SHOP STATUS AND INVENTORY ROW */}
+        <View style={styles.mobileRow}>
+          
+          {/* Shop Status Card */}
+          <View style={styles.halfCard}>
+            <View style={styles.widgetHeader}>
+              <Ionicons
+                name="storefront"
+                size={20}
+                color={Colors.primary}
+              />
+              <Text style={styles.widgetTitle}>
+                {t('Shop Status')}
+              </Text>
+            </View>
 
-        <View style={styles.quickGrid}>
-
-          <TouchableOpacity
-            testID="nav-sales-entry"
-            style={styles.quickCard}
-            onPress={() =>
-              router.push('/dashboard/sales-entry' as any)
-            }
-          >
-            <Ionicons
-              name="add-circle"
-              size={28}
-              color={Colors.accent}
-            />
-
-            <Text style={styles.quickText}>
-              {t('Sales Entry')}
+            <Text style={[styles.statusText, { color: isTodayLeave ? Colors.warning : Colors.success }]}>
+              {isTodayLeave ? t('On Leave') : t('Open & Active')}
             </Text>
+
+            <TouchableOpacity
+              style={[
+                styles.statusButton,
+                { backgroundColor: isTodayLeave ? Colors.success : '#FEE2E2' }
+              ]}
+              onPress={toggleShopStatus}
+              disabled={togglingStatus}
+            >
+              {togglingStatus ? (
+                <ActivityIndicator size="small" color={isTodayLeave ? '#FFFFFF' : Colors.danger} />
+              ) : (
+                <Text style={[styles.statusButtonText, { color: isTodayLeave ? '#FFFFFF' : Colors.danger }]}>
+                  {isTodayLeave ? t('Mark Open') : t('Mark Leave')}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Inventory Overview Card */}
+          <TouchableOpacity
+            style={styles.halfCard}
+            onPress={() => router.push('/dashboard/manage-items' as any)}
+            activeOpacity={0.8}
+          >
+            <View style={styles.widgetHeader}>
+              <Ionicons
+                name="cube"
+                size={20}
+                color={Colors.primary}
+              />
+              <Text style={styles.widgetTitle}>
+                {t('Inventory')}
+              </Text>
+            </View>
+
+            <Text style={styles.inventoryCount}>
+              {itemCount} {itemCount === 1 ? t('Item') : t('Items')}
+            </Text>
+            
+            <Text style={styles.inventorySubtext}>
+              {t('Prices & Targets')}
+            </Text>
+            
+            <View style={styles.widgetFooterLink}>
+              <Text style={styles.footerLinkText}>
+                {t('Manage')}
+              </Text>
+              <Ionicons name="chevron-forward" size={14} color={Colors.primary} />
+            </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            testID="nav-reports"
-            style={styles.quickCard}
-            onPress={() =>
-              router.push('/dashboard/reports' as any)
-            }
-          >
-            <Ionicons
-              name="bar-chart"
-              size={28}
-              color={Colors.accent}
-            />
-
-            <Text style={styles.quickText}>
-              {t('Reports')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickCard}
-            onPress={() =>
-              router.push('/dashboard/health-score' as any)
-            }
-          >
-            <Ionicons
-              name="pulse"
-              size={28}
-              color={Colors.accent}
-            />
-
-            <Text style={styles.quickText}>
-              {t('Health')}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            testID="nav-profile"
-            style={styles.quickCard}
-            onPress={() =>
-              router.push('/dashboard/profile' as any)
-            }
-          >
-            <Ionicons
-              name="person"
-              size={28}
-              color={Colors.accent}
-            />
-
-            <Text style={styles.quickText}>
-              {t('Profile')}
-            </Text>
-          </TouchableOpacity>
         </View>
+
+        {/* AI SMART INSIGHT CARD */}
+        {growthTip && (
+          <TouchableOpacity
+            style={styles.insightCardNew}
+            onPress={() => router.push('/dashboard/growth-tips' as any)}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#FFFBEB', '#FEF3C7']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.insightGradient}
+            >
+              <View style={styles.insightHeaderRow}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <View style={styles.bulbIconBg}>
+                    <Ionicons name="bulb" size={18} color={Colors.accent} />
+                  </View>
+                  <Text style={styles.insightLabel}>
+                    {t('Smart Growth Tip')}
+                  </Text>
+                </View>
+                <Ionicons name="arrow-forward" size={16} color={Colors.textSecondary} />
+              </View>
+
+              <Text style={styles.insightTitleText}>
+                {growthTip.title}
+              </Text>
+              <Text style={styles.insightDescText}>
+                {growthTip.desc}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
 
         {/* ALERTS */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -922,28 +1077,126 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
 
-  quickGrid: {
+  mobileRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
     gap: 12,
-    marginBottom: 28,
+    marginBottom: 24,
   },
 
-  quickCard: {
-    width: '47%',
+  halfCard: {
+    flex: 1,
     backgroundColor: Colors.card,
-    borderRadius: 18,
-    paddingVertical: 22,
-    alignItems: 'center',
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: Colors.border,
+    justifyContent: 'space-between',
+    minHeight: 145,
   },
 
-  quickText: {
-    marginTop: 10,
+  widgetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 8,
+  },
+
+  widgetTitle: {
     fontSize: 14,
     fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+
+  statusText: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginVertical: 4,
+  },
+
+  statusButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 6,
+  },
+
+  statusButtonText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  inventoryCount: {
+    fontSize: 22,
+    fontWeight: 'bold',
     color: Colors.primary,
+    marginTop: 4,
+  },
+
+  inventorySubtext: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+  },
+
+  widgetFooterLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 2,
+    marginTop: 'auto',
+  },
+
+  footerLinkText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+
+  insightCardNew: {
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#FDE8B4',
+  },
+
+  insightGradient: {
+    padding: 18,
+  },
+
+  insightHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  bulbIconBg: {
+    backgroundColor: '#FEF3C7',
+    padding: 6,
+    borderRadius: 10,
+  },
+
+  insightLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#B45309',
+  },
+
+  insightTitleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    marginBottom: 6,
+  },
+
+  insightDescText: {
+    fontSize: 13,
+    color: '#4B5563',
+    lineHeight: 18,
   },
 
   emptyCard: {
