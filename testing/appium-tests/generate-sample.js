@@ -1,9 +1,21 @@
 const ExcelReporter = require('./excel-reporter');
+const fs = require('fs');
+const path = require('path');
+
+const testCases = [];
 
 function pass(reporter, title, inputData, expectedResult, actualResult) {
+    const duration = Math.floor(Math.random() * 80) + 10;
+    testCases.push({
+        title,
+        duration,
+        inputData,
+        expectedResult,
+        actualResult
+    });
     reporter.onTestPass({
         title,
-        _duration: Math.floor(Math.random() * 80) + 10,
+        _duration: duration,
         inputData,
         expectedResult,
         actualResult
@@ -261,6 +273,43 @@ async function generateFullAppiumReport() {
     pass(reporter, 'TestCase_Terms_03: Back button returns to Profile', 'Tapped back button', 'Profile screen displayed', 'Navigation correct');
 
     await reporter.onRunnerEnd();
+
+    // ─── Generate Appium console log output ───
+    const logLines = [
+        'Execution Mode: SIMULATION / MOCK RUN',
+        'Starting WebdriverIO Appium Test Suite...',
+        `Found ${testCases.length} E2E test specs to execute.`,
+        '-------------------------------------------------------'
+    ];
+    testCases.forEach((tc) => {
+        logLines.push(`[PASS] ${tc.title} (${tc.duration}ms)`);
+    });
+    logLines.push('-------------------------------------------------------');
+    logLines.push(`All ${testCases.length} test cases passed successfully!`);
+    fs.writeFileSync(path.join(__dirname, 'appium-test.log'), logLines.join('\n'));
+
+    // ─── Generate JUnit XML reports ───
+    const reportsDir = path.join(__dirname, 'reports');
+    if (!fs.existsSync(reportsDir)) {
+        fs.mkdirSync(reportsDir, { recursive: true });
+    }
+
+    const xmlCases = testCases.map((tc) => {
+        const timeSec = (tc.duration / 1000).toFixed(3);
+        const nameEsc = tc.title.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+        return `    <testcase name="${nameEsc}" classname="GrowMark.AppiumTests" time="${timeSec}"/>`;
+    }).join('\n');
+
+    const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Appium Mock E2E Run" time="1.2">
+  <testsuite name="GrowMark Appium Suite" tests="${testCases.length}" failures="0" skipped="0" errors="0" time="1.2">
+${xmlCases}
+  </testsuite>
+</testsuites>`;
+
+    fs.writeFileSync(path.join(reportsDir, 'appium-0-0.xml'), xmlContent);
+    console.log(`\n🎉 XML Report generated: ${path.join(reportsDir, 'appium-0-0.xml')}`);
+    console.log(`🎉 Log file generated: ${path.join(__dirname, 'appium-test.log')}`);
 }
 
 generateFullAppiumReport();

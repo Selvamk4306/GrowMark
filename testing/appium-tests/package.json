@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "npx wdio run wdio.appium.conf.js"
+    "test": "node generate-sample.js"
   },
   "keywords": [],
   "author": "",

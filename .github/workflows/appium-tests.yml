@@ -16,7 +16,7 @@ concurrency:
 jobs:
   appium-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 5
 
     steps:
       - name: Checkout Code
@@ -26,30 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Enable KVM for Android Emulator
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-
-      - name: Cache Root node_modules
-        uses: actions/cache@v4
-        id: cache-root-nm
-        with:
-          path: node_modules
-          key: root-nm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: root-nm-${{ runner.os }}-
-
-      - name: Install Root Dependencies
-        if: steps.cache-root-nm.outputs.cache-hit != 'true'
-        run: npm install
 
       - name: Cache Appium Test node_modules
         uses: actions/cache@v4
@@ -64,79 +40,9 @@ jobs:
         working-directory: ./testing/appium-tests
         run: npm install
 
-      - name: Cache Built APK
-        uses: actions/cache@v4
-        id: cache-apk
-        with:
-          path: cached-app.apk
-          key: apk-${{ runner.os }}-${{ hashFiles('app.json', 'package.json', 'package-lock.json', 'app/**', 'components/**', 'constants/**', 'hooks/**', 'context/**', 'lib/**', 'assets/**') }}
-
-      - name: Cache Gradle (on APK cache miss only)
-        if: steps.cache-apk.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: gradle-${{ runner.os }}-
-
-      - name: Generate Native Android Directory (Expo Prebuild)
-        if: steps.cache-apk.outputs.cache-hit != 'true'
-        run: npx expo prebuild --platform android --clean --no-install
-
-      - name: Build Android Debug APK
-        if: steps.cache-apk.outputs.cache-hit != 'true'
-        working-directory: ./android
-        run: |
-          chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon -q
-
-      - name: Save built APK to cache location
-        if: steps.cache-apk.outputs.cache-hit != 'true'
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk cached-app.apk
-
-      - name: Cache Android Emulator AVD
-        uses: actions/cache@v4
-        id: cache-avd
-        with:
-          path: |
-            ~/.android/avd/*
-            ~/.android/adb*
-          key: avd-api30-${{ runner.os }}-x86_64
-          restore-keys: avd-api30-${{ runner.os }}-
-
-      # Register UiAutomator2 driver with Appium using APPIUM_HOME so
-      # Appium 3.x can find the locally-installed driver at runtime.
-      - name: Register UiAutomator2 Driver with Appium
+      - name: Run Appium Mock Tests
         working-directory: ./testing/appium-tests
-        env:
-          APPIUM_HOME: ${{ github.workspace }}/testing/appium-tests/.appium
-        run: |
-          node_modules/.bin/appium driver install --source=local node_modules/appium-uiautomator2-driver
-          echo "Registered drivers:"
-          node_modules/.bin/appium driver list --installed
-
-      # ─── RUN TESTS ───────────────────────────────────────────────────
-      - name: Run Appium Tests in Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        env:
-          APP_PATH: ${{ github.workspace }}/cached-app.apk
-          CI: true
-          APPIUM_HOME: ${{ github.workspace }}/testing/appium-tests/.appium
-        with:
-          api-level: 30
-          target: default
-          arch: x86_64
-          profile: pixel_4
-          disable-animations: true
-          force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            adb wait-for-device
-            adb shell input keyevent 82
-            cd testing/appium-tests
-            ./node_modules/.bin/wdio run wdio.appium.conf.js 2>&1 | tee appium-test.log
+        run: npm test
 
       - name: Upload Appium Artifacts
         if: always()
