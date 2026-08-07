@@ -43,3 +43,12 @@ app-example
 /android
 
 .env
+
+# Testing reports and logs
+*.log
+testing/**/*.xlsx
+testing/**/reports/
+testing/**/Vulnerability_Report.xlsx
+testing/**/Test_Report.xlsx
+testing/**/Load_Test_Report.xlsx
+
