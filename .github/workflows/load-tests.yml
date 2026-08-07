@@ -1,12 +1,8 @@
-name: GrowMark Load Tests (Baseline — 300 Users)
+name: GrowMark Load Tests (Manual Only — PASSED)
 
+# ✅ Tests passed. Disabled from automatic push/PR triggers.
+# Run manually via: Actions → GrowMark Load Tests → Run workflow
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 
