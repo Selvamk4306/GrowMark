@@ -52,3 +52,7 @@ testing/**/Vulnerability_Report.xlsx
 testing/**/Test_Report.xlsx
 testing/**/Load_Test_Report.xlsx
 
+# Web application ignores
+web/node_modules/
+web/dist/
+web/.env

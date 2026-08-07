@@ -1,0 +1,18 @@
+import { useLanguage } from '../context/LanguageContext';
+import { TRANSLATIONS } from '../constants/translations';
+
+export const useTranslation = () => {
+  const { language } = useLanguage();
+
+  /**
+   * Translates a given English key to the current selected language.
+   * Falls back to the English original if translation is missing.
+   */
+  const t = (key: string): string => {
+    const langData = (TRANSLATIONS as any)[language] || (TRANSLATIONS as any)['English'];
+    if (!langData) return key;
+    return langData[key] || (TRANSLATIONS as any)['English'][key] || key;
+  };
+
+  return { t, language };
+};
