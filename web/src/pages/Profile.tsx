@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { User, MapPin, Store, LogOut } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function Profile() {
   const { session, owner, signOut } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -26,14 +28,14 @@ export function Profile() {
     if (error) {
       setMessage(`Error: ${error.message}`);
     } else {
-      setMessage('Profile updated successfully!');
+      setMessage(t('Profile updated successfully!'));
     }
     setLoading(false);
   };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-primary mb-8">Store Profile</h1>
+      <h1 className="text-2xl font-bold text-primary mb-8">{t('Profile')}</h1>
 
       <div className="glass p-8 rounded-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-32 bg-primary"></div>
@@ -56,7 +58,7 @@ export function Profile() {
 
         <form onSubmit={handleUpdate} className="space-y-6 max-w-md mx-auto">
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-2">Owner Name</label>
+            <label className="block text-sm font-medium text-textSecondary mb-2">{t('Full Name')}</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-textSecondary" />
               <input 
@@ -68,7 +70,7 @@ export function Profile() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-2">Shop Name</label>
+            <label className="block text-sm font-medium text-textSecondary mb-2">{t('Shop Name')}</label>
             <div className="relative">
               <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-textSecondary" />
               <input 
@@ -80,7 +82,7 @@ export function Profile() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-2">Location</label>
+            <label className="block text-sm font-medium text-textSecondary mb-2">{t('Location')}</label>
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-textSecondary" />
               <input 
@@ -97,7 +99,7 @@ export function Profile() {
             disabled={loading}
             className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
-            {loading ? 'Saving...' : 'Save Changes'}
+            {loading ? t('Updating...') : t('Save Changes')}
           </button>
         </form>
 
@@ -107,7 +109,7 @@ export function Profile() {
             className="flex items-center space-x-2 px-6 py-3 text-danger font-semibold rounded-xl hover:bg-danger/10 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span>Sign Out</span>
+            <span>{t('Logout')}</span>
           </button>
         </div>
       </div>

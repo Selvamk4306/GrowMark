@@ -1,6 +1,12 @@
+import { useEffect, useState } from 'react';
 import { Lightbulb, PackageMinus, TrendingUp, DollarSign } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
+import { translateDynamic } from '../lib/translationService';
 
 export function GrowthTips() {
+  const { t, language } = useTranslation();
+  const [translatedTips, setTranslatedTips] = useState<any[]>([]);
+
   const tips = [
     {
       id: 1,
@@ -25,12 +31,24 @@ export function GrowthTips() {
     }
   ];
 
+  useEffect(() => {
+    async function translateAll() {
+      const results = await Promise.all(tips.map(async (tip) => {
+        const title = await translateDynamic(tip.title, language);
+        const description = await translateDynamic(tip.description, language);
+        return { ...tip, title, description };
+      }));
+      setTranslatedTips(results);
+    }
+    translateAll();
+  }, [language]);
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-end mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Growth Tips</h1>
-          <p className="text-textSecondary">Actionable insights to boost your business</p>
+          <h1 className="text-2xl font-bold text-primary">{t("This Week's Insights")}</h1>
+          <p className="text-textSecondary">{t('Actionable insights to boost your business')}</p>
         </div>
         <div className="p-3 bg-accent/10 rounded-xl">
           <Lightbulb className="w-8 h-8 text-accent" />
@@ -38,7 +56,7 @@ export function GrowthTips() {
       </div>
 
       <div className="space-y-4">
-        {tips.map(tip => (
+        {translatedTips.map(tip => (
           <div key={tip.id} className={`glass p-6 rounded-xl border-l-4 ${tip.color} hover-lift`}>
             <div className="flex items-start space-x-4">
               <div className="p-3 bg-background rounded-xl">

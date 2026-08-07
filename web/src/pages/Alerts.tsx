@@ -4,9 +4,12 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { AlertCard } from '../components/AlertCard';
 import { Check } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
+import { translateDynamic } from '../lib/translationService';
 
 export function Alerts() {
   const { owner } = useAuth();
+  const { t, language } = useTranslation();
   const [alerts, setAlerts] = useState<any[]>([]);
   const [filter, setFilter] = useState('All');
   const [loading, setLoading] = useState(true);
@@ -28,7 +31,18 @@ export function Alerts() {
           .order('triggered_at', { ascending: false });
 
         if (data) {
-          setAlerts(data);
+          const translatedAlerts = await Promise.all(data.map(async (alert) => {
+            const translatedMsg = await translateDynamic(alert.alert_message || '', language);
+            const translatedAction = await translateDynamic(alert.suggested_action || '', language);
+            const translatedItemName = await translateDynamic(alert.items?.item_name || 'Item', language);
+            return {
+              ...alert,
+              alert_message: translatedMsg,
+              suggested_action: translatedAction,
+              items: alert.items ? { ...alert.items, item_name: translatedItemName } : null
+            };
+          }));
+          setAlerts(translatedAlerts);
         }
       } catch (error) {
         console.error('Error fetching alerts:', error);
@@ -38,7 +52,7 @@ export function Alerts() {
     }
     
     loadAlerts();
-  }, [owner]);
+  }, [owner, language]);
 
   const markAsRead = async (id: number) => {
     await supabase.from('alerts').update({ is_read: true }).eq('id', id);
@@ -51,8 +65,8 @@ export function Alerts() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-primary">Alerts</h1>
-          <p className="text-textSecondary">Action items requiring your attention</p>
+          <h1 className="text-2xl font-bold text-primary">{t('Alerts')}</h1>
+          <p className="text-textSecondary">{t('Action items requiring your attention')}</p>
         </div>
       </div>
 
@@ -67,20 +81,20 @@ export function Alerts() {
                 : 'bg-white border border-border text-textSecondary hover:bg-background'
             }`}
           >
-            {f}
+            {t(f)}
           </button>
         ))}
       </div>
 
       {loading ? (
-        <div className="text-center p-8 text-textSecondary">Loading alerts...</div>
+        <div className="text-center p-8 text-textSecondary">{t('Calculating...')}</div>
       ) : filteredAlerts.length === 0 ? (
         <div className="glass p-12 rounded-xl text-center">
           <div className="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4 text-success">
             <Check className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-primary">All Caught Up!</h2>
-          <p className="text-textSecondary mt-2">There are no active alerts requiring your attention.</p>
+          <h2 className="text-xl font-bold text-primary">{t('All Caught Up!')}</h2>
+          <p className="text-textSecondary mt-2">{t("No active alerts. You're doing great!")}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -97,7 +111,7 @@ export function Alerts() {
                 onClick={() => markAsRead(alert.id)}
                 className="absolute top-4 right-4 text-sm font-semibold text-primary bg-white px-3 py-1 rounded-lg border border-border opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-sm"
               >
-                Mark Read
+                {t('Mark Read')}
               </button>
             </div>
           ))}

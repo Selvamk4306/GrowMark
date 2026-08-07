@@ -3,6 +3,7 @@ import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { t } = useTranslation();
 
   if (session) {
     return <Navigate to="/" replace />;
@@ -42,14 +44,14 @@ export function Login() {
             <Activity className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-primary">Grow<span className="text-accent">Mark</span></h1>
-          <p className="text-textSecondary mt-2">Sign in to your account</p>
+          <p className="text-textSecondary mt-2">{t('Sign in to continue')}</p>
         </div>
 
         {error && <div className="bg-danger/10 text-danger p-3 rounded-lg mb-6 text-sm border border-danger/20">{error}</div>}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-1">Email</label>
+            <label className="block text-sm font-medium text-textSecondary mb-1">{t('Email')}</label>
             <input
               type="email"
               required
@@ -59,7 +61,7 @@ export function Login() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-1">Password</label>
+            <label className="block text-sm font-medium text-textSecondary mb-1">{t('Password')}</label>
             <input
               type="password"
               required
@@ -73,12 +75,12 @@ export function Login() {
             disabled={loading}
             className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary/90 transition-all active:scale-[0.98] disabled:opacity-50 mt-2 shadow-md shadow-primary/20"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('Updating...') : t('Login')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-textSecondary">
-          Don't have an account? <Link to="/signup" className="text-accent font-semibold hover:underline">Sign up</Link>
+          {t("Don't have an account?")} <Link to="/signup" className="text-accent font-semibold hover:underline">{t('Sign up')}</Link>
         </p>
       </div>
     </div>

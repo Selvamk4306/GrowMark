@@ -4,9 +4,12 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { formatDate, formatCurrency } from '../lib/businessLogic';
 import { Save } from 'lucide-react';
+import { useTranslation } from '../hooks/useTranslation';
+import { translateBatch } from '../lib/translationService';
 
 export function SalesEntry() {
   const { owner } = useAuth();
+  const { t, language } = useTranslation();
   const [date, setDate] = useState(formatDate(new Date()));
   const [items, setItems] = useState<any[]>([]);
   const [salesData, setSalesData] = useState<Record<string, number>>({});
@@ -23,7 +26,17 @@ export function SalesEntry() {
       try {
         // Fetch items
         const { data: itemsData } = await supabase.from('items').select('*').eq('owner_id', owner.id);
-        setItems(itemsData || []);
+        if (itemsData) {
+          const itemNames = itemsData.map((item: any) => item.item_name);
+          const translatedNames = await translateBatch(itemNames, language);
+          const translatedItems = itemsData.map((item: any, idx: number) => ({
+            ...item,
+            item_name: translatedNames[idx]
+          }));
+          setItems(translatedItems);
+        } else {
+          setItems([]);
+        }
 
         // Fetch sales for selected date
         const { data: sales } = await supabase
@@ -47,7 +60,7 @@ export function SalesEntry() {
     }
     
     loadData();
-  }, [owner, date]);
+  }, [owner, date, language]);
 
   const handleQuantityChange = (itemId: string, change: number) => {
     setSalesData(prev => ({
@@ -94,15 +107,15 @@ export function SalesEntry() {
     // Alert logic would run here normally (e.g. calling an edge function)
     
     setSaving(false);
-    alert('Sales data saved successfully!');
+    alert(t('Sales data saved successfully!'));
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">Sales Entry</h1>
+        <h1 className="text-2xl font-bold text-primary">{t('Sales Entry')}</h1>
         <div className="flex items-center space-x-2">
-          <label className="text-sm font-medium text-textSecondary">Date:</label>
+          <label className="text-sm font-medium text-textSecondary">{t('Date')}:</label>
           <input
             type="date"
             value={date}
@@ -115,13 +128,13 @@ export function SalesEntry() {
 
       <div className="glass rounded-xl overflow-hidden shadow-sm">
         <div className="p-4 border-b border-border bg-white/50">
-          <h2 className="font-semibold text-primary">Enter Quantities Sold</h2>
+          <h2 className="font-semibold text-primary">{t('Enter Sales Data')}</h2>
         </div>
         
         {loading ? (
-          <div className="p-8 text-center text-textSecondary">Loading items...</div>
+          <div className="p-8 text-center text-textSecondary">{t('Calculating...')}</div>
         ) : items.length === 0 ? (
-          <div className="p-8 text-center text-textSecondary">No items found. Go to Manage Items to add some.</div>
+          <div className="p-8 text-center text-textSecondary">{t('No items found.')}</div>
         ) : (
           <div className="divide-y divide-border">
             {items.map(item => {
@@ -131,7 +144,7 @@ export function SalesEntry() {
                 <div key={item.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-background/50 transition-colors">
                   <div className="flex-1">
                     <h4 className="font-semibold text-textPrimary">{item.item_name}</h4>
-                    <p className="text-xs text-textSecondary">Target: {item.min_daily_target} / Price: {formatCurrency(item.selling_price)}</p>
+                    <p className="text-xs text-textSecondary">{t('Target')}: {item.min_daily_target} / {t('Price') || 'Price'}: {formatCurrency(item.selling_price)}</p>
                   </div>
                   
                   <div className="flex items-center space-x-4">
@@ -158,7 +171,7 @@ export function SalesEntry() {
                     
                     <div className="w-24 text-right">
                       <span className="font-bold text-primary">{formatCurrency(rev)}</span>
-                      <span className="text-xs text-textSecondary block">Revenue</span>
+                      <span className="text-xs text-textSecondary block">{t('Revenue')}</span>
                     </div>
                   </div>
                 </div>
@@ -170,7 +183,7 @@ export function SalesEntry() {
 
       <div className="flex justify-end space-x-4">
         <button className="px-6 py-3 rounded-xl border-2 border-border font-semibold text-textSecondary hover:border-textSecondary transition-colors">
-          Mark as Leave
+          {t('Mark as Leave')}
         </button>
         <button 
           onClick={handleSave}
@@ -178,7 +191,7 @@ export function SalesEntry() {
           className="px-6 py-3 rounded-xl bg-primary text-white font-semibold flex items-center space-x-2 hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
           <Save className="w-5 h-5" />
-          <span>{saving ? 'Saving...' : 'Save Sales'}</span>
+          <span>{saving ? t('Updating...') : t('Submit Sales')}</span>
         </button>
       </div>
     </div>

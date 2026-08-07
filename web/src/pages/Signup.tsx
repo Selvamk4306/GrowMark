@@ -3,6 +3,7 @@ import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Activity } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function Signup() {
   const [name, setName] = useState('');
@@ -12,6 +13,7 @@ export function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { t } = useTranslation();
 
   if (session) {
     return <Navigate to="/" replace />;
@@ -48,14 +50,14 @@ export function Signup() {
             <Activity className="w-8 h-8" />
           </div>
           <h1 className="text-3xl font-bold text-primary">Grow<span className="text-accent">Mark</span></h1>
-          <p className="text-textSecondary mt-2">Create your account</p>
+          <p className="text-textSecondary mt-2">{t('Create Account')}</p>
         </div>
 
         {error && <div className="bg-danger/10 text-danger p-3 rounded-lg mb-6 text-sm border border-danger/20">{error}</div>}
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-textSecondary mb-1">{t('Full Name')}</label>
             <input
               type="text"
               required
@@ -65,7 +67,7 @@ export function Signup() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-1">Email</label>
+            <label className="block text-sm font-medium text-textSecondary mb-1">{t('Email')}</label>
             <input
               type="email"
               required
@@ -75,7 +77,7 @@ export function Signup() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-textSecondary mb-1">Password</label>
+            <label className="block text-sm font-medium text-textSecondary mb-1">{t('Password')}</label>
             <input
               type="password"
               required
@@ -89,12 +91,12 @@ export function Signup() {
             disabled={loading}
             className="w-full py-3 bg-accent text-white rounded-xl font-semibold hover:bg-accent/90 transition-all active:scale-[0.98] disabled:opacity-50 mt-2 shadow-md shadow-accent/20"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? t('Updating...') : t('Sign up')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-textSecondary">
-          Already have an account? <Link to="/login" className="text-primary font-semibold hover:underline">Sign in</Link>
+          {t('Already have an account?')} <Link to="/login" className="text-primary font-semibold hover:underline">{t('Login')}</Link>
         </p>
       </div>
     </div>

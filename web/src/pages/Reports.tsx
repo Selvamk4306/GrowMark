@@ -4,9 +4,11 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { formatDate } from '../lib/businessLogic';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function Reports() {
   const { owner } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState<any[]>([]);
 
@@ -60,13 +62,13 @@ export function Reports() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-primary">Weekly Reports</h1>
+      <h1 className="text-2xl font-bold text-primary">{t('Reports')}</h1>
       
       {loading ? (
-        <div className="text-center p-8 text-textSecondary">Loading reports...</div>
+        <div className="text-center p-8 text-textSecondary">{t('Calculating...')}</div>
       ) : (
         <div className="glass p-6 rounded-xl">
-          <h3 className="text-lg font-semibold mb-4 text-primary">Revenue by Date</h3>
+          <h3 className="text-lg font-semibold mb-4 text-primary">{t('Revenue by Date')}</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={reportData}>

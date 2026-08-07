@@ -3,9 +3,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { HealthScoreCard } from '../components/HealthScoreCard';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function HealthScore() {
   const { owner } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [healthData, setHealthData] = useState<any>(null);
 
@@ -26,12 +28,7 @@ export function HealthScore() {
           .single();
         
         if (data) {
-          const score = Math.round(
-            (data.revenue_growth * 0.30) +
-            (data.profit_margin * 0.30) +
-            (data.target_achievement_rate * 0.20) +
-            (data.expense_control * 0.20)
-          );
+          const score = data.score ?? 0;
 
           setHealthData({
             score,
@@ -55,14 +52,14 @@ export function HealthScore() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-primary">Health Score Detailed</h1>
+      <h1 className="text-2xl font-bold text-primary">{t('Business Health Score')}</h1>
       
       {loading ? (
-        <div className="text-center p-8 text-textSecondary">Loading health score...</div>
+        <div className="text-center p-8 text-textSecondary">{t('Calculating...')}</div>
       ) : healthData ? (
         <HealthScoreCard score={healthData.score} components={healthData.components} />
       ) : (
-        <div className="text-center p-8 text-textSecondary">No health score data available yet.</div>
+        <div className="text-center p-8 text-textSecondary">{t('No health score data available yet.')}</div>
       )}
     </div>
   );
