@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'testing/appium-tests/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'testing/appium-tests/**'
   workflow_dispatch:
 
 concurrency:

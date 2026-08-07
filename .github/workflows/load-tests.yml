@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'testing/load-tests/**'
   pull_request:
     branches:
       - main
+    paths:
+      - 'testing/load-tests/**'
   workflow_dispatch:
 
 
