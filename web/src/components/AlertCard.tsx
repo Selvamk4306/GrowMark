@@ -6,9 +6,10 @@ interface AlertCardProps {
   date: string;
   message: string;
   action: string;
+  isToday?: boolean;
 }
 
-export function AlertCard({ level, itemName, date, message, action }: AlertCardProps) {
+export function AlertCard({ level, itemName, date, message, action, isToday = true }: AlertCardProps) {
   const getColors = () => {
     switch (level) {
       case 'Critical': return { border: 'border-l-danger', bg: 'bg-danger/10', icon: <XCircle className="text-danger w-5 h-5" />, text: 'text-danger' };
@@ -21,15 +22,26 @@ export function AlertCard({ level, itemName, date, message, action }: AlertCardP
   const colors = getColors();
 
   return (
-    <div className={`glass p-4 rounded-xl border-l-4 ${colors.border} mb-3`}>
+    <div 
+      className={`glass p-4 rounded-xl border-l-4 ${colors.border} mb-3 transition-all duration-200 ${
+        isToday 
+          ? 'bg-white shadow-sm opacity-100 ring-1 ring-primary/5' 
+          : 'bg-gray-50/80 opacity-65 grayscale-[15%]'
+      }`}
+    >
       <div className="flex justify-between items-start mb-2">
         <div className="flex items-center space-x-2">
           {colors.icon}
           <span className={`text-xs font-bold px-2 py-1 rounded-full ${colors.bg} ${colors.text}`}>
             {level}
           </span>
+          {isToday && (
+            <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-accent/20 text-accent">
+              Today
+            </span>
+          )}
         </div>
-        <span className="text-xs text-textSecondary">{date}</span>
+        <span className="text-xs font-medium text-textSecondary">{date}</span>
       </div>
       <h4 className="font-semibold text-textPrimary mb-1">{itemName}</h4>
       <p className="text-sm text-textSecondary mb-3">{message}</p>

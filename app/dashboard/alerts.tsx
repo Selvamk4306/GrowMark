@@ -6,6 +6,7 @@ import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '../../hooks/useTranslation';
 import { translateDynamic } from '@/lib/translationService';
+import { getStartOfWeek } from '../../hooks/useBusinessLogic';
 
 const FILTERS = ['All', 'Warning', 'Alert', 'Critical', 'Dead Stock'];
 
@@ -24,38 +25,41 @@ export default function AlertsScreen() {
       const { data: owner } = await supabase.from('owners').select('id').eq('user_id', session.user.id).single();
       if (!owner) return;
 
-      // 1. Delete alerts older than 7 days from Supabase
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      // 1. Delete alerts older than the start of this week from Supabase
+      const weekStart = getStartOfWeek(new Date());
       await supabase
         .from('alerts')
         .delete()
         .eq('owner_id', owner.id)
-        .lt('triggered_at', sevenDaysAgo.toISOString());
+        .lt('triggered_at', weekStart.toISOString());
 
-      // 2. Retrieve ONLY active alerts from the last 3 days
-      const threeDaysAgo = new Date();
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
+      // 2. Retrieve active alerts from this week
       const { data } = await supabase
         .from('alerts')
         .select('*, items(item_name)')
         .eq('owner_id', owner.id)
-        .eq('is_read', false)
-        .gte('triggered_at', threeDaysAgo.toISOString())
+        .gte('triggered_at', weekStart.toISOString())
         .order('triggered_at', { ascending: false });
 
       if (data) {
+        const today = new Date();
         const translatedAlerts = await Promise.all(
-          data.map(async (alert: any) => ({
-            ...alert,
-            items: alert.items
-              ? { ...alert.items, item_name: await translateDynamic(alert.items.item_name, language) }
-              : alert.items,
-            suggested_action: alert.suggested_action
-              ? await translateDynamic(alert.suggested_action, language)
-              : alert.suggested_action,
-          }))
+          data.map(async (alert: any) => {
+            const alertDate = new Date(alert.triggered_at);
+            const isToday = alertDate.getDate() === today.getDate() &&
+                            alertDate.getMonth() === today.getMonth() &&
+                            alertDate.getFullYear() === today.getFullYear();
+            return {
+              ...alert,
+              isToday,
+              items: alert.items
+                ? { ...alert.items, item_name: await translateDynamic(alert.items.item_name, language) }
+                : alert.items,
+              suggested_action: alert.suggested_action
+                ? await translateDynamic(alert.suggested_action, language)
+                : alert.suggested_action,
+            };
+          })
         );
         setAlerts(translatedAlerts);
       } else {
@@ -129,11 +133,16 @@ export default function AlertsScreen() {
       ) : (
         <ScrollView style={styles.content} contentContainerStyle={styles.scrollContent}>
           {filteredAlerts.map(alert => (
-            <View key={alert.id} style={[styles.card, { borderLeftColor: getAlertColor(alert.alert_level) }]}>
+            <View key={alert.id} style={[styles.card, !alert.isToday && styles.cardShadowed, { borderLeftColor: getAlertColor(alert.alert_level) }]}>
               <View style={styles.cardHeader}>
                 <View style={[styles.badge, { backgroundColor: getAlertColor(alert.alert_level) }]}>
                   <Text style={styles.badgeText}>{t(alert.alert_level)}</Text>
                 </View>
+                {alert.isToday && (
+                  <View style={styles.todayBadge}>
+                    <Text style={styles.todayBadgeText}>TODAY</Text>
+                  </View>
+                )}
                 <Text style={styles.itemName}>{alert.items?.item_name}</Text>
                 <TouchableOpacity style={styles.dismissBtn} onPress={() => dismissAlert(alert.id)}>
                   <Ionicons 
@@ -177,7 +186,9 @@ const styles = StyleSheet.create({
   content: { flex: 1, paddingHorizontal: 20 },
   scrollContent: { paddingBottom: 40 },
   card: { backgroundColor: Colors.card, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: Colors.border, borderLeftWidth: 4 },
-  cardRead: { opacity: 0.6, backgroundColor: Colors.border },
+  cardShadowed: { opacity: 0.6, backgroundColor: '#F3F4F6' },
+  todayBadge: { backgroundColor: 'rgba(244, 168, 51, 0.2)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
+  todayBadgeText: { color: '#B45309', fontSize: 9, fontWeight: 'bold' },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
   badgeText: { color: Colors.card, fontSize: 10, fontWeight: 'bold' },

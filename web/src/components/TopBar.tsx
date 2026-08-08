@@ -1,8 +1,7 @@
-import { Menu, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
+export function TopBar() {
   const navigate = useNavigate();
   const { owner } = useAuth();
 
@@ -15,32 +14,31 @@ export function TopBar({ onMenuClick }: { onMenuClick: () => void }) {
       .slice(0, 2);
   };
 
-  const initials = getInitials(owner?.username || owner?.shop_name);
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const displayName = owner?.username || owner?.shop_name || '';
+  const initials = getInitials(displayName);
 
   return (
-    <header className="h-16 bg-white border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
-      <div className="flex items-center">
-        <button 
-          onClick={onMenuClick}
-          className="md:hidden p-2 mr-2 text-textSecondary hover:bg-background rounded-lg"
-        >
-          <Menu className="w-6 h-6" />
-        </button>
-        <h1 className="text-xl font-bold text-primary md:hidden">Grow<span className="text-accent">Mark</span></h1>
+    <header className="h-16 bg-[#1E3A5F] bg-gradient-to-r from-[#1E3A5F] to-[#11243C] text-white border-b border-white/10 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 shadow-md">
+      <div className="flex flex-col leading-tight">
+        <span className="text-base sm:text-lg font-bold text-white tracking-wide">
+          {getGreeting()}, {displayName || 'Owner'}
+        </span>
+        <span className="text-xs text-blue-200/80">Track your business performance in real-time</span>
       </div>
 
-      <div className="flex items-center space-x-4">
-        <button className="p-2 text-textSecondary hover:bg-background rounded-full relative">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full"></span>
-        </button>
-        <button 
-          onClick={() => navigate('/profile')}
-          className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-white font-semibold hover:bg-accent/90 transition-colors cursor-pointer"
-        >
-          {initials}
-        </button>
-      </div>
+      <button
+        onClick={() => navigate('/profile')}
+        className="w-10 h-10 rounded-full bg-[#F4A833] flex items-center justify-center text-white font-bold hover:bg-[#F4A833]/90 transition-colors cursor-pointer shrink-0 shadow-sm border border-white/20"
+      >
+        {initials}
+      </button>
     </header>
   );
 }

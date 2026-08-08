@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { BottomNav } from './BottomNav';
 import { useAuth } from '../context/AuthContext';
 
 export function Layout() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { session, owner, loading } = useAuth();
 
   if (loading) return null;
@@ -19,15 +17,12 @@ export function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      
-      <div className="flex-1 flex flex-col md:ml-64 min-w-0 transition-all duration-300">
-        <TopBar onMenuClick={() => setIsSidebarOpen(true)} />
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
-          <Outlet />
-        </main>
-      </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <TopBar />
+      <main className="flex-1 p-4 md:p-8 pb-20 md:pb-24 max-w-[1600px] w-full mx-auto overflow-x-hidden">
+        <Outlet />
+      </main>
+      <BottomNav />
     </div>
   );
 }

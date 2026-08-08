@@ -6,6 +6,7 @@ import { AlertCard } from '../components/AlertCard';
 import { Check } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { translateDynamic } from '../lib/translationService';
+import { getStartOfWeek } from '../lib/businessLogic';
 
 export function Alerts() {
   const { owner } = useAuth();
@@ -22,11 +23,20 @@ export function Alerts() {
     async function loadAlerts() {
       setLoading(true);
       try {
+        const weekStart = getStartOfWeek(new Date());
+        
+        // Auto-delete alerts older than the start of this week
+        await supabase
+          .from('alerts')
+          .delete()
+          .eq('owner_id', owner.id)
+          .lt('triggered_at', weekStart.toISOString());
+
         const { data } = await supabase
           .from('alerts')
           .select('*, items(item_name)')
           .eq('owner_id', owner.id)
-          .eq('is_read', false)
+          .gte('triggered_at', weekStart.toISOString())
           .order('alert_level', { ascending: false })
           .order('triggered_at', { ascending: false });
 
@@ -35,8 +45,14 @@ export function Alerts() {
             const translatedMsg = await translateDynamic(alert.alert_message || '', language);
             const translatedAction = await translateDynamic(alert.suggested_action || '', language);
             const translatedItemName = await translateDynamic(alert.items?.item_name || 'Item', language);
+            const alertDate = new Date(alert.triggered_at);
+            const today = new Date();
+            const isToday = alertDate.getDate() === today.getDate() &&
+                            alertDate.getMonth() === today.getMonth() &&
+                            alertDate.getFullYear() === today.getFullYear();
             return {
               ...alert,
+              isToday,
               alert_message: translatedMsg,
               suggested_action: translatedAction,
               items: alert.items ? { ...alert.items, item_name: translatedItemName } : null
@@ -62,7 +78,7 @@ export function Alerts() {
   const filteredAlerts = filter === 'All' ? alerts : alerts.filter(a => a.alert_level === filter);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-2xl font-bold text-primary">{t('Alerts')}</h1>
@@ -106,6 +122,7 @@ export function Alerts() {
                 date={new Date(alert.triggered_at).toLocaleDateString()}
                 message={alert.alert_message}
                 action={alert.suggested_action}
+                isToday={alert.isToday}
               />
               <button 
                 onClick={() => markAsRead(alert.id)}

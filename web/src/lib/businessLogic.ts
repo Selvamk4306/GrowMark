@@ -5,6 +5,15 @@ export const formatDate = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
+export const getStartOfWeek = (refDate: Date) => {
+  const d = new Date(refDate);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
 export const calculateHealthScore = (
   revenue_growth: number,
   profit_margin: number,

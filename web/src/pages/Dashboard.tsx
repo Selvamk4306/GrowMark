@@ -8,7 +8,7 @@ import { translateDynamic } from '../lib/translationService';
 import { MetricCard } from '../components/MetricCard';
 import { HealthScoreCard } from '../components/HealthScoreCard';
 import { AlertCard } from '../components/AlertCard';
-import { formatCurrency, formatDate } from '../lib/businessLogic';
+import { formatCurrency, formatDate, getStartOfWeek } from '../lib/businessLogic';
 import { 
   IndianRupee, 
   TrendingUp, 
@@ -189,11 +189,21 @@ export function Dashboard() {
         setHealth(currentHealth);
       }
 
-      // Fetch top 3 recent alerts
+      // Fetch top 3 recent unread alerts for this week
+      const weekStart = getStartOfWeek(new Date());
+
+      // Auto-delete alerts older than the start of this week
+      await supabase
+        .from('alerts')
+        .delete()
+        .eq('owner_id', owner.id)
+        .lt('triggered_at', weekStart.toISOString());
+
       const { data: recentAlerts } = await supabase
         .from('alerts')
         .select('*, items(item_name)')
         .eq('owner_id', owner.id)
+        .gte('triggered_at', weekStart.toISOString())
         .order('triggered_at', { ascending: false })
         .limit(3);
 
@@ -206,8 +216,11 @@ export function Dashboard() {
           itemName: a.items?.item_name || 'Item',
           date: new Date(a.triggered_at).toLocaleDateString(),
           message: a.alert_message,
-          action: a.suggested_action
+          action: a.suggested_action,
+          isToday: true // Always bright on Home page
         })));
+      } else {
+        setAlerts([]);
       }
 
       // Fetch registered items count
@@ -338,6 +351,29 @@ export function Dashboard() {
     }
   };
 
+  const getTranslatedVerdict = (score: number) => {
+    if (score >= 80) return t('Healthy');
+    if (score >= 50) return t('Work in Progress');
+    return t('Needs Attention');
+  };
+  
+  const getVerdictDescription = (score: number) => {
+    if (score >= 80) return t('Everything looks great');
+    if (score >= 50) return t('Some areas need improvement');
+    return t('Monitor sales, profits and targets');
+  };
+  
+  const getRingColor = (score: number) => {
+    if (score >= 90) return '#16A34A';
+    if (score >= 80) return '#22C55E';
+    if (score >= 70) return '#84CC16';
+    if (score >= 60) return '#F59E0B';
+    if (score >= 50) return '#F97316';
+    if (score >= 40) return '#EF4444';
+    if (score >= 30) return '#DC2626';
+    return '#7F1D1D';
+  };
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return t('Good morning');
@@ -356,24 +392,6 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       
-      {/* HEADER SECTION */}
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-border shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">
-            {getGreeting()}, {translatedUsername}
-          </h1>
-          <p className="text-textSecondary text-sm sm:text-base mt-1">
-            {t('Track your business performance in real-time')}
-          </p>
-        </div>
-        <button 
-          onClick={() => navigate('/profile')}
-          className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white text-lg font-bold shadow-md hover:bg-accent/90 transition-colors cursor-pointer"
-        >
-          {translatedUsername ? translatedUsername.charAt(0).toUpperCase() : 'U'}
-        </button>
-      </div>
-
       {/* SHOP ON LEAVE BANNER */}
       {isTodayLeave && (
         <div className="bg-[#FEF3C7] border border-[#F59E0B] p-4 rounded-xl flex items-center gap-3 shadow-sm text-[#854F0B]">
@@ -385,80 +403,151 @@ export function Dashboard() {
         </div>
       )}
 
-      {/* NEW WIDGETS ROW: SHOP STATUS AND INVENTORY */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* TWO-COLUMN DASHBOARD GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* SHOP STATUS CARD */}
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between hover-lift">
-          <div className="flex items-center gap-2.5 mb-2">
-            <Store className="w-5 h-5 text-primary" />
-            <h3 className="text-sm font-semibold text-textSecondary">{t('Shop Status')}</h3>
-          </div>
+        {/* LEFT COLUMN: Health Score, Shop Status & Inventory, Smart Growth Tip */}
+        <div className="lg:col-span-7 space-y-6">
           
-          <div className="my-3">
-            <span className={`text-xl font-bold ${isTodayLeave ? 'text-warning' : 'text-success'}`}>
-              {isTodayLeave ? t('On Leave') : t('Open & Active')}
-            </span>
-          </div>
-
-          <button
-            onClick={toggleShopStatus}
-            disabled={togglingStatus}
-            className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer ${
-              isTodayLeave 
-                ? 'bg-success text-white hover:bg-success/90 shadow-md shadow-success/15' 
-                : 'bg-danger/10 text-danger hover:bg-danger/15'
-            }`}
+          {/* BUSINESS HEALTH SCORE CARD - MOBILE GRADIENT CONTAINER */}
+          <div 
+            onClick={() => navigate('/health')}
+            className="bg-[#1E3A5F] bg-gradient-to-br from-[#1E3A5F] to-[#11243C] text-white p-6 sm:p-8 rounded-3xl shadow-lg border border-primary/20 space-y-6 cursor-pointer hover:shadow-xl hover:opacity-95 active:scale-[0.995] transition-all duration-200"
           >
-            {togglingStatus ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isTodayLeave ? (
-              t('Mark Open')
-            ) : (
-              t('Mark Leave')
-            )}
-          </button>
-        </div>
-
-        {/* INVENTORY OVERVIEW CARD */}
-        <div 
-          onClick={() => navigate('/items')}
-          className="bg-white border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between hover-lift cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5 mb-2">
-            <Package className="w-5 h-5 text-primary" />
-            <h3 className="text-sm font-semibold text-textSecondary">{t('Inventory')}</h3>
-          </div>
-
-          <div className="my-2">
-            <div className="text-3xl font-extrabold text-primary">
-              {itemCount} <span className="text-sm font-medium text-textSecondary">{itemCount === 1 ? t('Item') : t('Items')}</span>
+            
+            {/* Top Header of Health Score with Circle Gauge and Verdict */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-4 border-b border-white/10">
+              <div className="flex flex-col items-center md:items-start text-center md:text-left">
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{t('Business Health Score')}</h2>
+                <p className="text-white/60 text-xs sm:text-sm mt-1">{t('This Week')}</p>
+                
+                <div className="mt-3">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-white">
+                    {getTranslatedVerdict(health.score)}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-6">
+                {/* SVG Progress Circle */}
+                <div className="relative flex flex-col items-center">
+                  <svg className="w-28 h-28 transform -rotate-90">
+                    <circle
+                      cx="56"
+                      cy="56"
+                      r="45"
+                      stroke="rgba(255,255,255,0.12)"
+                      strokeWidth="8"
+                      fill="transparent"
+                    />
+                    <circle
+                      cx="56"
+                      cy="56"
+                      r="45"
+                      stroke={getRingColor(health.score)}
+                      strokeWidth="8"
+                      fill="transparent"
+                      strokeDasharray={2 * Math.PI * 45}
+                      strokeDashoffset={2 * Math.PI * 45 - (health.score / 100) * (2 * Math.PI * 45)}
+                      className="transition-all duration-1000 ease-out"
+                    />
+                  </svg>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                    <span className="text-2xl font-extrabold text-white">{health.score}</span>
+                  </div>
+                </div>
+                
+                <div className="text-center sm:text-left">
+                  <h3 className="text-lg sm:text-xl font-bold text-white">{getTranslatedVerdict(health.score)}</h3>
+                  <p className="text-xs sm:text-sm text-white/70 mt-1 max-w-[200px] leading-relaxed">
+                    {getVerdictDescription(health.score)}
+                  </p>
+                </div>
+              </div>
             </div>
-            <p className="text-xs text-textSecondary mt-1">{t('Prices & Targets')}</p>
+
+            {/* Nested Metric Cards Inside Dark Blue Container */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col justify-between hover-lift">
+                <span className="text-[10px] sm:text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('Revenue')}</span>
+                <span className="text-base sm:text-xl font-black text-primary mt-2">{formatCurrency(metrics.revenue)}</span>
+              </div>
+              <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col justify-between hover-lift">
+                <span className="text-[10px] sm:text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('Profit')}</span>
+                <span className="text-base sm:text-xl font-black text-primary mt-2">{formatCurrency(metrics.profit)}</span>
+              </div>
+              <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col justify-between hover-lift">
+                <span className="text-[10px] sm:text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('Alerts')}</span>
+                <span className="text-base sm:text-xl font-black text-danger mt-2">{metrics.activeAlerts}</span>
+              </div>
+              <div className="bg-white rounded-2xl p-4 shadow-sm flex flex-col justify-between hover-lift">
+                <span className="text-[10px] sm:text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('On Track')}</span>
+                <span className="text-base sm:text-xl font-black text-success mt-2">{metrics.itemsOnTrack}</span>
+              </div>
+            </div>
+
           </div>
 
-          <div className="flex items-center justify-end gap-1 text-primary text-xs font-bold mt-2">
-            {t('Manage')}
-            <ChevronRight className="w-4 h-4" />
+          {/* Shop Status and Inventory side-by-side */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            
+            {/* SHOP STATUS CARD */}
+            <div className="bg-white border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between hover-lift">
+              <div className="flex items-center gap-2.5 mb-2">
+                <Store className="w-5 h-5 text-primary" />
+                <h3 className="text-sm font-semibold text-textSecondary">{t('Shop Status')}</h3>
+              </div>
+              
+              <div className="my-3">
+                <span className={`text-xl font-bold ${isTodayLeave ? 'text-warning' : 'text-success'}`}>
+                  {isTodayLeave ? t('On Leave') : t('Open & Active')}
+                </span>
+              </div>
+
+              <button
+                onClick={toggleShopStatus}
+                disabled={togglingStatus}
+                className={`w-full py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer ${
+                  isTodayLeave 
+                    ? 'bg-success text-white hover:bg-success/90 shadow-md shadow-success/15' 
+                    : 'bg-danger/10 text-danger hover:bg-danger/15'
+                }`}
+              >
+                {togglingStatus ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : isTodayLeave ? (
+                  t('Mark Open')
+                ) : (
+                  t('Mark Leave')
+                )}
+              </button>
+            </div>
+
+            {/* INVENTORY OVERVIEW CARD */}
+            <div 
+              onClick={() => navigate('/items')}
+              className="bg-white border border-border rounded-2xl p-6 shadow-sm flex flex-col justify-between hover-lift cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5 mb-2">
+                <Package className="w-5 h-5 text-primary" />
+                <h3 className="text-sm font-semibold text-textSecondary">{t('Inventory')}</h3>
+              </div>
+
+              <div className="my-2">
+                <div className="text-3xl font-extrabold text-primary">
+                  {itemCount} <span className="text-sm font-medium text-textSecondary">{itemCount === 1 ? t('Item') : t('Items')}</span>
+                </div>
+                <p className="text-xs text-textSecondary mt-1">{t('Prices & Targets')}</p>
+              </div>
+
+              <div className="flex items-center justify-end gap-1 text-primary text-xs font-bold mt-2">
+                {t('Manage')}
+                <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
+
           </div>
-        </div>
 
-      </div>
-
-      {/* METRIC CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <MetricCard title={t("Revenue")} value={formatCurrency(metrics.revenue)} icon={<IndianRupee className="text-primary" />} />
-        <MetricCard title={t("Profit")} value={formatCurrency(metrics.profit)} icon={<TrendingUp className="text-success" />} />
-        <MetricCard title={t("Met Target")} value={`${metrics.itemsOnTrack}`} icon={<CheckCircle className="text-accent" />} />
-        <MetricCard title={t("Active Alerts")} value={`${metrics.activeAlerts}`} icon={<BellRing className="text-danger" />} />
-      </div>
-
-      {/* DETAILED CONTENT */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* CHARTS CONTAINER */}
-        <div className="lg:col-span-2 space-y-6">
-          
           {/* AI SMART INSIGHT CARD */}
           {growthTip && (
             <div 
@@ -479,52 +568,13 @@ export function Dashboard() {
             </div>
           )}
 
-          {/* WEEKLY REVENUE CHART */}
-          <div className="glass p-6 rounded-xl hover-lift bg-white">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-primary">{t('Weekly Revenue')}</h3>
-              <Link to="/daily-analysis" className="text-xs font-bold text-accent hover:underline">{t('Daily Analysis')}</Link>
-            </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} tickFormatter={(val) => `₹${val}`} />
-                  <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Bar dataKey="revenue" name={t("Revenue")} fill="#F4A833" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          
-          {/* SALES TREND CHART */}
-          <div className="glass p-6 rounded-xl hover-lift bg-white">
-            <h3 className="text-lg font-semibold mb-4 text-primary">{t('Sales Trend')}</h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280' }} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                  <Line type="monotone" dataKey="sales" name={t("Quantity Sold")} stroke="#1E3A5F" strokeWidth={3} dot={{ fill: '#1E3A5F', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
         </div>
 
-        {/* SIDE PANELS (HEALTH SCORE CARD & ALERTS) */}
-        <div className="space-y-6">
-          
-          {/* HEALTH SCORE CARD */}
-          <HealthScoreCard score={health.score} components={health.components} />
-          
-          {/* RECENT ALERTS */}
-          <div className="glass p-6 rounded-xl bg-white border border-border">
+        {/* RIGHT COLUMN: Recent Alerts (aligned straight at top with Health Score Card) */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="glass p-6 rounded-2xl bg-white border border-border shadow-sm">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-primary">{t('Recent Alerts')}</h3>
+              <h3 className="text-lg font-bold text-primary">{t('Recent Alerts')}</h3>
               <Link to="/alerts" className="text-sm text-accent hover:underline font-semibold">{t('View all')}</Link>
             </div>
             {alerts.length === 0 ? (
@@ -538,7 +588,9 @@ export function Dashboard() {
             )}
           </div>
         </div>
+
       </div>
+
     </div>
   );
 }

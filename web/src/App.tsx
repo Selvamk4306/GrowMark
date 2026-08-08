@@ -11,9 +11,6 @@ import { ManageItems } from './pages/ManageItems';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Onboarding } from './pages/Onboarding';
-import { DailyAnalysis } from './pages/DailyAnalysis';
-import { PrivacyPolicy } from './pages/PrivacyPolicy';
-import { TermsOfUse } from './pages/TermsOfUse';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -36,9 +33,6 @@ function App() {
               <Route path="tips" element={<GrowthTips />} />
               <Route path="profile" element={<Profile />} />
               <Route path="items" element={<ManageItems />} />
-              <Route path="daily-analysis" element={<DailyAnalysis />} />
-              <Route path="privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="terms-of-use" element={<TermsOfUse />} />
             </Route>
           </Routes>
         </AuthProvider>
