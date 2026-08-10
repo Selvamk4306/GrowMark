@@ -27,6 +27,8 @@ export default function AlertsScreen() {
 
       // 1. Delete alerts older than the start of this week from Supabase
       const weekStart = getStartOfWeek(new Date());
+      // Zero out time so deletion only removes truly old alerts (before Monday 00:00:00)
+      weekStart.setHours(0, 0, 0, 0);
       await supabase
         .from('alerts')
         .delete()

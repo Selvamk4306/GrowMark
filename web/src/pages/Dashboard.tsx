@@ -193,7 +193,13 @@ export function Dashboard() {
         };
         setHealth(currentHealth);
       } else {
-        const totalItemsCount = totalItems || 1;
+        // Fetch registered items count for fallback health score calculation
+        const { count: itemsCountVal } = await supabase
+          .from('items')
+          .select('*', { count: 'exact', head: true })
+          .eq('owner_id', owner.id);
+
+        const totalItemsCount = (itemsCountVal && itemsCountVal > 0) ? itemsCountVal : 1;
         const targetAch = Math.min(100, (itemsMetTarget / totalItemsCount) * 100);
         const profitMargin = rev > 0 ? (prof / rev) * 100 : 0;
         const profitScore = Math.min(100, (profitMargin / 20) * 100);
@@ -212,6 +218,8 @@ export function Dashboard() {
 
       // Fetch top 3 recent unread alerts for this week
       const weekStart = getStartOfWeek(new Date());
+      // Zero out time so we delete only alerts strictly before Monday 00:00:00 local
+      weekStart.setHours(0, 0, 0, 0);
 
       // Auto-delete alerts older than the start of this week
       await supabase

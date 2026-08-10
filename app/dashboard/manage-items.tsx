@@ -33,7 +33,10 @@ export default function ManageItemsScreen() {
 
     const { data: owner } = await supabase.from('owners').select('id').eq('user_id', session.user.id).single();
     if (owner) {
-      const { data } = await supabase.from('items').select('*').eq('owner_id', owner.id);
+      const { data } = await supabase
+        .from('items')
+        .select('id, owner_id, item_name, selling_price, cost_price, min_daily_target, min_weekly_target')
+        .eq('owner_id', owner.id);
       if (data) {
         const names = data.map((item: any) => item.item_name);
         const translatedNames = await translateBatch(names, language);

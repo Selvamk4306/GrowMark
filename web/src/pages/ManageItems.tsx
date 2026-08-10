@@ -25,7 +25,11 @@ export function ManageItems() {
   const loadItems = useCallback(async () => {
     if (!owner) return;
     setLoading(true);
-    const { data } = await supabase.from('items').select('*').eq('owner_id', owner.id).order('item_name');
+    const { data } = await supabase
+      .from('items')
+      .select('id, owner_id, item_name, selling_price, cost_price, min_daily_target, min_weekly_target')
+      .eq('owner_id', owner.id)
+      .order('item_name');
     if (data) {
       const itemNames = data.map((item: any) => item.item_name);
       const translatedNames = await translateBatch(itemNames, language);

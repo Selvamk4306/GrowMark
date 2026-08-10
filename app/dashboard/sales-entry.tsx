@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { Colors } from '../../constants/colors';
 import { formatDate, getStartOfWeek, runThresholdCheck, runConsecutiveFailureDetection, calculateBusinessHealthScore } from '../../hooks/useBusinessLogic';
@@ -9,6 +9,7 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { translateBatch } from '@/lib/translationService';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from 'expo-router';
 
 type ItemEntry = {
   id: string;
@@ -99,6 +100,12 @@ export default function SalesEntryScreen() {
   useEffect(() => {
     fetchItemsAndSales(selectedDate);
   }, [selectedDate, language]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchItemsAndSales(selectedDate);
+    }, [selectedDate])
+  );
 
   const updateQuantity = (id: string, delta: number) => {
     setItems(items.map(item => {

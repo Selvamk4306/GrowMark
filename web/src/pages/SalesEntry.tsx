@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { formatDate, formatCurrency } from '../lib/businessLogic';
+import { formatDate, formatCurrency, runConsecutiveFailureDetection, calculateBusinessHealthScore, getStartOfWeek } from '../lib/businessLogic';
 import { Save } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
 import { translateBatch } from '../lib/translationService';
@@ -70,11 +70,13 @@ export function SalesEntry() {
   };
 
   const setExactQuantity = (itemId: string, val: string) => {
+    if (val === '') {
+      setSalesData(prev => ({ ...prev, [itemId]: 0 }));
+      return;
+    }
     const num = parseInt(val, 10);
     if (!isNaN(num) && num >= 0) {
       setSalesData(prev => ({ ...prev, [itemId]: num }));
-    } else if (val === '') {
-      setSalesData(prev => ({ ...prev, [itemId]: 0 }));
     }
   };
 
@@ -170,8 +172,10 @@ export function SalesEntry() {
                       </button>
                       <input 
                         type="number" 
-                        value={qty}
+                        min="0"
+                        value={salesData[item.id] === undefined ? '' : salesData[item.id]}
                         onChange={(e) => setExactQuantity(item.id, e.target.value)}
+                        onFocus={(e) => e.target.select()}
                         className="w-12 text-center bg-transparent outline-none font-semibold"
                       />
                       <button 
