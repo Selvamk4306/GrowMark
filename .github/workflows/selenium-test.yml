@@ -3,6 +3,9 @@ name: GrowMark Web Selenium E2E Tests
 on:
   push:
     branches: [main, master]
+    paths:
+      - 'testing/selenium-tests/**'
+      - '.github/workflows/selenium-test.yml'
   pull_request:
     branches: [main, master]
   workflow_dispatch: {}
