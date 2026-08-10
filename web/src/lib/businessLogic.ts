@@ -21,11 +21,10 @@ export const calculateHealthScore = (
   expense_control: number
 ) => {
   const cap = (val: number) => Math.min(Math.max(val, 0), 100);
+  const profit_score = cap((profit_margin / 20) * 100);
   
-  const score = (cap(revenue_growth) * 0.30) 
-              + (cap(profit_margin) * 0.30) 
-              + (cap(target_achievement_rate) * 0.20) 
-              + (cap(expense_control) * 0.20);
+  const score = (cap(target_achievement_rate) * 0.50) 
+              + (profit_score * 0.50);
               
   return Math.round(score);
 };

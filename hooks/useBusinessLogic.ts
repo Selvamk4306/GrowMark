@@ -407,8 +407,8 @@ export async function calculateBusinessHealthScore(ownerId: string, weekStartDat
     // D. Expense Control (Placeholder)
     const expense_control = 100;
 
-    // Final Weighted Score
-    const score = (revenue_growth * 0.30) + (profit_score * 0.30) + (target_achievement_rate * 0.20) + (expense_control * 0.20);
+    // Final Weighted Score (Option 2: 50% Target Achievement + 50% Profit Score)
+    const score = (target_achievement_rate * 0.50) + (profit_score * 0.50);
     const finalScore = Math.min(100, Math.max(0, Math.round(score)));
 
     // Upsert the score
