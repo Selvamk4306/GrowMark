@@ -80,34 +80,47 @@ export function SalesEntry() {
 
   const handleSave = async () => {
     setSaving(true);
-    // Delete existing entries for this date
-    await supabase.from('daily_sales').delete().eq('owner_id', owner.id).eq('sale_date', date);
+    try {
+      // Delete existing entries for this date
+      await supabase.from('daily_sales').delete().eq('owner_id', owner.id).eq('sale_date', date);
 
-    // Insert new entries
-    const inserts = items
-      .filter(item => salesData[item.id] !== undefined && salesData[item.id] > 0)
-      .map(item => {
-        const qty = salesData[item.id];
-        const revenue = qty * item.selling_price;
-        const profit = revenue - (qty * item.cost_price);
-        return {
-          owner_id: owner.id,
-          item_id: item.id,
-          sale_date: date,
-          quantity_sold: qty,
-          total_revenue: revenue,
-          total_profit: profit
-        };
-      });
+      // Insert new entries
+      const inserts = items
+        .filter(item => salesData[item.id] !== undefined && salesData[item.id] > 0)
+        .map(item => {
+          const qty = salesData[item.id];
+          const revenue = qty * item.selling_price;
+          const profit = revenue - (qty * item.cost_price);
+          return {
+            owner_id: owner.id,
+            item_id: item.id,
+            sale_date: date,
+            quantity_sold: qty,
+            total_revenue: revenue,
+            total_profit: profit
+          };
+        });
 
-    if (inserts.length > 0) {
-      await supabase.from('daily_sales').insert(inserts);
+      if (inserts.length > 0) {
+        await supabase.from('daily_sales').insert(inserts);
+      }
+      
+      // Run alert threshold & failure detection for all items
+      for (const item of items) {
+        await runConsecutiveFailureDetection(owner.id, item.id, date);
+      }
+
+      // Recalculate health score for the week
+      const weekStart = getStartOfWeek(new Date(date));
+      await calculateBusinessHealthScore(owner.id, formatDate(weekStart));
+      
+      alert(t('Sales data saved successfully!'));
+    } catch (err: any) {
+      console.error(err);
+      alert(t('Error saving sales data: ') + err.message);
+    } finally {
+      setSaving(false);
     }
-    
-    // Alert logic would run here normally (e.g. calling an edge function)
-    
-    setSaving(false);
-    alert(t('Sales data saved successfully!'));
   };
 
   return (

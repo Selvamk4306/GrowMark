@@ -192,6 +192,22 @@ export function Dashboard() {
           }
         };
         setHealth(currentHealth);
+      } else {
+        const totalItemsCount = totalItems || 1;
+        const targetAch = Math.min(100, (itemsMetTarget / totalItemsCount) * 100);
+        const profitMargin = rev > 0 ? (prof / rev) * 100 : 0;
+        const profitScore = Math.min(100, (profitMargin / 20) * 100);
+        const fallbackScore = Math.min(100, Math.max(0, Math.round((targetAch * 0.50) + (profitScore * 0.50))));
+
+        setHealth({
+          score: fallbackScore,
+          components: {
+            revenue_growth: 0,
+            profit_margin: profitMargin,
+            target_achievement: targetAch,
+            expense_control: 100
+          }
+        });
       }
 
       // Fetch top 3 recent unread alerts for this week
