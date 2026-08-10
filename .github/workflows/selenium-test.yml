@@ -1,4 +1,4 @@
-name: GrowMark Web Selenium E2E Tests (Manual Only — PASSED)
+name: GrowMark Web Selenium E2E Tests
 
 on:
   push:
