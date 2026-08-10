@@ -177,8 +177,13 @@ export function Dashboard() {
 
       let currentHealth = { score: 0, components: { revenue_growth: 0, profit_margin: 0, target_achievement: 0, expense_control: 0 } };
       if (!healthError && latestHealth) {
+        const targetAch = latestHealth.target_achievement_rate ?? 0;
+        const profitMargin = latestHealth.profit_margin ?? 0;
+        const profitScore = Math.min(100, (profitMargin / 20) * 100);
+        const option2Score = Math.min(100, Math.max(0, Math.round((targetAch * 0.50) + (profitScore * 0.50))));
+
         currentHealth = {
-          score: latestHealth.score,
+          score: option2Score,
           components: {
             revenue_growth: latestHealth.revenue_growth,
             profit_margin: latestHealth.profit_margin,

@@ -28,7 +28,10 @@ export function HealthScore() {
           .single();
         
         if (data) {
-          const score = data.score ?? 0;
+          const targetAch = data.target_achievement_rate ?? 0;
+          const profitMargin = data.profit_margin ?? 0;
+          const profitScore = Math.min(100, (profitMargin / 20) * 100);
+          const score = Math.min(100, Math.max(0, Math.round((targetAch * 0.50) + (profitScore * 0.50))));
 
           setHealthData({
             score,
