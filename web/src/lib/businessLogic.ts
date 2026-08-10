@@ -39,3 +39,26 @@ export const getHealthVerdict = (score: number) => {
   if (score >= 50) return { color: 'text-warning', message: 'Needs Improvement in some areas' };
   return { color: 'text-danger', message: 'Critical Action Required' };
 };
+
+export const INSIGHT_VARIATIONS: Record<string, Array<{ title: string; desc: string }>> = {
+  'Revenue Drop': [
+    { title: 'Revenue Slip', desc: 'Your weekly revenue dropped. Consider a weekend promotion.' },
+    { title: 'Sales Slowdown', desc: 'Sales are lower than last week. Time to re-engage customers.' },
+    { title: 'Income Alert', desc: 'A revenue dip was detected. Review your pricing strategy.' }
+  ],
+  'Low Margin': [
+    { title: 'Profit Squeeze', desc: 'Margins are thin. Check supplier costs or raise prices.' },
+    { title: 'Thin Margins', desc: 'Your profit per sale is low. Consider bulk buying for better rates.' },
+    { title: 'Margin Boost', desc: 'Profit margins dropped. Optimize your overhead expenses.' }
+  ],
+  'Combo': [
+    { title: 'Combo Potential', desc: 'Boost sales by bundling items that are missing targets.' },
+    { title: 'Bundle & Save', desc: 'Create a "Smart Bundle" with under-performing items.' },
+    { title: 'Mix & Match', desc: 'A combo offer could revive interest in slow-moving stock.' }
+  ],
+  'Default': [
+    { title: 'Keep It Up!', desc: 'Your business metrics look healthy. Stay focused on growth!' },
+    { title: 'Steady Growth', desc: 'Solid performance this week. Can you push it even further?' },
+    { title: 'Business in Bloom', desc: 'Everything looks green. A great time to plan for expansion.' }
+  ]
+};

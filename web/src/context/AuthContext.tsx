@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { LoadingScreen } from '../components/LoadingScreen';
 
 const AuthContext = createContext<any | null>(null);
 
@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log('[DEBUG] initializeAuth: getSession returned:', { data, error });
         if (error) {
           console.error('Error fetching session:', error);
+          await supabase.auth.signOut().catch(() => {});
           if (mounted) {
             setSession(null);
             setOwner(null);
@@ -117,11 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{ session, owner, loading, signOut: () => supabase.auth.signOut(), refreshOwner }}>
       {!loading && children}
-      {loading && (
-        <div className="h-screen w-full flex items-center justify-center bg-background">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      )}
+      {loading && <LoadingScreen />}
     </AuthContext.Provider>
   );
 }

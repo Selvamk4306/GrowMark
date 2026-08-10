@@ -46,12 +46,15 @@ export default function SplashScreen() {
         // Update last active
         await AsyncStorage.setItem('last_active_timestamp', now.toString());
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data, error: sessionErr } = await supabase.auth.getSession();
 
-        if (!session) {
+        if (sessionErr || !data?.session) {
+          await supabase.auth.signOut().catch(() => {});
           router.replace('/auth/login' as any);
           return;
         }
+
+        const session = data.session;
 
         // Check if user has completed onboarding by checking owners table
         const { data: owner, error } = await supabase
@@ -67,6 +70,7 @@ export default function SplashScreen() {
         }
       } catch (error) {
         console.error('Splash Screen Auth Check Error:', error);
+        await supabase.auth.signOut().catch(() => {});
         router.replace('/auth/login' as any);
       }
     };

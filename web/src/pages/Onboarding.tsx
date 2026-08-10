@@ -2,29 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 import { useTranslation } from '../hooks/useTranslation';
+import { LoadingScreen } from '../components/LoadingScreen';
 import { 
-  Languages, 
-  Store, 
-  Calendar, 
-  PackagePlus, 
   ArrowRight, 
-  ArrowLeft, 
-  Check, 
   Plus, 
   Trash2,
   AlertCircle
 } from 'lucide-react';
-
-const LANGUAGES = [
-  { code: 'en', label: 'English', native: 'English' },
-  { code: 'ta', label: 'Tamil', native: 'தமிழ்' },
-  { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
-  { code: 'te', label: 'Telugu', native: 'తెలుగు' },
-  { code: 'kn', label: 'Kannada', native: 'ಕನ್ನಡ' },
-  { code: 'ml', label: 'Malayalam', native: 'മലയാളം' },
-];
 
 const SHOP_TYPES = ['Grocery', 'Food and Beverage', 'Salon', 'Pharmacy', 'Clothing', 'Hardware', 'Other'];
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -40,11 +25,11 @@ type ItemInput = {
 
 export function Onboarding() {
   const { session, refreshOwner } = useAuth();
-  const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(0);
+  // Start directly at Step 1 (Shop Setup)
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [ownerId, setOwnerId] = useState<string | null>(null);
@@ -67,15 +52,16 @@ export function Onboarding() {
     setError('');
   }, [step]);
 
-  // Step 0 Continue: Save Lang preference and proceed
-  const handleLangContinue = () => {
-    localStorage.setItem('has_selected_language', 'true');
-    setStep(1);
+  // Helper to safely obtain user
+  const getUser = async () => {
+    if (session?.user) return session.user;
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user || null;
   };
 
   // Step 1 Continue: Create Owner profile
-  const handleShopSetup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleShopSetup = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!shopName || !shopType) {
       setError(t('Shop Name and Shop Type are required.'));
       return;
@@ -85,13 +71,18 @@ export function Onboarding() {
     setError('');
 
     try {
-      const username = session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Owner';
+      const user = await getUser();
+      if (!user) {
+        throw new Error(t('User session not found. Please log in again.'));
+      }
+
+      const username = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Owner';
       
       // Check if owner already exists
       const { data: existingOwner } = await supabase
         .from('owners')
         .select('id')
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       let currentOwnerId = '';
@@ -118,7 +109,7 @@ export function Onboarding() {
           .from('owners')
           .insert([
             {
-              user_id: session.user.id,
+              user_id: user.id,
               shop_name: shopName,
               shop_type: shopType,
               location: location,
@@ -152,12 +143,15 @@ export function Onboarding() {
     setError('');
 
     try {
+      const user = await getUser();
+      if (!user) throw new Error(t('User session not found. Please log in again.'));
+
       let activeOwnerId = ownerId;
       if (!activeOwnerId) {
         const { data: currentOwner } = await supabase
           .from('owners')
           .select('id')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id)
           .single();
         if (!currentOwner) throw new Error(t('Owner profile not found'));
         activeOwnerId = currentOwner.id;
@@ -209,12 +203,15 @@ export function Onboarding() {
     setError('');
 
     try {
+      const user = await getUser();
+      if (!user) throw new Error(t('User session not found. Please log in again.'));
+
       let activeOwnerId = ownerId;
       if (!activeOwnerId) {
         const { data: currentOwner } = await supabase
           .from('owners')
           .select('id')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id)
           .single();
         if (!currentOwner) throw new Error(t('Owner profile not found'));
         activeOwnerId = currentOwner.id;
@@ -235,7 +232,7 @@ export function Onboarding() {
       if (insertError) throw insertError;
 
       // Update AuthContext owner and navigate to dashboard
-      await refreshOwner(session.user.id);
+      await refreshOwner(user.id);
       navigate('/', { replace: true });
     } catch (err: any) {
       setError(err.message || t('Failed to save items.'));
@@ -257,340 +254,268 @@ export function Onboarding() {
   const setMonToSat = () => setSelectedDays(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
   const setMonToSun = () => setSelectedDays([...DAYS]);
 
+  const handleBack = () => {
+    if (step === 1) {
+      navigate('/login');
+    } else {
+      setStep(step - 1);
+    }
+  };
+
+  const progressPercentage = step === 1 ? 33 : step === 2 ? 66 : 100;
+
+  if (loading) {
+    return <LoadingScreen message={t('Saving setup details...')} />;
+  }
+
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10 -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -z-10 translate-x-1/2 translate-y-1/2" />
-
-      {/* Main Container */}
-      <div className="max-w-xl w-full mx-auto my-auto">
-        
-        {/* Step Progress Indicators */}
-        <div className="mb-8 flex items-center justify-between px-2">
-          {[
-            { label: t('Language'), icon: Languages },
-            { label: t('Shop'), icon: Store },
-            { label: t('Days'), icon: Calendar },
-            { label: t('Items'), icon: PackagePlus }
-          ].map((item, idx) => {
-            const Icon = item.icon;
-            const isCompleted = idx < step;
-            const isActive = idx === step;
-            return (
-              <div key={idx} className="flex flex-col items-center flex-1 relative">
-                {/* Connecting Line */}
-                {idx > 0 && (
-                  <div className={`absolute top-5 right-1/2 left-[-50%] h-0.5 -z-10 transition-colors duration-500 ${isCompleted ? 'bg-primary' : 'bg-border'}`} />
-                )}
-                
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 border-2 shadow-sm ${
-                  isCompleted ? 'bg-primary border-primary text-white' : 
-                  isActive ? 'bg-white border-accent text-accent scale-110 ring-4 ring-accent/10' : 
-                  'bg-white border-border text-textSecondary'
-                }`}>
-                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                </div>
-                <span className={`text-[10px] sm:text-xs font-semibold mt-2 transition-colors duration-300 ${isActive ? 'text-primary' : 'text-textSecondary'}`}>
-                  {item.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Error message */}
-        {error && (
-          <div className="bg-danger/10 border border-danger/20 text-danger p-4 rounded-xl mb-6 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <span className="text-sm font-medium">{error}</span>
+    <div className="min-h-screen bg-[#F5F7FA] text-[#1A1A1A] flex flex-col justify-between pt-8 pb-4 px-4 sm:px-6 select-none">
+      
+      {/* Container */}
+      <div className="max-w-xl w-full mx-auto flex-1 flex flex-col justify-between">
+        <div>
+          {/* Top Progress Bar & Header (Matches App shop-setup.tsx structure) */}
+          <div className="mb-6 px-1">
+            <div className="w-full bg-[#E5E7EB] h-1.5 rounded-full overflow-hidden mb-2">
+              <div 
+                className="bg-[#F4A833] h-full transition-all duration-500 ease-out rounded-full"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+            <p className="text-sm font-bold text-[#F4A833]">
+              {t(`Step ${step} of 3`)}
+            </p>
           </div>
-        )}
 
-        {/* Card Component */}
-        <div className="glass p-6 sm:p-8 rounded-2xl shadow-xl hover-lift bg-white/95 border border-white/40">
-          
-          {/* STEP 0: LANGUAGE SELECT */}
-          {step === 0 && (
-            <div>
-              <h2 className="text-2xl font-bold text-primary mb-2 text-center">{t('Choose your language')}</h2>
-              <p className="text-sm text-textSecondary text-center mb-8">{t('You can change this anytime in settings')}</p>
-
-              <div className="grid grid-cols-2 gap-4 mb-8 max-h-[300px] overflow-y-auto pr-1">
-                {LANGUAGES.map((lang) => {
-                  const isSelected = language === lang.label;
-                  return (
-                    <button
-                      key={lang.code}
-                      onClick={() => setLanguage(lang.label)}
-                      className={`p-4 rounded-xl border text-left transition-all duration-300 flex items-center justify-between cursor-pointer ${
-                        isSelected 
-                          ? 'border-accent bg-accent/5 shadow-sm shadow-accent/5 ring-1 ring-accent' 
-                          : 'border-border hover:border-textSecondary hover:bg-background'
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-primary text-sm sm:text-base">{lang.native}</div>
-                        <div className="text-xs text-textSecondary">{lang.label}</div>
-                      </div>
-                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                        isSelected ? 'border-accent bg-accent text-white' : 'border-border bg-white'
-                      }`}>
-                        {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                onClick={handleLangContinue}
-                className="w-full py-3.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/95 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-primary/20"
-              >
-                {t('Continue')}
-                <ArrowRight className="w-5 h-5" />
-              </button>
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl mb-6 flex items-start gap-3 shadow-sm">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <span className="text-sm font-medium">{error}</span>
             </div>
           )}
 
-          {/* STEP 1: SHOP SETUP */}
-          {step === 1 && (
-            <form onSubmit={handleShopSetup}>
-              <h2 className="text-2xl font-bold text-primary mb-2">{t('Tell us about your shop.')}</h2>
-              <p className="text-sm text-textSecondary mb-6">{t('Step 1 of 3')}</p>
+          {/* Main Card Content */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-200">
+            
+            {/* STEP 1: SHOP SETUP */}
+            {step === 1 && (
+              <form id="shop-setup-form" onSubmit={handleShopSetup}>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#1E3A5F] mb-6">{t('Tell us about your shop.')}</h2>
 
-              <div className="space-y-5 mb-8">
-                <div>
-                  <label className="block text-sm font-semibold text-textPrimary mb-2">{t('Shop Name')}</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder={t('Enter shop name')}
-                    className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white"
-                    value={shopName}
-                    onChange={(e) => setShopName(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-textPrimary mb-2">{t('Shop Type')}</label>
-                  <div className="flex flex-wrap gap-2.5">
-                    {SHOP_TYPES.map((type) => {
-                      const isSelected = shopType === type;
-                      return (
-                        <button
-                          key={type}
-                          type="button"
-                          onClick={() => setShopType(type)}
-                          className={`px-4 py-2 rounded-full border text-xs sm:text-sm font-medium transition-all cursor-pointer ${
-                            isSelected 
-                              ? 'bg-primary border-primary text-white shadow-sm shadow-primary/10' 
-                              : 'bg-white border-border text-textSecondary hover:border-textSecondary'
-                          }`}
-                        >
-                          {t(type)}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-textPrimary mb-2">{t('Location (Optional)')}</label>
-                  <input
-                    type="text"
-                    placeholder={t('City or Area')}
-                    className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all bg-white"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setStep(0)}
-                  className="flex-1 py-3.5 border border-border text-textSecondary rounded-xl font-bold hover:bg-background transition-all active:scale-[0.99] flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  {t('Back')}
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-[2] py-3.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/95 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-primary/20 disabled:opacity-55"
-                >
-                  {loading ? t('Saving...') : t('Next')}
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* STEP 2: WORKING DAYS */}
-          {step === 2 && (
-            <div>
-              <h2 className="text-2xl font-bold text-primary mb-1">{t('When does your store operate?')}</h2>
-              <p className="text-sm text-textSecondary mb-6">{t('This helps us track only your working days')}</p>
-
-              {/* Working days pills */}
-              <div className="flex flex-wrap gap-3 justify-center mb-6">
-                {DAYS.map((day) => {
-                  const isSelected = selectedDays.includes(day);
-                  return (
-                    <button
-                      key={day}
-                      onClick={() => toggleDay(day)}
-                      className={`w-14 h-14 rounded-full border-2 flex items-center justify-center font-bold transition-all text-sm cursor-pointer ${
-                        isSelected 
-                          ? 'bg-primary border-primary text-white shadow-md shadow-primary/10' 
-                          : 'bg-white border-border text-primary hover:border-primary'
-                      }`}
-                    >
-                      {t(day)}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Preset buttons */}
-              <div className="flex gap-4 justify-center mb-8">
-                <button 
-                  onClick={setMonToSat}
-                  className="px-4 py-2 bg-border text-textPrimary rounded-lg text-sm font-semibold hover:bg-border/80 transition-colors cursor-pointer"
-                >
-                  {t('Mon - Sat')}
-                </button>
-                <button 
-                  onClick={setMonToSun}
-                  className="px-4 py-2 bg-border text-textPrimary rounded-lg text-sm font-semibold hover:bg-border/80 transition-colors cursor-pointer"
-                >
-                  {t('Mon - Sun')}
-                </button>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setStep(1)}
-                  className="flex-1 py-3.5 border border-border text-textSecondary rounded-xl font-bold hover:bg-background transition-all active:scale-[0.99] flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  {t('Back')}
-                </button>
-                <button
-                  onClick={handleWorkingDaysSetup}
-                  disabled={loading}
-                  className="flex-[2] py-3.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/95 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-primary/20 disabled:opacity-55"
-                >
-                  {loading ? t('Saving...') : t('Next')}
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: ITEM SETUP */}
-          {step === 3 && (
-            <div>
-              <h2 className="text-2xl font-bold text-primary mb-1">{t('What do you sell?')}</h2>
-              <p className="text-sm text-textSecondary mb-6">{t('Add your shop items and their sales goals')}</p>
-
-              <div className="space-y-4 mb-6 max-h-[350px] overflow-y-auto pr-1">
-                {items.map((item, index) => (
-                  <div key={item.id} className="p-4 rounded-xl border border-border bg-background/50 relative space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-bold text-primary">{t('Item')} {index + 1}</span>
-                      {items.length > 1 && (
-                        <button
-                          onClick={() => handleRemoveItem(item.id)}
-                          className="p-1 text-textSecondary hover:text-danger rounded-md hover:bg-danger/10 transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-
+                <div className="space-y-6">
+                  {/* Shop Name */}
+                  <div>
+                    <label className="block text-base font-semibold text-[#1A1A1A] mb-2">{t('Shop Name')}</label>
                     <input
                       type="text"
                       required
-                      placeholder={t('Item Name (e.g., Milk 1L)')}
-                      className="w-full px-3 py-2 border border-border rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
-                      value={item.item_name}
-                      onChange={(e) => updateItem(item.id, 'item_name', e.target.value)}
+                      placeholder={t('Enter shop name')}
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-300 focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] outline-none transition-all bg-white text-base text-[#1A1A1A]"
+                      value={shopName}
+                      onChange={(e) => setShopName(e.target.value)}
                     />
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="number"
-                        step="0.01"
-                        required
-                        placeholder={t('Selling Price (₹)')}
-                        className="px-3 py-2 border border-border rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
-                        value={item.selling_price}
-                        onChange={(e) => updateItem(item.id, 'selling_price', e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        step="0.01"
-                        placeholder={t('Cost Price (₹) Opt.')}
-                        className="px-3 py-2 border border-border rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
-                        value={item.cost_price}
-                        onChange={(e) => updateItem(item.id, 'cost_price', e.target.value)}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="number"
-                        required
-                        placeholder={t('Min Daily Target')}
-                        className="px-3 py-2 border border-border rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
-                        value={item.min_daily_target}
-                        onChange={(e) => updateItem(item.id, 'min_daily_target', e.target.value)}
-                      />
-                      <input
-                        type="number"
-                        required
-                        placeholder={t('Min Weekly Target')}
-                        className="px-3 py-2 border border-border rounded-lg bg-white text-sm focus:border-primary focus:outline-none"
-                        value={item.min_weekly_target}
-                        onChange={(e) => updateItem(item.id, 'min_weekly_target', e.target.value)}
-                      />
+                  {/* Shop Type */}
+                  <div>
+                    <label className="block text-base font-semibold text-[#1A1A1A] mb-2.5">{t('Shop Type')}</label>
+                    <div className="flex flex-wrap gap-2.5">
+                      {SHOP_TYPES.map((type) => {
+                        const isSelected = shopType === type;
+                        return (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => setShopType(type)}
+                            className={`px-4 py-2.5 rounded-full border text-sm font-medium transition-all cursor-pointer ${
+                              isSelected 
+                                ? 'bg-[#1E3A5F] border-[#1E3A5F] text-white shadow-sm' 
+                                : 'bg-white border-gray-300 text-gray-600 hover:border-gray-400'
+                            }`}
+                          >
+                            {t(type)}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                ))}
+
+                  {/* Location (Optional) */}
+                  <div>
+                    <label className="block text-base font-semibold text-[#1A1A1A] mb-2">{t('Location (Optional)')}</label>
+                    <input
+                      type="text"
+                      placeholder={t('City or Area')}
+                      className="w-full px-4 py-3.5 rounded-xl border border-gray-300 focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] outline-none transition-all bg-white text-base text-[#1A1A1A]"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </form>
+            )}
+
+            {/* STEP 2: WORKING DAYS */}
+            {step === 2 && (
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#1E3A5F] mb-1">{t('When does your store operate?')}</h2>
+                <p className="text-sm text-gray-500 mb-8">{t('This helps us track only your working days')}</p>
+
+                {/* Working days pills */}
+                <div className="flex flex-wrap gap-3 justify-center mb-8">
+                  {DAYS.map((day) => {
+                    const isSelected = selectedDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleDay(day)}
+                        className={`w-14 h-14 rounded-full border-2 flex items-center justify-center font-bold transition-all text-sm cursor-pointer shadow-sm ${
+                          isSelected 
+                            ? 'bg-[#1E3A5F] border-[#1E3A5F] text-white' 
+                            : 'bg-white border-gray-300 text-[#1E3A5F] hover:border-[#1E3A5F]'
+                        }`}
+                      >
+                        {t(day)}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Preset buttons */}
+                <div className="flex gap-3 justify-center mb-4">
+                  <button 
+                    type="button"
+                    onClick={setMonToSat}
+                    className="px-4 py-2 bg-gray-100 border border-gray-200 text-[#1A1A1A] rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors cursor-pointer"
+                  >
+                    {t('Mon - Sat')}
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={setMonToSun}
+                    className="px-4 py-2 bg-gray-100 border border-gray-200 text-[#1A1A1A] rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors cursor-pointer"
+                  >
+                    {t('Mon - Sun')}
+                  </button>
+                </div>
               </div>
+            )}
 
-              <button
-                type="button"
-                onClick={handleAddItem}
-                className="w-full py-3 mb-6 border-2 border-dashed border-accent text-accent rounded-xl font-semibold flex items-center justify-center gap-1.5 hover:bg-accent/5 hover:border-accent/80 transition-all cursor-pointer"
-              >
-                <Plus className="w-5 h-5" />
-                {t('Add Another Item')}
-              </button>
+            {/* STEP 3: ITEM SETUP */}
+            {step === 3 && (
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#1E3A5F] mb-1">{t('What do you sell?')}</h2>
+                <p className="text-sm text-gray-500 mb-6">{t('Add your shop items and their sales goals')}</p>
 
-              <div className="flex gap-4">
+                <div className="space-y-4 mb-6 max-h-[350px] overflow-y-auto pr-1">
+                  {items.map((item, index) => (
+                    <div key={item.id} className="p-4 rounded-xl border border-gray-200 bg-gray-50 space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-bold text-[#1E3A5F]">{t('Item')} {index + 1}</span>
+                        {items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="p-1 text-gray-400 hover:text-red-600 rounded-md hover:bg-red-50 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      <input
+                        type="text"
+                        required
+                        placeholder={t('Item Name (e.g., Milk 1L)')}
+                        className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
+                        value={item.item_name}
+                        onChange={(e) => updateItem(item.id, 'item_name', e.target.value)}
+                      />
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          type="number"
+                          step="0.01"
+                          required
+                          placeholder={t('Selling Price (₹)')}
+                          className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
+                          value={item.selling_price}
+                          onChange={(e) => updateItem(item.id, 'selling_price', e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder={t('Cost Price (₹) Opt.')}
+                          className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
+                          value={item.cost_price}
+                          onChange={(e) => updateItem(item.id, 'cost_price', e.target.value)}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          type="number"
+                          required
+                          placeholder={t('Min Daily Target')}
+                          className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
+                          value={item.min_daily_target}
+                          onChange={(e) => updateItem(item.id, 'min_daily_target', e.target.value)}
+                        />
+                        <input
+                          type="number"
+                          required
+                          placeholder={t('Min Weekly Target')}
+                          className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
+                          value={item.min_weekly_target}
+                          onChange={(e) => updateItem(item.id, 'min_weekly_target', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
                 <button
-                  onClick={() => setStep(2)}
-                  className="flex-1 py-3.5 border border-border text-textSecondary rounded-xl font-bold hover:bg-background transition-all active:scale-[0.99] flex items-center justify-center gap-1.5 cursor-pointer"
+                  type="button"
+                  onClick={handleAddItem}
+                  className="w-full py-3 mb-2 border-2 border-dashed border-[#F4A833] text-[#F4A833] rounded-xl font-semibold flex items-center justify-center gap-1.5 hover:bg-[#F4A833]/5 transition-all cursor-pointer"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  {t('Back')}
-                </button>
-                <button
-                  onClick={handleDone}
-                  disabled={loading}
-                  className="flex-[2] py-3.5 bg-primary text-white rounded-xl font-bold hover:bg-primary/95 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-primary/20 disabled:opacity-55"
-                >
-                  {loading ? t('Saving...') : t('Done')}
+                  <Plus className="w-5 h-5" />
+                  {t('Add Another Item')}
                 </button>
               </div>
-            </div>
-          )}
+            )}
 
+          </div>
         </div>
+
+        {/* Footer Navigation Bar (Matches App shop-setup.tsx footer) */}
+        <div className="mt-6 pt-4 border-t border-gray-200 flex gap-3">
+          <button
+            type="button"
+            onClick={handleBack}
+            disabled={loading}
+            className="flex-1 py-4 border border-gray-300 bg-white text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-base"
+          >
+            <span>{t('Back')}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (step === 1) handleShopSetup();
+              else if (step === 2) handleWorkingDaysSetup();
+              else if (step === 3) handleDone();
+            }}
+            disabled={loading}
+            className="flex-[2] py-4 bg-[#1E3A5F] text-white rounded-xl font-bold hover:bg-[#1E3A5F]/90 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md disabled:opacity-60 text-base"
+          >
+            <span>{loading ? t('Saving...') : step === 3 ? t('Done') : t('Next')}</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
       </div>
     </div>
   );

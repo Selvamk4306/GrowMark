@@ -21,3 +21,10 @@
     @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
   }
 }
+
+@keyframes loading {
+  0% { width: 0%; transform: translateX(0); }
+  50% { width: 70%; transform: translateX(30%); }
+  100% { width: 100%; transform: translateX(0); }
+}
+
