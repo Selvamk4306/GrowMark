@@ -1,6 +1,7 @@
 const ExcelReporter = require('./excel-reporter');
 const path = require('path');
 
+// GrowMark Appium Automated E2E Tests Config
 exports.config = {
     runner: 'local',
     port: 4723,
