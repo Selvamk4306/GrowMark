@@ -1,5 +1,6 @@
 const ExcelReporter = require('./excel-reporter');
 
+// GrowMark Web Selenium E2E Tests Config
 exports.config = {
     runner: 'local',
     specs: [
