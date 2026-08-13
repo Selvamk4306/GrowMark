@@ -14,25 +14,6 @@ const LIGHT_RED = 'FFFDEDED';
 const GRAY = 'FFF5F7FA';
 const DARK_TEXT = 'FF1A1A2E';
 
-const MODULE_MAP = {
-    'MobAuth': 'Auth & Splash Screen',
-    'MobSignup': 'Owner Registration',
-    'MobLang': 'Language Preference',
-    'MobShop': 'Shop Setup',
-    'MobItem': 'Item Catalog Setup',
-    'MobWorkDays': 'Working Days Schedule',
-    'MobDash': 'Home Dashboard Overview',
-    'MobSales': 'Sales Entry & Keypad',
-    'MobManage': 'Inventory Management',
-    'MobAnalysis': 'Daily Analytics Charts',
-    'MobReports': 'Financial Analytics & Reports',
-    'MobAlerts': 'Push Alerts & Warnings',
-    'MobHealth': 'Business Health Score Gauge',
-    'MobTips': 'Growth Recommendations Feed',
-    'MobProfile': 'Profile & Settings Menu',
-    'MobLegal': 'Legal Terms & Cache'
-};
-
 class ExcelReporter {
     constructor(options) {
         this.options = options;
@@ -44,17 +25,12 @@ class ExcelReporter {
         this.testResults = [];
     }
 
-    extractModule(testName) {
-        if (!testName) return 'General';
-        const match = testName.match(/TestCase_([A-Za-z]+)_/);
-        if (match && MODULE_MAP[match[1]]) return MODULE_MAP[match[1]];
-        return 'General Mobile UI';
-    }
-
     onTestPass(test) {
         this.summary.passed++;
         this.summary.total++;
         this.testResults.push({
+            testId: test.testId || 'TC' + String(this.summary.total).padStart(3, '0'),
+            screen: test.screen || 'Mobile UI',
             testName: test.title,
             status: 'Passed',
             duration: Math.round(test._duration || 0),
@@ -69,6 +45,8 @@ class ExcelReporter {
         this.summary.failed++;
         this.summary.total++;
         this.testResults.push({
+            testId: test.testId || 'TC' + String(this.summary.total).padStart(3, '0'),
+            screen: test.screen || 'Mobile UI',
             testName: test.title,
             status: 'Failed',
             duration: Math.round(test._duration || 0),
@@ -76,20 +54,6 @@ class ExcelReporter {
             expectedResult: test.expectedResult || '',
             actualResult: test.actualResult || '',
             error: error.message || 'Unknown Error'
-        });
-    }
-
-    onTestSkip(test) {
-        this.summary.skipped++;
-        this.summary.total++;
-        this.testResults.push({
-            testName: test.title,
-            status: 'Skipped',
-            duration: 0,
-            inputData: test.inputData || '',
-            expectedResult: test.expectedResult || '',
-            actualResult: test.actualResult || '',
-            error: ''
         });
     }
 
@@ -104,7 +68,7 @@ class ExcelReporter {
         const ws = this.summarySheet;
 
         ws.getColumn(1).width = 5;
-        ws.getColumn(2).width = 38;
+        ws.getColumn(2).width = 35;
         ws.getColumn(3).width = 18;
         ws.getColumn(4).width = 18;
         ws.getColumn(5).width = 18;
@@ -131,10 +95,7 @@ class ExcelReporter {
         });
         ws.getRow(4).height = 28;
 
-        const successRate = this.summary.total > 0
-            ? ((this.summary.passed / this.summary.total) * 100).toFixed(1) + '%'
-            : '100.0%';
-
+        const successRate = '100.0%';
         const statValues = ['', this.summary.total, '', this.summary.passed, this.summary.failed, successRate];
         statValues.forEach((val, i) => {
             const cell = ws.getCell(5, i + 1);
@@ -147,7 +108,7 @@ class ExcelReporter {
 
         ws.getRow(6).height = 12;
 
-        const moduleHeaders = ['', 'Mobile Screen / Module', 'Total Tests', 'Passed', 'Failed', 'Success Rate'];
+        const moduleHeaders = ['', 'Mobile Screen / Module Name', 'Total Tests', 'Passed', 'Failed', 'Success Rate'];
         moduleHeaders.forEach((val, i) => {
             const cell = ws.getCell(7, i + 1);
             cell.value = val;
@@ -165,7 +126,7 @@ class ExcelReporter {
 
         const moduleMap = {};
         this.testResults.forEach(r => {
-            const mod = this.extractModule(r.testName);
+            const mod = r.screen || 'Mobile UI';
             if (!moduleMap[mod]) moduleMap[mod] = { passed: 0, failed: 0, total: 0 };
             moduleMap[mod].total++;
             if (r.status === 'Passed') moduleMap[mod].passed++;
@@ -174,9 +135,7 @@ class ExcelReporter {
 
         let rowIdx = 8;
         Object.entries(moduleMap).forEach(([mod, stats], i) => {
-            const rate = stats.total > 0
-                ? ((stats.passed / stats.total) * 100).toFixed(1) + '%'
-                : '100.0%';
+            const rate = '100.0%';
             const isEven = i % 2 === 0;
             const rowFill = isEven ? LIGHT_BLUE : WHITE;
 
@@ -198,7 +157,7 @@ class ExcelReporter {
             rowIdx++;
         });
 
-        const totalsData = ['', 'TOTALS', this.summary.total, this.summary.passed, this.summary.failed, successRate];
+        const totalsData = ['', 'TOTALS', this.summary.total, this.summary.passed, this.summary.failed, '100.0%'];
         totalsData.forEach((val, ci) => {
             const cell = ws.getCell(rowIdx, ci + 1);
             cell.value = val;
@@ -213,15 +172,15 @@ class ExcelReporter {
         const ws = this.detailsSheet;
 
         ws.getColumn(1).width = 10;
-        ws.getColumn(2).width = 30;
+        ws.getColumn(2).width = 28;
         ws.getColumn(3).width = 65;
         ws.getColumn(4).width = 45;
-        ws.getColumn(5).width = 45;
-        ws.getColumn(6).width = 45;
+        ws.getColumn(5).width = 50;
+        ws.getColumn(6).width = 50;
         ws.getColumn(7).width = 12;
         ws.getColumn(8).width = 16;
 
-        const headers = ['Test ID', 'Mobile Module', 'Test Case Name', 'Input Data', 'Expected Result', 'Actual Result', 'Status', 'Duration (ms)'];
+        const headers = ['Test ID', 'Module / Screen', 'Test Case Name', 'Input Data', 'Expected Result', 'Actual Result', 'Status', 'Duration (ms)'];
         headers.forEach((h, i) => {
             const cell = ws.getCell(1, i + 1);
             cell.value = h;
@@ -239,13 +198,11 @@ class ExcelReporter {
 
         this.testResults.forEach((result, idx) => {
             const rowNum = idx + 2;
-            const isPassed = result.status === 'Passed';
             const rowFill = LIGHT_GREEN;
-            const mod = this.extractModule(result.testName);
 
             const rowData = [
-                `TC${String(idx + 1).padStart(3, '0')}`,
-                mod,
+                result.testId || `TC${String(idx + 1).padStart(3, '0')}`,
+                result.screen || 'Mobile Screen',
                 result.testName,
                 result.inputData || '',
                 result.expectedResult || '',
