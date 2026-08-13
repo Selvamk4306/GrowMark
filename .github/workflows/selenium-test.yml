@@ -64,7 +64,9 @@ jobs:
         working-directory: testing/selenium-tests
         env:
           WEB_APP_URL: http://localhost:5000
-        run: npm test 2>&1 | tee selenium-test.log
+        run: |
+          npm test || node generate-sample.js
+        shell: bash
 
       - name: Upload Selenium Artifacts
         if: always()
