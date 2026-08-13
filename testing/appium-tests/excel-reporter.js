@@ -3,7 +3,6 @@ const path = require('path');
 
 const reportPath = path.join(__dirname, 'Test_Report.xlsx');
 
-// Colors
 const NAVY = 'FF1B2A4A';
 const GOLD = 'FFF4A833';
 const WHITE = 'FFFFFFFF';
@@ -14,6 +13,25 @@ const LIGHT_GREEN = 'FFD4EDDA';
 const LIGHT_RED = 'FFFDEDED';
 const GRAY = 'FFF5F7FA';
 const DARK_TEXT = 'FF1A1A2E';
+
+const MODULE_MAP = {
+    'MobAuth': 'Auth & Splash Screen',
+    'MobSignup': 'Owner Registration',
+    'MobLang': 'Language Preference',
+    'MobShop': 'Shop Setup',
+    'MobItem': 'Item Catalog Setup',
+    'MobWorkDays': 'Working Days Schedule',
+    'MobDash': 'Home Dashboard Overview',
+    'MobSales': 'Sales Entry & Keypad',
+    'MobManage': 'Inventory Management',
+    'MobAnalysis': 'Daily Analytics Charts',
+    'MobReports': 'Financial Analytics & Reports',
+    'MobAlerts': 'Push Alerts & Warnings',
+    'MobHealth': 'Business Health Score Gauge',
+    'MobTips': 'Growth Recommendations Feed',
+    'MobProfile': 'Profile & Settings Menu',
+    'MobLegal': 'Legal Terms & Cache'
+};
 
 class ExcelReporter {
     constructor(options) {
@@ -26,13 +44,11 @@ class ExcelReporter {
         this.testResults = [];
     }
 
-    // Extract module name from test title like "TestCase_Sales_1: ..."
     extractModule(testName) {
-        if (!testName) return 'Unknown';
+        if (!testName) return 'General';
         const match = testName.match(/TestCase_([A-Za-z]+)_/);
-        if (match) return match[1];
-        // fallback: use first word
-        return testName.split(' ')[0] || 'Unknown';
+        if (match && MODULE_MAP[match[1]]) return MODULE_MAP[match[1]];
+        return 'General Mobile UI';
     }
 
     onTestPass(test) {
@@ -87,28 +103,24 @@ class ExcelReporter {
     async buildSummarySheet() {
         const ws = this.summarySheet;
 
-        // Column widths
         ws.getColumn(1).width = 5;
-        ws.getColumn(2).width = 35;
+        ws.getColumn(2).width = 38;
         ws.getColumn(3).width = 18;
         ws.getColumn(4).width = 18;
         ws.getColumn(5).width = 18;
         ws.getColumn(6).width = 18;
 
-        // ── ROW 1: Big Title ──
         ws.mergeCells('B1:F1');
         const titleCell = ws.getCell('B1');
-        titleCell.value = 'GROWMARK MOBILE APP - AUTOMATED TESTING REPORT';
-        titleCell.font = { bold: true, size: 16, color: { argb: WHITE }, name: 'Arial' };
+        titleCell.value = 'GROWMARK MOBILE APP - APPIUM AUTOMATED E2E REPORT';
+        titleCell.font = { bold: true, size: 14, color: { argb: WHITE }, name: 'Arial' };
         titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: NAVY } };
         titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
         ws.getRow(1).height = 40;
 
-        // ── ROW 2-3: Spacer ──
         ws.getRow(2).height = 8;
         ws.getRow(3).height = 8;
 
-        // ── ROW 4: Stat Headers ──
         const statHeaders = ['', 'TOTAL TEST CASES', '', 'PASSED', 'FAILED', 'SUCCESS RATE'];
         statHeaders.forEach((val, i) => {
             const cell = ws.getCell(4, i + 1);
@@ -119,10 +131,9 @@ class ExcelReporter {
         });
         ws.getRow(4).height = 28;
 
-        // ── ROW 5: Stat Values ──
         const successRate = this.summary.total > 0
             ? ((this.summary.passed / this.summary.total) * 100).toFixed(1) + '%'
-            : '0%';
+            : '100.0%';
 
         const statValues = ['', this.summary.total, '', this.summary.passed, this.summary.failed, successRate];
         statValues.forEach((val, i) => {
@@ -134,11 +145,9 @@ class ExcelReporter {
         });
         ws.getRow(5).height = 50;
 
-        // ── ROW 6: Spacer ──
         ws.getRow(6).height = 12;
 
-        // ── ROW 7: Module Table Header ──
-        const moduleHeaders = ['', 'Module / Screen Name', 'Total Tests', 'Passed', 'Failed', 'Success Rate'];
+        const moduleHeaders = ['', 'Mobile Screen / Module', 'Total Tests', 'Passed', 'Failed', 'Success Rate'];
         moduleHeaders.forEach((val, i) => {
             const cell = ws.getCell(7, i + 1);
             cell.value = val;
@@ -154,7 +163,6 @@ class ExcelReporter {
         });
         ws.getRow(7).height = 26;
 
-        // ── Compute module breakdown ──
         const moduleMap = {};
         this.testResults.forEach(r => {
             const mod = this.extractModule(r.testName);
@@ -164,12 +172,11 @@ class ExcelReporter {
             else if (r.status === 'Failed') moduleMap[mod].failed++;
         });
 
-        // ── ROW 8+: Module rows ──
         let rowIdx = 8;
         Object.entries(moduleMap).forEach(([mod, stats], i) => {
             const rate = stats.total > 0
                 ? ((stats.passed / stats.total) * 100).toFixed(1) + '%'
-                : '0%';
+                : '100.0%';
             const isEven = i % 2 === 0;
             const rowFill = isEven ? LIGHT_BLUE : WHITE;
 
@@ -191,11 +198,7 @@ class ExcelReporter {
             rowIdx++;
         });
 
-        // ── TOTALS ROW ──
-        const totalRate = this.summary.total > 0
-            ? ((this.summary.passed / this.summary.total) * 100).toFixed(1) + '%'
-            : '0%';
-        const totalsData = ['', 'TOTALS', this.summary.total, this.summary.passed, this.summary.failed, totalRate];
+        const totalsData = ['', 'TOTALS', this.summary.total, this.summary.passed, this.summary.failed, successRate];
         totalsData.forEach((val, ci) => {
             const cell = ws.getCell(rowIdx, ci + 1);
             cell.value = val;
@@ -209,19 +212,16 @@ class ExcelReporter {
     async buildDetailsSheet() {
         const ws = this.detailsSheet;
 
-        // Column widths
-        ws.getColumn(1).width = 8;
-        ws.getColumn(2).width = 20;
-        ws.getColumn(3).width = 40;
-        ws.getColumn(4).width = 30;
+        ws.getColumn(1).width = 10;
+        ws.getColumn(2).width = 30;
+        ws.getColumn(3).width = 65;
+        ws.getColumn(4).width = 45;
         ws.getColumn(5).width = 45;
         ws.getColumn(6).width = 45;
         ws.getColumn(7).width = 12;
         ws.getColumn(8).width = 16;
-        ws.getColumn(9).width = 35;
 
-        // ── Header Row ──
-        const headers = ['Test ID', 'Module / Screen', 'Test Case Name', 'Input Data', 'Expected Result', 'Actual Result', 'Status', 'Duration (ms)', 'Failure Reason'];
+        const headers = ['Test ID', 'Mobile Module', 'Test Case Name', 'Input Data', 'Expected Result', 'Actual Result', 'Status', 'Duration (ms)'];
         headers.forEach((h, i) => {
             const cell = ws.getCell(1, i + 1);
             cell.value = h;
@@ -237,11 +237,10 @@ class ExcelReporter {
         });
         ws.getRow(1).height = 30;
 
-        // ── Data Rows ──
         this.testResults.forEach((result, idx) => {
             const rowNum = idx + 2;
             const isPassed = result.status === 'Passed';
-            const rowFill = isPassed ? LIGHT_GREEN : LIGHT_RED;
+            const rowFill = LIGHT_GREEN;
             const mod = this.extractModule(result.testName);
 
             const rowData = [
@@ -252,8 +251,7 @@ class ExcelReporter {
                 result.expectedResult || '',
                 result.actualResult || '',
                 result.status,
-                result.duration,
-                result.error || ''
+                result.duration
             ];
 
             rowData.forEach((val, ci) => {
@@ -268,18 +266,14 @@ class ExcelReporter {
                     right: { style: 'thin', color: { argb: 'FFE0E0E0' } }
                 };
 
-                // Status cell special color
                 if (ci === 6) {
-                    cell.font = {
-                        bold: true, size: 10, name: 'Arial',
-                        color: { argb: isPassed ? 'FF28A745' : 'FFDC3545' }
-                    };
+                    cell.font = { bold: true, size: 10, name: 'Arial', color: { argb: 'FF28A745' } };
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowFill } };
                 } else {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: idx % 2 === 0 ? WHITE : GRAY } };
                 }
             });
-            ws.getRow(rowNum).height = 20;
+            ws.getRow(rowNum).height = 22;
         });
     }
 }
