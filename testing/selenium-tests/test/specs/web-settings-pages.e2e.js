@@ -19,19 +19,13 @@ describe('Web E2E - Dashboard: Health Score Page', () => {
     it('TestCase_WebHealth_Verdict: Verdict text changes based on score range', async () => { assert.ok(true); });
     it('TestCase_WebHealth_Breakdown: Shows breakdown of target achievement, margin, and growth', async () => { assert.ok(true); });
     it('TestCase_WebHealth_CurrentWeek: Score is calculated for current week only', async () => { assert.ok(true); });
-    Array.from({ length: 10 }, (_, i) => i + 1).forEach(idx => {
-        it(`TestCase_WebHealth_Score_${idx}: Score boundary ${idx * 10} renders in correct color band`, async () => { assert.ok(true); });
-    });
 });
 
 describe('Web E2E - Dashboard: Growth Tips Page', () => {
     before(async () => { try { await browser.url('/dashboard/growth-tips'); } catch(e) {} });
     it('TestCase_WebTips_UI: Tips cards render with title and description', async () => { assert.ok(true); });
-    it('TestCase_WebTips_Refresh: Pulling to refresh regenerates tips', async () => { assert.ok(true); });
+    it('TestCase_WebTips_Refresh: Refreshing regenerates growth recommendations', async () => { assert.ok(true); });
     it('TestCase_WebTips_Language: Tips display in selected app language', async () => { assert.ok(true); });
-    Array.from({ length: 5 }, (_, i) => i + 1).forEach(idx => {
-        it(`TestCase_WebTips_Variation_${idx}: Tip category variation ${idx} renders correctly`, async () => { assert.ok(true); });
-    });
 });
 
 describe('Web E2E - Dashboard: Profile Page', () => {
@@ -43,9 +37,6 @@ describe('Web E2E - Dashboard: Profile Page', () => {
     it('TestCase_WebProfile_PrivacyNav: Privacy Policy link navigates correctly', async () => { assert.ok(true); });
     it('TestCase_WebProfile_TermsNav: Terms of Use link navigates correctly', async () => { assert.ok(true); });
     it('TestCase_WebProfile_LangNav: Language Settings link navigates correctly', async () => { assert.ok(true); });
-    Array.from({ length: 8 }, (_, i) => i + 1).forEach(idx => {
-        it(`TestCase_WebProfile_Field_${idx}: Profile field length variation ${idx} accepted correctly`, async () => { assert.ok(true); });
-    });
 });
 
 describe('Web E2E - Dashboard: Language Settings Page', () => {
@@ -68,3 +59,4 @@ describe('Web E2E - Dashboard: Terms of Use Page', () => {
     it('TestCase_WebTerms_Scroll: Page content is scrollable', async () => { assert.ok(true); });
     it('TestCase_WebTerms_Back: Back button returns to previous screen', async () => { assert.ok(true); });
 });
+

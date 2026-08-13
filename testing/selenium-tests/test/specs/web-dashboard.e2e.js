@@ -18,9 +18,6 @@ describe('Web E2E - Dashboard: Manage Items Page', () => {
     it('TestCase_WebManage_Edit: Edit dialog populates current item values', async () => { assert.ok(true); });
     it('TestCase_WebManage_Delete: Delete confirmation dialog appears on trash click', async () => { assert.ok(true); });
     it('TestCase_WebManage_EmptyState: Shows empty state when no items exist', async () => { assert.ok(true); });
-    Array.from({ length: 15 }, (_, i) => i + 1).forEach(idx => {
-        it(`TestCase_WebManage_${idx}: Add and verify item variation ${idx}`, async () => { assert.ok(true); });
-    });
 });
 
 describe('Web E2E - Dashboard: Daily Analysis Page', () => {
@@ -28,9 +25,6 @@ describe('Web E2E - Dashboard: Daily Analysis Page', () => {
     it('TestCase_WebAnalysis_UI: Chart renders with items and bar graph', async () => { assert.ok(true); });
     it('TestCase_WebAnalysis_DateNav: Can navigate to previous dates', async () => { assert.ok(true); });
     it('TestCase_WebAnalysis_NoData: Shows empty state for days without sales', async () => { assert.ok(true); });
-    Array.from({ length: 10 }, (_, i) => i + 1).forEach(idx => {
-        it(`TestCase_WebAnalysis_Day_${idx}: View analysis for ${idx} day(s) ago`, async () => { assert.ok(true); });
-    });
 });
 
 describe('Web E2E - Dashboard: Reports Page', () => {
@@ -43,3 +37,4 @@ describe('Web E2E - Dashboard: Reports Page', () => {
         it(`TestCase_WebReports_Filter_${idx + 1}: Filter by "${range}" shows updated data`, async () => { assert.ok(true); });
     });
 });
+
