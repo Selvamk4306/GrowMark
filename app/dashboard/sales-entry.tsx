@@ -30,6 +30,7 @@ export default function SalesEntryScreen() {
   const [ownerId, setOwnerId] = useState<string | null>(null);
   const [workingDays, setWorkingDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']);
   const [isLeaveDay, setIsLeaveDay] = useState(false);
+  const [focusedInputId, setFocusedInputId] = useState<string | null>(null);
   const { t, language } = useTranslation();
 
   const fetchItemsAndSales = async (dateStr: string) => {
@@ -282,12 +283,15 @@ export default function SalesEntryScreen() {
                 </TouchableOpacity>
                 <TextInput
                   testID={`quantity-input-${item.id}`}
-                  style={styles.qtyInput}
+                  style={[styles.qtyInput, focusedInputId === item.id && styles.qtyInputFocused]}
                   value={String(item.quantity)}
-                  keyboardType="numeric"
+                  keyboardType="number-pad"
+                  onFocus={() => setFocusedInputId(item.id)}
+                  onBlur={() => setFocusedInputId(null)}
                   onChangeText={(val) => {
-                    const cleaned = val.replace(/[^0-9]/g, '');
-                    const num = parseInt(cleaned) || 0;
+                    const raw = val.replace(/[^0-9]/g, '');
+                    const cleaned = raw.replace(/^0+(?=\d)/, '');
+                    const num = parseInt(cleaned, 10) || 0;
                     setItems(items.map(i => i.id === item.id ? { ...i, quantity: num } : i));
                   }}
                   selectTextOnFocus
@@ -383,13 +387,23 @@ const styles = StyleSheet.create({
   qtyInput: {
     fontSize: 20,
     fontWeight: 'bold',
-    width: 50,
+    width: 55,
     textAlign: 'center',
     color: '#1E3A5F',
     backgroundColor: 'transparent',
     borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     paddingVertical: 4,
     marginHorizontal: 4
+  },
+  qtyInputFocused: {
+    borderColor: '#1E3A5F',
+    backgroundColor: '#EBF5FF',
+    shadowColor: '#1E3A5F',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3
   },
   footer: {
     padding: 20,

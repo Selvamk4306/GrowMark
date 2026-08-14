@@ -37,10 +37,13 @@ export function Onboarding() {
   // Step 1: Shop Setup state
   const [shopName, setShopName] = useState('');
   const [shopType, setShopType] = useState('');
+  const [customShopType, setCustomShopType] = useState('');
   const [location, setLocation] = useState('');
 
   // Step 2: Working Days state
   const [selectedDays, setSelectedDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+  const [openingTime, setOpeningTime] = useState('09:00');
+  const [closingTime, setClosingTime] = useState('21:00');
 
   // Step 3: Item Setup state
   const [items, setItems] = useState<ItemInput[]>([
@@ -62,10 +65,12 @@ export function Onboarding() {
   // Step 1 Continue: Create Owner profile
   const handleShopSetup = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!shopName || !shopType) {
-      setError(t('Shop Name and Shop Type are required.'));
+    if (!shopName || !shopType || (shopType === 'Other' && !customShopType.trim())) {
+      setError(t('Shop Name and Shop Type are required. Please specify your custom shop type.'));
       return;
     }
+
+    const finalShopType = shopType === 'Other' ? customShopType.trim() : shopType;
 
     setLoading(true);
     setError('');
@@ -93,7 +98,7 @@ export function Onboarding() {
           .from('owners')
           .update({
             shop_name: shopName,
-            shop_type: shopType,
+            shop_type: finalShopType,
             location: location,
             username: username
           })
@@ -111,7 +116,7 @@ export function Onboarding() {
             {
               user_id: user.id,
               shop_name: shopName,
-              shop_type: shopType,
+              shop_type: finalShopType,
               location: location,
               username: username
             }
@@ -132,7 +137,7 @@ export function Onboarding() {
     }
   };
 
-  // Step 2 Continue: Save working days
+  // Step 2 Continue: Save working days & operating hours
   const handleWorkingDaysSetup = async () => {
     if (selectedDays.length === 0) {
       setError(t('Please select at least one working day.'));
@@ -160,7 +165,9 @@ export function Onboarding() {
 
       const { error: updateError } = await supabase
         .from('owners')
-        .update({ working_days: selectedDays })
+        .update({ 
+          working_days: selectedDays
+        })
         .eq('id', activeOwnerId);
 
       if (updateError) throw updateError;
@@ -186,8 +193,32 @@ export function Onboarding() {
     }
   };
 
+  // Strict numeric input sanitization helpers
+  const sanitizeDecimal = (val: string) => {
+    const clean = val.replace(/[^0-9.]/g, '');
+    const parts = clean.split('.');
+    if (parts.length > 2) {
+      return `${parts[0]}.${parts.slice(1).join('')}`;
+    }
+    return clean;
+  };
+
+  const sanitizeInteger = (val: string) => {
+    const clean = val.replace(/[^0-9]/g, '');
+    if (!clean) return '';
+    const num = parseInt(clean, 10);
+    if (num > 999) return '999';
+    return num.toString();
+  };
+
   const updateItem = (id: string, field: keyof ItemInput, value: string) => {
-    setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+    let sanitizedValue = value;
+    if (field === 'selling_price' || field === 'cost_price') {
+      sanitizedValue = sanitizeDecimal(value);
+    } else if (field === 'min_daily_target' || field === 'min_weekly_target') {
+      sanitizedValue = sanitizeInteger(value);
+    }
+    setItems(items.map(item => item.id === id ? { ...item, [field]: sanitizedValue } : item));
   };
 
   // Step 3 Finish: Insert items and redirect
@@ -196,6 +227,17 @@ export function Onboarding() {
 
     if (validItems.length === 0) {
       setError(t('Please completely fill out at least one item.'));
+      return;
+    }
+
+    const hasExceededLimit = validItems.some(i => {
+      const daily = parseInt(i.min_daily_target, 10) || 0;
+      const weekly = parseInt(i.min_weekly_target, 10) || 0;
+      return daily > 999 || weekly > 999;
+    });
+
+    if (hasExceededLimit) {
+      setError(t('Target quantity limit must be less than 1000 (maximum 999).'));
       return;
     }
 
@@ -339,6 +381,23 @@ export function Onboarding() {
                         );
                       })}
                     </div>
+
+                    {/* Custom Shop Type Input Column when 'Other' is selected */}
+                    {shopType === 'Other' && (
+                      <div className="mt-3.5 animate-fadeIn">
+                        <label className="block text-xs font-semibold text-[#1E3A5F] mb-1.5 uppercase tracking-wider">
+                          {t('Specify Custom Shop Type')}
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder={t('e.g. Bookstore, Pet Shop, Bakery & Cafe...')}
+                          className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#1E3A5F] focus:ring-1 focus:ring-[#1E3A5F] outline-none transition-all bg-white text-sm text-[#1A1A1A]"
+                          value={customShopType}
+                          onChange={(e) => setCustomShopType(e.target.value)}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Location (Optional) */}
@@ -384,7 +443,7 @@ export function Onboarding() {
                 </div>
 
                 {/* Preset buttons */}
-                <div className="flex gap-3 justify-center mb-4">
+                <div className="flex gap-3 justify-center mb-6">
                   <button 
                     type="button"
                     onClick={setMonToSat}
@@ -399,6 +458,33 @@ export function Onboarding() {
                   >
                     {t('Mon - Sun')}
                   </button>
+                </div>
+
+                {/* Operating Hours (Opening & Closing Time) */}
+                <div className="pt-4 border-t border-gray-100">
+                  <label className="block text-sm font-semibold text-[#1E3A5F] mb-3 text-center">
+                    {t('Store Operating Hours')}
+                  </label>
+                  <div className="grid grid-cols-2 gap-4 max-w-xs mx-auto">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">{t('Opening Time')}</label>
+                      <input
+                        type="time"
+                        value={openingTime}
+                        onChange={(e) => setOpeningTime(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-[#1E3A5F] focus:outline-none text-sm bg-white text-[#1A1A1A] font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">{t('Closing Time')}</label>
+                      <input
+                        type="time"
+                        value={closingTime}
+                        onChange={(e) => setClosingTime(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-gray-300 focus:border-[#1E3A5F] focus:outline-none text-sm bg-white text-[#1A1A1A] font-medium"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -436,39 +522,47 @@ export function Onboarding() {
 
                       <div className="grid grid-cols-2 gap-3">
                         <input
-                          type="number"
-                          step="0.01"
+                          type="text"
+                          inputMode="decimal"
                           required
                           placeholder={t('Selling Price (₹)')}
                           className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
                           value={item.selling_price}
+                          onKeyDown={(e) => { if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }}
                           onChange={(e) => updateItem(item.id, 'selling_price', e.target.value)}
                         />
                         <input
-                          type="number"
-                          step="0.01"
+                          type="text"
+                          inputMode="decimal"
                           placeholder={t('Cost Price (₹) Opt.')}
                           className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
                           value={item.cost_price}
+                          onKeyDown={(e) => { if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }}
                           onChange={(e) => updateItem(item.id, 'cost_price', e.target.value)}
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={3}
                           required
                           placeholder={t('Min Daily Target')}
                           className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
                           value={item.min_daily_target}
+                          onKeyDown={(e) => { if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault(); }}
                           onChange={(e) => updateItem(item.id, 'min_daily_target', e.target.value)}
                         />
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={3}
                           required
                           placeholder={t('Min Weekly Target')}
                           className="px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-sm focus:border-[#1E3A5F] focus:outline-none"
                           value={item.min_weekly_target}
+                          onKeyDown={(e) => { if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault(); }}
                           onChange={(e) => updateItem(item.id, 'min_weekly_target', e.target.value)}
                         />
                       </div>

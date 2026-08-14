@@ -154,8 +154,11 @@ export function Profile() {
             <div>
               <label className="block text-xs font-semibold text-textSecondary mb-1.5 uppercase tracking-wider">{t('Shop Type')}</label>
               <select
-                value={formData.shop_type}
-                onChange={e => setFormData({...formData, shop_type: e.target.value})}
+                value={['Grocery', 'Food and Beverage', 'Salon', 'Pharmacy', 'Clothing', 'Hardware'].includes(formData.shop_type) ? formData.shop_type : 'Other'}
+                onChange={e => {
+                  const val = e.target.value;
+                  setFormData({...formData, shop_type: val === 'Other' ? '' : val});
+                }}
                 className="w-full px-4 py-2.5 rounded-xl border border-border focus:border-primary outline-none text-sm bg-white"
               >
                 <option value="Grocery">{t('Grocery')}</option>
@@ -166,6 +169,19 @@ export function Profile() {
                 <option value="Hardware">{t('Hardware')}</option>
                 <option value="Other">{t('Other')}</option>
               </select>
+
+              {(!['Grocery', 'Food and Beverage', 'Salon', 'Pharmacy', 'Clothing', 'Hardware'].includes(formData.shop_type) || formData.shop_type === '') && (
+                <div className="mt-2.5">
+                  <input
+                    type="text"
+                    required
+                    placeholder={t('Specify Custom Shop Type (e.g. Bookstore, Pet Shop...)')}
+                    value={formData.shop_type}
+                    onChange={e => setFormData({...formData, shop_type: e.target.value})}
+                    className="w-full px-4 py-2.5 rounded-xl border border-border focus:border-primary outline-none text-sm bg-white"
+                  />
+                </div>
+              )}
             </div>
 
             <div>

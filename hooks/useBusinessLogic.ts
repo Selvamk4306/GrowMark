@@ -2,14 +2,14 @@ import { supabase } from '../lib/supabase';
 
 const ALERT_VARIATIONS = {
   'Dead Stock': [
-    { msg: "Zero sales for 7 days. Move it or lose it!", action: "Consider a clearance sale or removal." },
-    { msg: "This item is gathering dust. No sales in a week.", action: "Liquidate stock or bundle with best-sellers." },
-    { msg: "Dead stock detected. Zero movement recently.", action: "Heavy discount (40%+) recommended." }
+    { msg: "Zero sales recorded for a full week (7 days). Item is in dead stock!", action: "Consider a clearance sale, liquidation, or item removal." },
+    { msg: "No items sold across all 7 working days this week. Item in dead stock.", action: "Liquidate stock or bundle with top-selling products." },
+    { msg: "Dead stock detected: 0 units sold over 7 consecutive days.", action: "Apply clearance discount (40%+ off) immediately." }
   ],
   'Critical': [
     { msg: "Weekly target missed by a large margin.", action: "Flash sale or social media promotion needed." },
-    { msg: "Performance is critical. Sales are way below expectations.", action: "Review local pricing and competitors." },
-    { msg: "Urgent: This item is failing to meet basic goals.", action: "Implement a 'Buy 1 Get 1' offer today." }
+    { msg: "Performance is critical. Sales are way below weekly expectations.", action: "Review local pricing and competitors." },
+    { msg: "Urgent: Weekly target not met after 6+ working days.", action: "Implement a 'Buy 1 Get 1' offer today." }
   ],
   'Alert': [
     { msg: "Missed daily target for 3+ days straight.", action: "Slight price revision or combo offer." },
@@ -17,7 +17,7 @@ const ALERT_VARIATIONS = {
     { msg: "Performance alert: Struggling to hit daily minimums.", action: "Small discount or limited-time deal." }
   ],
   'Warning': [
-    { msg: "Daily target missed. Keep an eye on it.", action: "Check if customers are ignoring this item." },
+    { msg: "Daily target is missed.", action: "Check if customers are ignoring this item." },
     { msg: "Minor sales dip today. Just a warning.", action: "Monitor closely for the next 24 hours." },
     { msg: "Missed the mark today. Might be a temporary fluke.", action: "Ensure the item is well-stocked and visible." }
   ]
@@ -139,6 +139,7 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
   if (!sales) return;
 
   let consecutiveMisses = 0;
+  let totalMissesInWeek = 0;
   let zeroSalesDays = 0;
   let weeklyTotal = 0;
   let todayQty = 0;
@@ -178,9 +179,12 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
       countingZeroSales = false;
     }
 
-    // Consecutive misses check from refDate backwards
-    if (qty < item.min_daily_target && countingConsecutive) {
-      consecutiveMisses++;
+    // Misses check from refDate backwards
+    if (qty < item.min_daily_target) {
+      totalMissesInWeek++;
+      if (countingConsecutive) {
+        consecutiveMisses++;
+      }
     } else {
       countingConsecutive = false;
     }
@@ -194,20 +198,40 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
 
   // Calculate appropriate alert level based strictly on targets
   let calculatedLevel: 'Warning' | 'Alert' | 'Critical' | 'Dead Stock' | null = null;
+  let customMsg = '';
+  let customAction = '';
 
   if (zeroSalesDays >= 7) {
     calculatedLevel = 'Dead Stock';
+    customMsg = `${item.item_name}: Zero sales recorded for a full week (7 days). Item is in dead stock!`;
+    customAction = `Consider a clearance sale, liquidation, or item removal.`;
   } else if (!todayMetTarget) {
-    if (consecutiveMisses >= 3) {
+    if (totalMissesInWeek >= 6 || consecutiveMisses >= 6) {
+      // Only pop up "Weekly target missed by a large margin" after 6 days of missing daily target
       calculatedLevel = 'Critical';
-    } else if (consecutiveMisses === 2) {
-      calculatedLevel = 'Alert';
-    } else if (consecutiveMisses === 1) {
+      customMsg = `${item.item_name}: Weekly target missed by a large margin.`;
+      customAction = `Flash sale or social media promotion needed.`;
+    } else if (consecutiveMisses >= 3) {
+      // 3 or more consecutive misses trigger Critical
+      calculatedLevel = 'Critical';
+      customMsg = `${item.item_name}: Daily target missed for ${consecutiveMisses} consecutive days.`;
+      customAction = `Flash sale or social media promotion needed.`;
+    } else if (totalMissesInWeek >= 5) {
+      // 5 or more misses in a week trigger Warning
       calculatedLevel = 'Warning';
+      customMsg = `${item.item_name}: Daily target missed 5 times this week.`;
+      customAction = `Check if customers are ignoring this item.`;
+    } else {
+      // 1 or 2 misses trigger Warning with "Daily target is missed."
+      calculatedLevel = 'Warning';
+      customMsg = `${item.item_name}: Daily target is missed.`;
+      customAction = `Check if customers are ignoring this item.`;
     }
-  } else if (workingDaysChecked >= 7 && !weeklyMetTarget) {
-    // Only flag weekly critical at end of full week if weekly target missed
+  } else if (workingDaysChecked >= 6 && !weeklyMetTarget) {
+    // After 6 days if weekly target is missed, trigger the weekly target alert
     calculatedLevel = 'Critical';
+    customMsg = `${item.item_name}: Weekly target missed by a large margin.`;
+    customAction = `Flash sale or social media promotion needed.`;
   }
 
   // Fetch active alerts for this item
@@ -243,9 +267,9 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
   }
 
   // IF today's target was NOT met:
-  if (calculatedLevel) {
-    const variation = getRandomItem(ALERT_VARIATIONS[calculatedLevel]);
-    const message = `${item.item_name}: ${variation.msg}`;
+  if (calculatedLevel && customMsg) {
+    const message = customMsg;
+    const action = customAction;
 
     if (activeAlerts && activeAlerts.length > 0) {
       const existingAlert = activeAlerts[0];
@@ -256,29 +280,27 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
         alert_level: calculatedLevel,
         alert_message: message,
         days_missed: consecutiveMisses,
-        suggested_action: variation.action,
+        suggested_action: action,
         triggered_at: new Date().toISOString()
       }).eq('id', existingAlert.id);
 
-      // Clean up extra duplicate alerts if any
       if (extraAlertIds.length > 0) {
         await supabase.from('alerts').update({ is_read: true }).in('id', extraAlertIds);
       }
     } else {
-      // Insert new alert
+      // Create new alert
       await supabase.from('alerts').insert({
         owner_id: ownerId,
         item_id: itemId,
         alert_level: calculatedLevel,
         alert_message: message,
         days_missed: consecutiveMisses,
-        suggested_action: variation.action,
+        suggested_action: action,
         is_read: false,
         triggered_at: new Date().toISOString()
       });
     }
   } else {
-    // If no alert condition applies, resolve active alerts
     await resolveAllAlerts();
   }
 }

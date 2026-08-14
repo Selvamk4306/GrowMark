@@ -36,8 +36,31 @@ export default function ItemSetupScreen() {
     }
   };
 
+  const sanitizeDecimal = (val: string) => {
+    const clean = val.replace(/[^0-9.]/g, '');
+    const parts = clean.split('.');
+    if (parts.length > 2) {
+      return `${parts[0]}.${parts.slice(1).join('')}`;
+    }
+    return clean;
+  };
+
+  const sanitizeInteger = (val: string) => {
+    const clean = val.replace(/[^0-9]/g, '');
+    if (!clean) return '';
+    const num = parseInt(clean, 10);
+    if (num > 999) return '999';
+    return num.toString();
+  };
+
   const updateItem = (id: string, field: keyof Item, value: string) => {
-    setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+    let sanitizedValue = value;
+    if (field === 'selling_price' || field === 'cost_price') {
+      sanitizedValue = sanitizeDecimal(value);
+    } else if (field === 'min_daily_target' || field === 'min_weekly_target') {
+      sanitizedValue = sanitizeInteger(value);
+    }
+    setItems(items.map(item => item.id === id ? { ...item, [field]: sanitizedValue } : item));
   };
 
   const handleDone = async () => {
@@ -45,6 +68,17 @@ export default function ItemSetupScreen() {
 
     if (validItems.length === 0) {
       Alert.alert('Error', 'Please completely fill out at least one item.');
+      return;
+    }
+
+    const hasExceededLimit = validItems.some(i => {
+      const daily = parseInt(i.min_daily_target, 10) || 0;
+      const weekly = parseInt(i.min_weekly_target, 10) || 0;
+      return daily > 999 || weekly > 999;
+    });
+
+    if (hasExceededLimit) {
+      Alert.alert('Error', 'Target quantity limit must be less than 1000 (maximum 999).');
       return;
     }
 
@@ -114,14 +148,14 @@ export default function ItemSetupScreen() {
               <TextInput
                 style={[styles.input, styles.halfInput]}
                 placeholder={t('Selling Price (₹)')}
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
                 value={item.selling_price}
                 onChangeText={(text) => updateItem(item.id, 'selling_price', text)}
               />
               <TextInput
                 style={[styles.input, styles.halfInput]}
                 placeholder={t('Cost Price (₹) Opt.')}
-                keyboardType="numeric"
+                keyboardType="decimal-pad"
                 value={item.cost_price}
                 onChangeText={(text) => updateItem(item.id, 'cost_price', text)}
               />
@@ -131,14 +165,16 @@ export default function ItemSetupScreen() {
               <TextInput
                 style={[styles.input, styles.halfInput]}
                 placeholder={t('Min Daily Target')}
-                keyboardType="numeric"
+                keyboardType="number-pad"
+                maxLength={3}
                 value={item.min_daily_target}
                 onChangeText={(text) => updateItem(item.id, 'min_daily_target', text)}
               />
               <TextInput
                 style={[styles.input, styles.halfInput]}
                 placeholder={t('Min Weekly Target')}
-                keyboardType="numeric"
+                keyboardType="number-pad"
+                maxLength={3}
                 value={item.min_weekly_target}
                 onChangeText={(text) => updateItem(item.id, 'min_weekly_target', text)}
               />

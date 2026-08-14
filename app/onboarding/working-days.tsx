@@ -11,6 +11,8 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 export default function WorkingDaysScreen() {
   // Pre-select Mon to Sat by default
   const [selectedDays, setSelectedDays] = useState<string[]>(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
+  const [openingTime, setOpeningTime] = useState('09:00 AM');
+  const [closingTime, setClosingTime] = useState('09:00 PM');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
@@ -59,7 +61,9 @@ export default function WorkingDaysScreen() {
 
       const { error } = await supabase
         .from('owners')
-        .update({ working_days: selectedDays })
+        .update({ 
+          working_days: selectedDays
+        })
         .eq('id', owner.id);
 
       if (error) throw error;
@@ -107,6 +111,37 @@ export default function WorkingDaysScreen() {
           <TouchableOpacity style={styles.presetButton} onPress={setMonToSun}>
             <Text style={styles.presetText}>{t('Mon - Sun')}</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Operating Hours Card */}
+        <View style={{ marginTop: 32, padding: 16, backgroundColor: Colors.card, borderRadius: 16, borderWidth: 1, borderColor: Colors.border }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', color: Colors.primary, marginBottom: 12, textAlign: 'center' }}>
+            {t('Store Operating Hours')}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 12, color: Colors.textSecondary, marginBottom: 6, fontWeight: '600' }}>
+                {t('Opening Time')}
+              </Text>
+              <TextInput
+                style={{ borderWidth: 1, borderColor: Colors.border, borderRadius: 10, padding: 12, fontSize: 14, color: Colors.textPrimary, backgroundColor: Colors.background }}
+                value={openingTime}
+                onChangeText={setOpeningTime}
+                placeholder="09:00 AM"
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 12, color: Colors.textSecondary, marginBottom: 6, fontWeight: '600' }}>
+                {t('Closing Time')}
+              </Text>
+              <TextInput
+                style={{ borderWidth: 1, borderColor: Colors.border, borderRadius: 10, padding: 12, fontSize: 14, color: Colors.textPrimary, backgroundColor: Colors.background }}
+                value={closingTime}
+                onChangeText={setClosingTime}
+                placeholder="09:00 PM"
+              />
+            </View>
+          </View>
         </View>
 
       </ScrollView>

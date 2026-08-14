@@ -121,11 +121,86 @@ export default function ReportsScreen() {
 
   const handleBarPress = useCallback((_index: number, item: any) => {
     setTooltipData({
+      type: 'revenue',
       day: item.label,
       date: item.fullDate,
-      revenue: item.value,
-      profit: item.profit,
-      itemCount: item.itemCount,
+      revenue: item.value || item.revenue || 0,
+      profit: item.profit || 0,
+      itemCount: item.itemCount || 0,
+    });
+  }, []);
+
+  const handleTrendPress = useCallback((index: number, item: any, currentTrendData: any[]) => {
+    const currentSales = Number(item.itemCount ?? item.value ?? 0);
+    const currentRevenue = Number(item.revenue ?? item.value ?? 0);
+
+    // Day-over-day growth
+    let growthText = '';
+    let growthType: 'up' | 'down' | 'same' | 'start' = 'start';
+    if (index > 0) {
+      const prevItem = currentTrendData[index - 1];
+      const prevSales = Number(prevItem.itemCount ?? prevItem.value ?? 0);
+      if (prevSales > 0 && currentSales > 0) {
+        const pct = Math.round(((currentSales - prevSales) / prevSales) * 100);
+        if (pct > 0) {
+          growthText = `+${pct}% vs ${prevItem.label}`;
+          growthType = 'up';
+        } else if (pct < 0) {
+          growthText = `${pct}% vs ${prevItem.label}`;
+          growthType = 'down';
+        } else {
+          growthText = `No change vs ${prevItem.label}`;
+          growthType = 'same';
+        }
+      } else if (prevSales === 0 && currentSales > 0) {
+        growthText = `+${currentSales} units vs ${prevItem.label}`;
+        growthType = 'up';
+      } else if (prevSales > 0 && currentSales === 0) {
+        growthText = `-100% vs ${prevItem.label}`;
+        growthType = 'down';
+      } else {
+        growthText = `No sales on ${prevItem.label}`;
+        growthType = 'same';
+      }
+    } else {
+      growthText = 'Start of the week';
+      growthType = 'start';
+    }
+
+    // Weekly benchmark
+    const nonZeroDays = currentTrendData.filter(d => Number(d.itemCount ?? d.value ?? 0) > 0);
+    const maxSales = Math.max(...currentTrendData.map(d => Number(d.itemCount ?? d.value ?? 0)), 0);
+    const totalSales = currentTrendData.reduce((sum, d) => sum + Number(d.itemCount ?? d.value ?? 0), 0);
+    const avgSales = nonZeroDays.length > 0 ? Math.round(totalSales / nonZeroDays.length) : 0;
+
+    let benchmarkText = '';
+    if (currentSales === 0) {
+      benchmarkText = 'No sales recorded';
+    } else if (currentSales === maxSales && maxSales > 0) {
+      benchmarkText = '🏆 Highest of the week';
+    } else if (currentSales > avgSales) {
+      const diff = currentSales - avgSales;
+      benchmarkText = `📈 Above weekly avg (+${diff} units)`;
+    } else if (currentSales < avgSales) {
+      const diff = avgSales - currentSales;
+      benchmarkText = `📉 Below weekly avg (-${diff} units)`;
+    } else {
+      benchmarkText = '⚖️ On par with weekly avg';
+    }
+
+    const avgPrice = currentSales > 0 ? Math.round(currentRevenue / currentSales) : 0;
+
+    setTooltipData({
+      type: 'trend',
+      day: item.label,
+      date: item.fullDate,
+      revenue: currentRevenue,
+      profit: item.profit || 0,
+      itemCount: currentSales,
+      growthText,
+      growthType,
+      benchmarkText,
+      avgPrice,
     });
   }, []);
 
@@ -239,6 +314,7 @@ export default function ReportsScreen() {
         const isWorkingDay = ownerWorkingDays.includes(dayName);
         return {
           value: isWorkingDay ? dailyRevMap[d] : 0,
+          revenue: isWorkingDay ? dailyRevMap[d] : 0,
           profit: isWorkingDay ? dailyProfMap[d] : 0,
           alerts: isWorkingDay ? dailyAlertMap[d] : 0,
           itemCount: isWorkingDay ? dailyQtyMap[d] : 0,
@@ -249,11 +325,17 @@ export default function ReportsScreen() {
         };
       });
 
+      const trendList = revData.map((d) => ({
+        ...d,
+        value: d.itemCount,
+        revenue: d.value,
+      }));
+
       const translatedBestItem = await translateDynamic(bestItem, language);
 
       if (isComponentMounted.current) {
         setRevenueData(revData);
-        setTrendData(revData);
+        setTrendData(trendList);
         setSummary({
           totalRevenue: totRev,
           totalProfit: totProf,
@@ -314,12 +396,19 @@ export default function ReportsScreen() {
     }));
   }, [revenueData, handleBarPress]);
 
+  const lineChartData = useMemo(() => {
+    return trendData.map((item, index) => ({
+      ...item,
+      onPress: () => handleTrendPress(index, item, trendData),
+    }));
+  }, [trendData, handleTrendPress]);
+
   const barChartMaxValue = useMemo(() => {
     return Math.max(...revenueData.map(d => d.value), 1000) * 1.2;
   }, [revenueData]);
 
   const lineChartMaxValue = useMemo(() => {
-    return Math.max(...trendData.map(d => d.value), 1000) * 1.2;
+    return Math.max(...trendData.map(d => Number(d.value) || 0), 10) * 1.2;
   }, [trendData]);
 
   // ─── navigation helpers ────────────────────────────────────────────────────
@@ -469,15 +558,19 @@ export default function ReportsScreen() {
 
           {/* Sales Trend Line Chart */}
           <View style={styles.chartCard}>
-            <Text style={styles.chartTitle}>{t('Sales Trend')}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <Text style={styles.chartTitleNoMargin}>{t('Sales Trend')}</Text>
+              <Text style={{ fontSize: 11, color: '#9CA3AF' }}>{t('Tap dot for details')}</Text>
+            </View>
             {chartsReady && trendData.length > 0 ? (
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <ChartErrorBoundary>
                   <GiftedLineChart
-                    data={trendData}
-                    color="#F4A833"
+                    data={lineChartData}
+                    color="#1E3A5F"
                     thickness={3}
-                    dataPointsColor="#FFFFFF"
+                    dataPointsColor="#F4A833"
+                    dataPointsRadius={6}
                     noOfSections={5}
                     maxValue={lineChartMaxValue}
                     hideRules
@@ -513,21 +606,88 @@ export default function ReportsScreen() {
             activeOpacity={1}
           >
             <View style={styles.tooltipCard}>
-              <Text style={styles.tooltipTitle}>
-                {tooltipData.day}, {tooltipData.date}
-              </Text>
+              <View style={styles.tooltipHeaderRow}>
+                <View style={[styles.tooltipBadge, tooltipData.type === 'trend' ? styles.tooltipBadgeTrend : styles.tooltipBadgeRev]}>
+                  <Text style={[styles.tooltipBadgeText, tooltipData.type === 'trend' ? styles.tooltipBadgeTextTrend : styles.tooltipBadgeTextRev]}>
+                    {tooltipData.type === 'trend' ? t('Sales Trend') : t('Daily Revenue')}
+                  </Text>
+                </View>
+                <Text style={styles.tooltipTitle}>
+                  {tooltipData.day}, {tooltipData.date}
+                </Text>
+              </View>
+
               <View style={styles.tooltipDivider} />
-              <Text style={styles.tooltipText}>
-                Revenue: ₹{Number(tooltipData.revenue).toLocaleString('en-IN')}
-              </Text>
-              <Text style={styles.tooltipText}>
-                Profit: ₹{Number(tooltipData.profit).toLocaleString('en-IN')}
-              </Text>
-              <Text style={styles.tooltipTextLast}>
-                Items Sold: {tooltipData.itemCount}
-              </Text>
+
+              {tooltipData.type === 'trend' ? (
+                <View style={{ gap: 8 }}>
+                  <View style={styles.tooltipHighlightBox}>
+                    <Text style={styles.tooltipHighlightLabel}>{t('Units Sold')}</Text>
+                    <Text style={styles.tooltipHighlightVal}>
+                      {tooltipData.itemCount} <Text style={{ fontSize: 13, color: '#6B7280', fontWeight: 'normal' }}>{t('units')}</Text>
+                    </Text>
+                  </View>
+
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Day-over-Day')}</Text>
+                    <Text style={[
+                      styles.tooltipRowVal,
+                      tooltipData.growthType === 'up' ? { color: '#059669' } :
+                      tooltipData.growthType === 'down' ? { color: '#DC2626' } : { color: '#4B5563' }
+                    ]}>
+                      {tooltipData.growthText}
+                    </Text>
+                  </View>
+
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Week Benchmark')}</Text>
+                    <Text style={[styles.tooltipRowVal, { color: '#1E3A5F', fontSize: 12, flexShrink: 1, textAlign: 'right' }]}>
+                      {tooltipData.benchmarkText}
+                    </Text>
+                  </View>
+
+                  <View style={[styles.tooltipDivider, { marginVertical: 4 }]} />
+
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Total Revenue')}</Text>
+                    <Text style={[styles.tooltipRowVal, { color: '#1E3A5F' }]}>
+                      ₹{Number(tooltipData.revenue).toLocaleString('en-IN')}
+                      {tooltipData.avgPrice > 0 ? ` (~₹${tooltipData.avgPrice}/unit)` : ''}
+                    </Text>
+                  </View>
+
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Total Profit')}</Text>
+                    <Text style={[styles.tooltipRowVal, { color: '#059669' }]}>
+                      ₹{Number(tooltipData.profit).toLocaleString('en-IN')}
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                <View style={{ gap: 8 }}>
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Revenue')}</Text>
+                    <Text style={[styles.tooltipRowVal, { color: '#1E3A5F' }]}>
+                      ₹{Number(tooltipData.revenue).toLocaleString('en-IN')}
+                    </Text>
+                  </View>
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Profit')}</Text>
+                    <Text style={[styles.tooltipRowVal, { color: '#059669' }]}>
+                      ₹{Number(tooltipData.profit).toLocaleString('en-IN')}
+                    </Text>
+                  </View>
+                  <View style={styles.tooltipRow}>
+                    <Text style={styles.tooltipRowLabel}>{t('Items Sold')}</Text>
+                    <Text style={[styles.tooltipRowVal, { color: '#1E3A5F' }]}>
+                      {tooltipData.itemCount} {t('units')}
+                    </Text>
+                  </View>
+                </View>
+              )}
+
               <Text style={styles.tooltipHint}>
-                Tap anywhere to close
+                {t('Tap anywhere to close')}
               </Text>
             </View>
           </TouchableOpacity>
@@ -613,23 +773,71 @@ const styles = StyleSheet.create({
     zIndex: 10
   },
   chartTitle: { fontSize: 16, fontWeight: 'bold', color: '#1E3A5F', marginBottom: 20 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  chartTitleNoMargin: { fontSize: 16, fontWeight: 'bold', color: '#1E3A5F' },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
   tooltipCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
-    minWidth: 220,
+    borderRadius: 16,
+    padding: 20,
+    minWidth: 260,
+    maxWidth: 320,
+    width: '100%',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     elevation: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10
+    shadowOpacity: 0.15,
+    shadowRadius: 12
   },
-  tooltipTitle: { fontSize: 15, fontWeight: 'bold', color: '#1E3A5F', marginBottom: 10 },
-  tooltipDivider: { height: 1.5, backgroundColor: '#E5E7EB', marginBottom: 10 },
-  tooltipText: { fontSize: 13, color: '#4B5563', marginBottom: 6 },
-  tooltipTextLast: { fontSize: 13, color: '#4B5563' },
-  tooltipHint: { fontSize: 11, color: '#9CA3AF', marginTop: 12, textAlign: 'center' }
+  tooltipHeaderRow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: 4,
+  },
+  tooltipBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 12,
+  },
+  tooltipBadgeTrend: {
+    backgroundColor: '#FEF3C7',
+  },
+  tooltipBadgeRev: {
+    backgroundColor: '#DBEAFE',
+  },
+  tooltipBadgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+  },
+  tooltipBadgeTextTrend: {
+    color: '#92400E',
+  },
+  tooltipBadgeTextRev: {
+    color: '#1E40AF',
+  },
+  tooltipTitle: { fontSize: 16, fontWeight: 'bold', color: '#1E3A5F' },
+  tooltipDivider: { height: 1, backgroundColor: '#E5E7EB', marginVertical: 10 },
+  tooltipHighlightBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 10,
+    backgroundColor: 'rgba(30, 58, 95, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(30, 58, 95, 0.1)',
+  },
+  tooltipHighlightLabel: { fontSize: 13, fontWeight: '600', color: '#1E3A5F' },
+  tooltipHighlightVal: { fontSize: 18, fontWeight: 'bold', color: '#1E3A5F' },
+  tooltipRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
+  tooltipRowLabel: { fontSize: 13, fontWeight: '500', color: '#4B5563' },
+  tooltipRowVal: { fontSize: 13, fontWeight: 'bold' },
+  tooltipHint: { fontSize: 11, color: '#9CA3AF', marginTop: 14, textAlign: 'center' }
 });

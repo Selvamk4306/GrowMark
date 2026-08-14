@@ -149,15 +149,87 @@ export function Reports() {
     loadReports();
   }, [owner, currentWeekStart]);
 
-  const handleChartClick = (data: any) => {
-    if (!data) return;
-    if (data.payload) {
-      setSelectedDayData(data.payload);
-    } else if (data.activePayload && data.activePayload.length > 0) {
-      setSelectedDayData(data.activePayload[0].payload);
-    } else if (data.date || data.day) {
-      setSelectedDayData(data);
+  const getTrendInsights = (item: any, list: any[]) => {
+    if (!item || !list || list.length === 0) return null;
+    const index = list.findIndex(d => d.date === item.date || d.day === item.day);
+    const currentSales = Number(item.sales || item.itemCount || 0);
+    const currentRevenue = Number(item.revenue || 0);
+
+    // Day-over-day growth
+    let growthText = '';
+    let growthType: 'up' | 'down' | 'same' | 'start' = 'start';
+    if (index > 0) {
+      const prevItem = list[index - 1];
+      const prevSales = Number(prevItem.sales || prevItem.itemCount || 0);
+      if (prevSales > 0 && currentSales > 0) {
+        const pct = Math.round(((currentSales - prevSales) / prevSales) * 100);
+        if (pct > 0) {
+          growthText = `+${pct}% vs ${prevItem.day}`;
+          growthType = 'up';
+        } else if (pct < 0) {
+          growthText = `${pct}% vs ${prevItem.day}`;
+          growthType = 'down';
+        } else {
+          growthText = `No change vs ${prevItem.day}`;
+          growthType = 'same';
+        }
+      } else if (prevSales === 0 && currentSales > 0) {
+        growthText = `+${currentSales} units vs ${prevItem.day}`;
+        growthType = 'up';
+      } else if (prevSales > 0 && currentSales === 0) {
+        growthText = `-100% vs ${prevItem.day}`;
+        growthType = 'down';
+      } else {
+        growthText = `No sales on ${prevItem.day}`;
+        growthType = 'same';
+      }
+    } else {
+      growthText = 'Start of the week';
+      growthType = 'start';
     }
+
+    // Weekly benchmark
+    const nonZeroDays = list.filter(d => Number(d.sales || d.itemCount || 0) > 0);
+    const maxSales = Math.max(...list.map(d => Number(d.sales || d.itemCount || 0)), 0);
+    const totalSales = list.reduce((sum, d) => sum + Number(d.sales || d.itemCount || 0), 0);
+    const avgSales = nonZeroDays.length > 0 ? Math.round(totalSales / nonZeroDays.length) : 0;
+
+    let benchmarkText = '';
+    if (currentSales === 0) {
+      benchmarkText = 'No sales recorded';
+    } else if (currentSales === maxSales && maxSales > 0) {
+      benchmarkText = '🏆 Highest sales day this week';
+    } else if (currentSales > avgSales) {
+      const diff = currentSales - avgSales;
+      benchmarkText = `📈 Above weekly avg (+${diff} units)`;
+    } else if (currentSales < avgSales) {
+      const diff = avgSales - currentSales;
+      benchmarkText = `📉 Below weekly avg (-${diff} units)`;
+    } else {
+      benchmarkText = '⚖️ On par with weekly average';
+    }
+
+    const avgPricePerUnit = currentSales > 0 ? Math.round(currentRevenue / currentSales) : 0;
+
+    return {
+      growthText,
+      growthType,
+      benchmarkText,
+      avgPricePerUnit,
+    };
+  };
+
+  const handleBarClick = (data: any) => {
+    const payload = data?.payload || data?.activePayload?.[0]?.payload || (data?.date || data?.day ? data : null);
+    if (!payload) return;
+    setSelectedDayData({ ...payload, chartType: 'revenue' });
+  };
+
+  const handleTrendClick = (data: any) => {
+    const payload = data?.payload || data?.activePayload?.[0]?.payload || (data?.date || data?.day ? data : null);
+    if (!payload) return;
+    const insights = getTrendInsights(payload, reportData);
+    setSelectedDayData({ ...payload, ...insights, chartType: 'trend' });
   };
 
   return (
@@ -226,7 +298,7 @@ export function Reports() {
                 <span className="text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('Total Profit')}</span>
                 {expanded === 'profit' ? <ChevronUp className="w-4 h-4 text-textSecondary" /> : <ChevronDown className="w-4 h-4 text-textSecondary" />}
               </div>
-              <div className="mt-3 text-lg sm:text-2xl font-black text-primary">
+              <div className="mt-3 text-lg sm:text-2xl font-black text-emerald-600">
                 {formatCurrency(summary.totalProfit)}
               </div>
             </div>
@@ -234,7 +306,7 @@ export function Reports() {
             {/* 3. TOP ITEM CARD */}
             <div className="bg-white border border-border rounded-2xl p-5 shadow-sm flex flex-col justify-between">
               <span className="text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('Top Item')}</span>
-              <div className="mt-3 text-base sm:text-xl font-bold text-primary truncate" title={summary.bestItem}>
+              <div className="mt-3 text-lg sm:text-xl font-bold text-primary truncate" title={summary.bestItem}>
                 {summary.bestItem}
               </div>
             </div>
@@ -242,33 +314,31 @@ export function Reports() {
             {/* 4. WEEKLY ALERTS CARD */}
             <div
               onClick={() => navigate('/alerts')}
-              className="bg-white border border-border rounded-2xl p-5 shadow-sm flex flex-col justify-between cursor-pointer hover-lift"
+              className="bg-white border border-border rounded-2xl p-5 shadow-sm flex flex-col justify-between cursor-pointer hover-lift transition-all"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-textSecondary uppercase tracking-wider">{t('Weekly Alerts')}</span>
                 <ChevronRight className="w-4 h-4 text-textSecondary" />
               </div>
-              <div className="mt-3 text-lg sm:text-2xl font-black text-danger">
+              <div className="mt-3 text-lg sm:text-2xl font-black text-rose-500">
                 {summary.activeAlerts}
               </div>
             </div>
 
           </div>
 
-          {/* ACCORDION SLIDE-DOWN DRILL-DOWN CONTAINER */}
+          {/* DRILL-DOWN DAILY LIST (EXPANDABLE) */}
           {expanded && (
-            <div className="bg-white border border-border rounded-2xl p-5 shadow-md space-y-3 animate-fadeIn">
-              <h3 className="text-sm font-bold text-primary uppercase tracking-wider border-b border-border pb-2">
+            <div className="bg-white border border-border rounded-2xl p-6 shadow-sm space-y-4 animate-in fade-in duration-200">
+              <h3 className="text-base font-bold text-primary">
                 {expanded === 'revenue' ? t('Daily Revenue Breakdown') : t('Daily Profit Breakdown')}
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2 pt-1">
-                {reportData.map((day, idx) => (
-                  <div key={idx} className="bg-background rounded-xl p-3 border border-border flex flex-col justify-between text-center">
-                    <span className="text-xs font-bold text-textSecondary">{day.day}</span>
-                    <span className="text-sm font-extrabold text-primary mt-1">
-                      {expanded === 'revenue'
-                        ? formatCurrency(day.revenue)
-                        : formatCurrency(day.profit)}
+              <div className="divide-y divide-border">
+                {reportData.map((d) => (
+                  <div key={d.date} className="py-3 flex items-center justify-between">
+                    <span className="text-sm font-medium text-textPrimary">{d.formattedDate}</span>
+                    <span className={`text-sm font-bold ${expanded === 'profit' ? 'text-emerald-600' : 'text-primary'}`}>
+                      {formatCurrency(expanded === 'revenue' ? d.revenue : d.profit)}
                     </span>
                   </div>
                 ))}
@@ -276,14 +346,17 @@ export function Reports() {
             </div>
           )}
 
-          {/* REVENUE BY DATE CHART */}
+          {/* DAILY REVENUE BAR CHART */}
           <div className="glass p-6 rounded-2xl bg-white border border-border shadow-sm">
-            <h3 className="text-lg font-bold mb-4 text-primary">{t('Daily Revenue')}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-primary">{t('Daily Revenue')}</h3>
+              <span className="text-xs text-textSecondary font-medium">{t('Click any bar for details')}</span>
+            </div>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
                   data={reportData}
-                  onClick={handleChartClick}
+                  onClick={handleBarClick}
                   className="cursor-pointer"
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -293,7 +366,7 @@ export function Reports() {
                     dataKey="revenue" 
                     fill="#F4A833" 
                     radius={[4, 4, 0, 0]} 
-                    onClick={handleChartClick}
+                    onClick={handleBarClick}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -302,12 +375,15 @@ export function Reports() {
 
           {/* SALES TREND CHART */}
           <div className="glass p-6 rounded-2xl bg-white border border-border shadow-sm">
-            <h3 className="text-lg font-bold mb-4 text-primary">{t('Sales Trend')}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-primary">{t('Sales Trend')}</h3>
+              <span className="text-xs text-textSecondary font-medium">{t('Click any dot for trend details')}</span>
+            </div>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart 
                   data={reportData}
-                  onClick={handleChartClick}
+                  onClick={handleTrendClick}
                   className="cursor-pointer"
                 >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
@@ -319,9 +395,9 @@ export function Reports() {
                     name={t("Quantity Sold")} 
                     stroke="#1E3A5F" 
                     strokeWidth={3} 
-                    dot={{ fill: '#1E3A5F', strokeWidth: 2, r: 4 }} 
-                    activeDot={{ r: 6 }} 
-                    onClick={handleChartClick}
+                    dot={{ fill: '#1E3A5F', strokeWidth: 2, r: 5, cursor: 'pointer', onClick: (_e: any, payload: any) => handleTrendClick(payload) }} 
+                    activeDot={{ r: 7, stroke: '#F4A833', strokeWidth: 2, cursor: 'pointer', onClick: (_e: any, payload: any) => handleTrendClick(payload) }} 
+                    onClick={handleTrendClick}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -341,41 +417,119 @@ export function Reports() {
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl space-y-4 border border-border animate-in fade-in zoom-in duration-150"
           >
-            <div className="flex justify-between items-center border-b border-border pb-3">
-              <h3 className="text-lg font-bold text-primary">
-                {selectedDayData.formattedDate || selectedDayData.date || selectedDayData.day}
-              </h3>
-              <button 
-                onClick={() => setSelectedDayData(null)}
-                className="p-1 rounded-lg text-textSecondary hover:bg-background cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            {selectedDayData.chartType === 'trend' ? (
+              <>
+                <div className="flex justify-between items-start border-b border-border pb-3">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-mono mb-1 inline-block">
+                      {t('Sales Trend')}
+                    </span>
+                    <h3 className="text-lg font-bold text-primary">
+                      {selectedDayData.formattedDate || selectedDayData.date || selectedDayData.day}
+                    </h3>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedDayData(null)}
+                    className="p-1 rounded-lg text-textSecondary hover:bg-background cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
 
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-textPrimary">Revenue</span>
-                <span className="text-base font-bold text-primary">
-                  {formatCurrency(selectedDayData.revenue || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-textPrimary">Profit</span>
-                <span className="text-base font-bold text-primary">
-                  {formatCurrency(selectedDayData.profit || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold text-textPrimary">Items Sold</span>
-                <span className="text-base font-bold text-primary">
-                  {selectedDayData.sales || selectedDayData.itemCount || 0}
-                </span>
-              </div>
-            </div>
+                <div className="space-y-3">
+                  {/* Primary metric: Units Sold */}
+                  <div className="flex justify-between items-center p-3 rounded-xl bg-primary/5 border border-primary/10">
+                    <span className="text-sm font-semibold text-textPrimary">{t('Units Sold')}</span>
+                    <span className="text-xl font-extrabold text-primary">
+                      {selectedDayData.sales || selectedDayData.itemCount || 0}{' '}
+                      <span className="text-xs font-medium text-textSecondary">{t('units')}</span>
+                    </span>
+                  </div>
+
+                  {/* Day-over-Day Growth */}
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-semibold text-textPrimary">{t('Day-over-Day')}</span>
+                    <span className={`font-bold ${
+                      selectedDayData.growthType === 'up' ? 'text-emerald-600' :
+                      selectedDayData.growthType === 'down' ? 'text-rose-600' : 'text-textSecondary'
+                    }`}>
+                      {selectedDayData.growthText}
+                    </span>
+                  </div>
+
+                  {/* Weekly Benchmark */}
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-semibold text-textPrimary">{t('Week Benchmark')}</span>
+                    <span className="font-bold text-primary text-right text-xs sm:text-sm">
+                      {selectedDayData.benchmarkText}
+                    </span>
+                  </div>
+
+                  {/* Financial context */}
+                  <div className="pt-2 border-t border-border/60 flex justify-between items-center text-sm">
+                    <span className="text-textSecondary">{t('Total Revenue')}</span>
+                    <span className="font-semibold text-primary">
+                      {formatCurrency(selectedDayData.revenue || 0)}
+                      {selectedDayData.avgPricePerUnit > 0 && (
+                        <span className="text-xs text-textSecondary ml-1 font-normal">
+                          (~₹{selectedDayData.avgPricePerUnit}/unit)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-textSecondary">{t('Total Profit')}</span>
+                    <span className="font-semibold text-emerald-600">
+                      {formatCurrency(selectedDayData.profit || 0)}
+                    </span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between items-start border-b border-border pb-3">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-mono mb-1 inline-block">
+                      {t('Daily Revenue')}
+                    </span>
+                    <h3 className="text-lg font-bold text-primary">
+                      {selectedDayData.formattedDate || selectedDayData.date || selectedDayData.day}
+                    </h3>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedDayData(null)}
+                    className="p-1 rounded-lg text-textSecondary hover:bg-background cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-textPrimary">{t('Revenue')}</span>
+                    <span className="text-base font-bold text-primary">
+                      {formatCurrency(selectedDayData.revenue || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-textPrimary">{t('Profit')}</span>
+                    <span className="text-base font-bold text-emerald-600">
+                      {formatCurrency(selectedDayData.profit || 0)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-textPrimary">{t('Items Sold')}</span>
+                    <span className="text-base font-bold text-primary">
+                      {selectedDayData.sales || selectedDayData.itemCount || 0} {t('units')}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="pt-2 border-t border-border text-center">
-              <p className="text-xs text-textSecondary">Tap anywhere outside to close</p>
+              <p className="text-xs text-textSecondary">{t('Tap anywhere outside to close')}</p>
             </div>
           </div>
         </div>

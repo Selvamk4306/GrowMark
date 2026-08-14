@@ -171,12 +171,17 @@ export function SalesEntry() {
                         -
                       </button>
                       <input 
-                        type="number" 
-                        min="0"
-                        value={salesData[item.id] === undefined ? '' : salesData[item.id]}
-                        onChange={(e) => setExactQuantity(item.id, e.target.value)}
+                        type="text" 
+                        inputMode="numeric"
+                        value={salesData[item.id] === undefined ? 0 : salesData[item.id]}
+                        onKeyDown={(e) => { if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault(); }}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/[^0-9]/g, '');
+                          const clean = raw.replace(/^0+(?=\d)/, '');
+                          setExactQuantity(item.id, clean);
+                        }}
                         onFocus={(e) => e.target.select()}
-                        className="w-12 text-center bg-transparent outline-none font-semibold"
+                        className="w-14 px-1 py-1 text-center font-bold text-[#1E3A5F] rounded-lg border border-transparent focus:border-[#1E3A5F] focus:ring-2 focus:ring-[#1E3A5F]/30 focus:bg-blue-50/80 outline-none transition-all cursor-text"
                       />
                       <button 
                         onClick={() => handleQuantityChange(item.id, 1)}

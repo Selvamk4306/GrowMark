@@ -292,9 +292,14 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="0.00"
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
                       value={form.selling_price}
-                      onChangeText={(text) => setForm({ ...form, selling_price: text })}
+                      onChangeText={(text) => {
+                        const clean = text.replace(/[^0-9.]/g, '');
+                        const parts = clean.split('.');
+                        const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+                        setForm({ ...form, selling_price: sanitized });
+                      }}
                     />
                   </View>
                   <View style={styles.halfInputContainer}>
@@ -302,9 +307,14 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder={t('Optional')}
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
                       value={form.cost_price}
-                      onChangeText={(text) => setForm({ ...form, cost_price: text })}
+                      onChangeText={(text) => {
+                        const clean = text.replace(/[^0-9.]/g, '');
+                        const parts = clean.split('.');
+                        const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+                        setForm({ ...form, cost_price: sanitized });
+                      }}
                     />
                   </View>
                 </View>
@@ -315,9 +325,9 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="0"
-                      keyboardType="numeric"
+                      keyboardType="number-pad"
                       value={form.min_daily_target}
-                      onChangeText={(text) => setForm({ ...form, min_daily_target: text })}
+                      onChangeText={(text) => setForm({ ...form, min_daily_target: text.replace(/[^0-9]/g, '') })}
                     />
                   </View>
                   <View style={styles.halfInputContainer}>
@@ -325,9 +335,9 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="0"
-                      keyboardType="numeric"
+                      keyboardType="number-pad"
                       value={form.min_weekly_target}
-                      onChangeText={(text) => setForm({ ...form, min_weekly_target: text })}
+                      onChangeText={(text) => setForm({ ...form, min_weekly_target: text.replace(/[^0-9]/g, '') })}
                     />
                   </View>
                 </View>
@@ -389,9 +399,14 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="0.00"
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
                       value={form.selling_price}
-                      onChangeText={(text) => setForm({ ...form, selling_price: text })}
+                      onChangeText={(text) => {
+                        const clean = text.replace(/[^0-9.]/g, '');
+                        const parts = clean.split('.');
+                        const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+                        setForm({ ...form, selling_price: sanitized });
+                      }}
                     />
                   </View>
                   <View style={styles.halfInputContainer}>
@@ -399,9 +414,14 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder={t('Optional')}
-                      keyboardType="numeric"
+                      keyboardType="decimal-pad"
                       value={form.cost_price}
-                      onChangeText={(text) => setForm({ ...form, cost_price: text })}
+                      onChangeText={(text) => {
+                        const clean = text.replace(/[^0-9.]/g, '');
+                        const parts = clean.split('.');
+                        const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+                        setForm({ ...form, cost_price: sanitized });
+                      }}
                     />
                   </View>
                 </View>
@@ -412,9 +432,9 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="0"
-                      keyboardType="numeric"
+                      keyboardType="number-pad"
                       value={form.min_daily_target}
-                      onChangeText={(text) => setForm({ ...form, min_daily_target: text })}
+                      onChangeText={(text) => setForm({ ...form, min_daily_target: text.replace(/[^0-9]/g, '') })}
                     />
                   </View>
                   <View style={styles.halfInputContainer}>
@@ -422,9 +442,9 @@ export default function ManageItemsScreen() {
                     <TextInput
                       style={styles.input}
                       placeholder="0"
-                      keyboardType="numeric"
+                      keyboardType="number-pad"
                       value={form.min_weekly_target}
-                      onChangeText={(text) => setForm({ ...form, min_weekly_target: text })}
+                      onChangeText={(text) => setForm({ ...form, min_weekly_target: text.replace(/[^0-9]/g, '') })}
                     />
                   </View>
                 </View>

@@ -170,20 +170,62 @@ export function ManageItems() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-textSecondary mb-1">{t('Price / Cost')}</label>
-                  <input required type="number" min="0" value={formData.selling_price} onChange={e => setFormData({ ...formData, selling_price: e.target.value })} className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none" />
+                  <label className="block text-sm font-medium text-textSecondary mb-1">{t('Selling Price (₹)')}</label>
+                  <input
+                    required
+                    type="text"
+                    inputMode="decimal"
+                    value={formData.selling_price}
+                    onKeyDown={e => { if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }}
+                    onChange={e => {
+                      const clean = e.target.value.replace(/[^0-9.]/g, '');
+                      const parts = clean.split('.');
+                      const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+                      setFormData({ ...formData, selling_price: sanitized });
+                    }}
+                    className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none text-sm"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-textSecondary mb-1">{t('Cost')}</label>
-                  <input required type="number" min="0" value={formData.cost_price} onChange={e => setFormData({ ...formData, cost_price: e.target.value })} className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none" />
+                  <label className="block text-sm font-medium text-textSecondary mb-1">{t('Cost Price (₹)')}</label>
+                  <input
+                    required
+                    type="text"
+                    inputMode="decimal"
+                    value={formData.cost_price}
+                    onKeyDown={e => { if (['e', 'E', '+', '-'].includes(e.key)) e.preventDefault(); }}
+                    onChange={e => {
+                      const clean = e.target.value.replace(/[^0-9.]/g, '');
+                      const parts = clean.split('.');
+                      const sanitized = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : clean;
+                      setFormData({ ...formData, cost_price: sanitized });
+                    }}
+                    className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-1">{t('Daily Target')}</label>
-                  <input required type="number" min="0" value={formData.min_daily_target} onChange={e => setFormData({ ...formData, min_daily_target: e.target.value })} className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none" />
+                  <input
+                    required
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.min_daily_target}
+                    onKeyDown={e => { if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault(); }}
+                    onChange={e => setFormData({ ...formData, min_daily_target: e.target.value.replace(/[^0-9]/g, '') })}
+                    className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-textSecondary mb-1">{t('Weekly Target')}</label>
-                  <input required type="number" min="0" value={formData.min_weekly_target} onChange={e => setFormData({ ...formData, min_weekly_target: e.target.value })} className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none" />
+                  <input
+                    required
+                    type="text"
+                    inputMode="numeric"
+                    value={formData.min_weekly_target}
+                    onKeyDown={e => { if (['e', 'E', '+', '-', '.'].includes(e.key)) e.preventDefault(); }}
+                    onChange={e => setFormData({ ...formData, min_weekly_target: e.target.value.replace(/[^0-9]/g, '') })}
+                    className="w-full px-4 py-2 border border-border rounded-xl focus:border-primary outline-none text-sm"
+                  />
                 </div>
               </div>
               <div className="pt-4 flex justify-end space-x-3">

@@ -11,6 +11,7 @@ const SHOP_TYPES = ['Grocery', 'Food and Beverage', 'Salon', 'Pharmacy', 'Clothi
 export default function ShopSetupScreen() {
   const [shopName, setShopName] = useState('');
   const [shopType, setShopType] = useState('');
+  const [customShopType, setCustomShopType] = useState('');
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -21,10 +22,12 @@ export default function ShopSetupScreen() {
   };
 
   const handleNext = async () => {
-    if (!shopName || !shopType) {
-      Alert.alert('Error', 'Shop Name and Shop Type are required.');
+    if (!shopName || !shopType || (shopType === 'Other' && !customShopType.trim())) {
+      Alert.alert('Error', 'Shop Name and Shop Type are required. Please specify your custom shop type.');
       return;
     }
+
+    const finalShopType = shopType === 'Other' ? customShopType.trim() : shopType;
 
     setLoading(true);
     try {
@@ -35,7 +38,7 @@ export default function ShopSetupScreen() {
         {
           user_id: session.user.id,
           shop_name: shopName,
-          shop_type: shopType,
+          shop_type: finalShopType,
           location: location,
           username: session.user.user_metadata?.full_name || session.user.email?.split('@')[0],
         }
@@ -88,6 +91,21 @@ export default function ShopSetupScreen() {
               </TouchableOpacity>
             ))}
           </View>
+
+          {shopType === 'Other' && (
+            <View style={{ marginTop: 14 }}>
+              <Text style={[styles.label, { fontSize: 13, color: Colors.primary, marginBottom: 6 }]}>
+                {t('Specify Custom Shop Type')}
+              </Text>
+              <TextInput
+                testID="custom-shop-type-input"
+                style={styles.input}
+                placeholder={t('e.g. Bookstore, Pet Shop...')}
+                value={customShopType}
+                onChangeText={setCustomShopType}
+              />
+            </View>
+          )}
         </View>
 
         <View style={styles.inputContainer}>
