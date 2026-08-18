@@ -206,8 +206,8 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
     customMsg = `${item.item_name}: Zero sales recorded for a full week (7 days). Item is in dead stock!`;
     customAction = `Consider a clearance sale, liquidation, or item removal.`;
   } else if (!todayMetTarget) {
-    if (totalMissesInWeek >= 6 || consecutiveMisses >= 6) {
-      // Only pop up "Weekly target missed by a large margin" after 6 days of missing daily target
+    if (consecutiveMisses >= 6) {
+      // Only pop up "Weekly target missed by a large margin" after 6 consecutive days of missing daily target
       calculatedLevel = 'Critical';
       customMsg = `${item.item_name}: Weekly target missed by a large margin.`;
       customAction = `Flash sale or social media promotion needed.`;
@@ -227,11 +227,6 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
       customMsg = `${item.item_name}: Daily target is missed.`;
       customAction = `Check if customers are ignoring this item.`;
     }
-  } else if (workingDaysChecked >= 6 && !weeklyMetTarget) {
-    // After 6 days if weekly target is missed, trigger the weekly target alert
-    calculatedLevel = 'Critical';
-    customMsg = `${item.item_name}: Weekly target missed by a large margin.`;
-    customAction = `Flash sale or social media promotion needed.`;
   }
 
   // Fetch active alerts for this item

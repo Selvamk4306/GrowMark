@@ -17,10 +17,10 @@ export const getStartOfWeek = (refDate: Date) => {
 };
 
 export const calculateHealthScore = (
-  revenue_growth: number,
+  _revenue_growth: number,
   profit_margin: number,
   target_achievement_rate: number,
-  expense_control: number
+  _expense_control: number
 ) => {
   const cap = (val: number) => Math.min(Math.max(val, 0), 100);
   const profit_score = cap((profit_margin / 20) * 100);
@@ -64,7 +64,7 @@ export const INSIGHT_VARIATIONS: Record<string, Array<{ title: string; desc: str
   ]
 };
 
-const ALERT_VARIATIONS: Record<string, Array<{ msg: string; action: string }>> = {
+export const ALERT_VARIATIONS: Record<string, Array<{ msg: string; action: string }>> = {
   'Dead Stock': [
     { msg: "Zero sales recorded for a full week (7 days). Item is in dead stock!", action: "Consider a clearance sale, liquidation, or item removal." },
     { msg: "No items sold across all 7 working days this week. Item in dead stock.", action: "Liquidate stock or bundle with top-selling products." },
@@ -87,7 +87,7 @@ const ALERT_VARIATIONS: Record<string, Array<{ msg: string; action: string }>> =
   ]
 };
 
-function getRandomItem<T>(arr: T[]): T {
+export function getRandomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -200,8 +200,8 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
     customMsg = `${item.item_name}: Zero sales recorded for a full week (7 days). Item is in dead stock!`;
     customAction = `Consider a clearance sale, liquidation, or item removal.`;
   } else if (!todayMetTarget) {
-    if (totalMissesInWeek >= 6 || consecutiveMisses >= 6) {
-      // "Weekly target missed by a large margin" is exclusively for 6+ days of missing targets in a week
+    if (consecutiveMisses >= 6) {
+      // Only pop up "Weekly target missed by a large margin" after 6 consecutive days of missing daily target
       calculatedLevel = 'Critical';
       customMsg = `${item.item_name}: Weekly target missed by a large margin.`;
       customAction = `Flash sale or social media promotion needed.`;
@@ -221,11 +221,6 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
       customMsg = `${item.item_name}: Daily target is missed.`;
       customAction = `Check if customers are ignoring this item.`;
     }
-  } else if (workingDaysChecked >= 6 && !weeklyMetTarget) {
-    // Exclusively for week's non-met target after 6 working days
-    calculatedLevel = 'Critical';
-    customMsg = `${item.item_name}: Weekly target missed by a large margin.`;
-    customAction = `Flash sale or social media promotion needed.`;
   }
 
   const { data: activeAlerts } = await supabase
