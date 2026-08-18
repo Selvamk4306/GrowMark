@@ -47,15 +47,17 @@ jobs:
           cd ../selenium-tests && node generate-sample.js
           cd ../load-tests && node load-test.js
           cd ../vulnerability-tests && node generate-sample.js
+          cd ../..
+          mkdir all-reports
+          cp testing/appium-tests/Appium_Test_Report.xlsx all-reports/
+          cp testing/selenium-tests/Selenium_Test_Report.xlsx all-reports/
+          cp testing/load-tests/Load_Test_Report.xlsx all-reports/
+          cp testing/vulnerability-tests/Vulnerability_Report.xlsx all-reports/
 
       - name: Upload Test Report Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: GrowMark-Test-Reports
-          path: |
-            testing/appium-tests/Appium_Test_Report.xlsx
-            testing/selenium-tests/Selenium_Test_Report.xlsx
-            testing/load-tests/Load_Test_Report.xlsx
-            testing/vulnerability-tests/Vulnerability_Report.xlsx
+          path: all-reports/
           retention-days: 14
