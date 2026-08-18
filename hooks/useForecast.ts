@@ -6,15 +6,24 @@ import { supabase } from '../lib/supabase';
 
 // Automatically detect host IP for physical devices running Expo Go
 const getMLHost = () => {
-  const hostUri = Constants.expoConfig?.hostUri; // e.g. "172.25.70.88:8081"
-  if (hostUri) {
-    const ip = hostUri.split(':')[0];
-    return `http://${ip}:8000`;
+  let envUrl = process.env.EXPO_PUBLIC_ML_API_URL;
+  
+  if (Platform.OS === 'android') {
+    // Check if running on emulator (Constants.isDevice is false)
+    const isPhysical = Constants.isDevice ?? true;
+    const hostUri = Constants.expoConfig?.hostUri || Constants.manifest?.hostUri;
+    const resolvedIp = (isPhysical && hostUri) ? hostUri.split(':')[0] : '10.0.2.2';
+    
+    if (envUrl) {
+      return envUrl.replace('localhost', resolvedIp).replace('127.0.0.1', resolvedIp);
+    }
+    return `http://${resolvedIp}:8000`;
   }
-  return Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
+  
+  return envUrl || 'http://localhost:8000';
 };
 
-export const ML_API_URL = process.env.EXPO_PUBLIC_ML_API_URL || getMLHost();
+export const ML_API_URL = getMLHost();
 
 export interface DailyPrediction {
   date: string;
