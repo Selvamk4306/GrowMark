@@ -264,7 +264,7 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
         alert_message: message,
         days_missed: consecutiveMisses,
         suggested_action: action,
-        triggered_at: new Date().toISOString()
+        triggered_at: refDateStr + 'T' + new Date().toISOString().split('T')[1]
       }).eq('id', existingAlert.id);
 
       if (extraAlertIds.length > 0) {
@@ -279,7 +279,7 @@ export async function runConsecutiveFailureDetection(ownerId: string, itemId: st
         days_missed: consecutiveMisses,
         suggested_action: action,
         is_read: false,
-        triggered_at: new Date().toISOString()
+        triggered_at: refDateStr + 'T' + new Date().toISOString().split('T')[1]
       });
     }
   } else {
