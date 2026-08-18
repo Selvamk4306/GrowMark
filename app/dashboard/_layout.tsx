@@ -13,6 +13,7 @@ export default function DashboardLayout() {
       <Tabs.Screen name="reports" />
       <Tabs.Screen name="profile" />
       {/* Hidden screens from bottom nav but part of dashboard stack */}
+      <Tabs.Screen name="forecast" options={{ href: null }} />
       <Tabs.Screen name="daily-analysis" options={{ href: null }} />
       <Tabs.Screen name="health-score" options={{ href: null }} />
       <Tabs.Screen name="growth-tips" options={{ href: null }} />

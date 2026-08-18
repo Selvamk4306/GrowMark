@@ -8,6 +8,7 @@ import { HealthScore } from './pages/HealthScore';
 import { GrowthTips } from './pages/GrowthTips';
 import { Profile } from './pages/Profile';
 import { ManageItems } from './pages/ManageItems';
+import { Forecast } from './pages/Forecast';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { Onboarding } from './pages/Onboarding';
@@ -29,6 +30,7 @@ function App() {
               <Route path="sales" element={<SalesEntry />} />
               <Route path="alerts" element={<Alerts />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="forecast" element={<Forecast />} />
               <Route path="health" element={<HealthScore />} />
               <Route path="tips" element={<GrowthTips />} />
               <Route path="profile" element={<Profile />} />

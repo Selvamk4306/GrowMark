@@ -738,6 +738,39 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         )}
 
+        {/* AI SALES FORECAST CARD */}
+        <TouchableOpacity
+          style={styles.insightCardNew}
+          onPress={() => router.push('/dashboard/forecast' as any)}
+          activeOpacity={0.85}
+        >
+          <LinearGradient
+            colors={['#EFF6FF', '#DBEAFE']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.insightGradient}
+          >
+            <View style={styles.insightHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={[styles.bulbIconBg, { backgroundColor: '#3B82F6' }]}>
+                  <Ionicons name="trending-up" size={18} color="#FFFFFF" />
+                </View>
+                <Text style={[styles.insightLabel, { color: '#1E40AF' }]}>
+                  {t('AI Sales Forecast')}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#1E40AF" />
+            </View>
+
+            <Text style={[styles.insightTitleText, { color: '#1E3A8A' }]}>
+              {t('Predict Next Week Sales per Item')}
+            </Text>
+            <Text style={[styles.insightDescText, { color: '#3B82F6' }]}>
+              {t('Machine learning demand predictions with target tracking & confidence scores.')}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
         {/* ALERTS */}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <Text style={styles.sectionTitle}>

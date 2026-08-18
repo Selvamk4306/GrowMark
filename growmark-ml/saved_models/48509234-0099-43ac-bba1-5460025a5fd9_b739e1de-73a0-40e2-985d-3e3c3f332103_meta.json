@@ -1,0 +1,13 @@
+{
+  "owner_id": "48509234-0099-43ac-bba1-5460025a5fd9",
+  "item_id": "b739e1de-73a0-40e2-985d-3e3c3f332103",
+  "item_name": "Rice(1kg)",
+  "model_type": "RandomForest",
+  "mae": 8.46,
+  "confidence": "Low",
+  "training_samples": 79,
+  "last_trained": "2026-08-17T12:23:24.653836",
+  "status": "trained",
+  "lr_mae": 9.83,
+  "rf_mae": 8.46
+}

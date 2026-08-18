@@ -1,0 +1,13 @@
+{
+  "owner_id": "48509234-0099-43ac-bba1-5460025a5fd9",
+  "item_id": "82d297af-8a3a-4095-ad47-e58528a9e685",
+  "item_name": "Sunflower oil ",
+  "model_type": "RandomForest",
+  "mae": 3.88,
+  "confidence": "Medium",
+  "training_samples": 80,
+  "last_trained": "2026-08-17T12:23:07.868988",
+  "status": "trained",
+  "lr_mae": 4.51,
+  "rf_mae": 3.88
+}

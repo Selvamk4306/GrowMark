@@ -1,0 +1,13 @@
+{
+  "owner_id": "48509234-0099-43ac-bba1-5460025a5fd9",
+  "item_id": "188c70a9-a2c4-4b94-8b36-0615dfb3afa6",
+  "item_name": "Sugar(1kg)",
+  "model_type": "RandomForest",
+  "mae": 5.46,
+  "confidence": "Low",
+  "training_samples": 80,
+  "last_trained": "2026-08-17T12:23:19.050128",
+  "status": "trained",
+  "lr_mae": 5.97,
+  "rf_mae": 5.46
+}

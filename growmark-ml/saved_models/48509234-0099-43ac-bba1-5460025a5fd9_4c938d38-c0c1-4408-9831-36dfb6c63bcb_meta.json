@@ -1,0 +1,13 @@
+{
+  "owner_id": "48509234-0099-43ac-bba1-5460025a5fd9",
+  "item_id": "4c938d38-c0c1-4408-9831-36dfb6c63bcb",
+  "item_name": "Soap (1 bar)",
+  "model_type": "RandomForest",
+  "mae": 5.12,
+  "confidence": "Low",
+  "training_samples": 80,
+  "last_trained": "2026-08-17T12:23:13.414442",
+  "status": "trained",
+  "lr_mae": 5.24,
+  "rf_mae": 5.12
+}

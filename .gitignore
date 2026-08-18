@@ -56,3 +56,11 @@ testing/**/Load_Test_Report.xlsx
 web/node_modules/
 web/dist/
 web/.env
+
+# ML Backend ignores
+growmark-ml/__pycache__/
+growmark-ml/.env
+growmark-ml/.venv/
+*.pyc
+*.joblib
+

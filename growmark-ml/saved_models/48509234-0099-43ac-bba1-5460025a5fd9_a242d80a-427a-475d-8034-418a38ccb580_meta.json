@@ -1,0 +1,13 @@
+{
+  "owner_id": "48509234-0099-43ac-bba1-5460025a5fd9",
+  "item_id": "a242d80a-427a-475d-8034-418a38ccb580",
+  "item_name": "Toor Dal",
+  "model_type": "RandomForest",
+  "mae": 4.56,
+  "confidence": "Medium",
+  "training_samples": 80,
+  "last_trained": "2026-08-17T12:23:02.242152",
+  "status": "trained",
+  "lr_mae": 5.37,
+  "rf_mae": 4.56
+}

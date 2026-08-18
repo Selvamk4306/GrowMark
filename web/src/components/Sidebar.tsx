@@ -5,7 +5,7 @@ import {
   Receipt, 
   Bell, 
   BarChart2, 
-  Lightbulb, 
+  TrendingUp,
   User, 
   LogOut
 } from 'lucide-react';
@@ -20,6 +20,7 @@ export function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (va
     { name: t('Sales Entry'), path: '/sales', icon: Receipt },
     { name: t('Alerts'), path: '/alerts', icon: Bell },
     { name: t('Reports'), path: '/reports', icon: BarChart2 },
+    { name: t('Forecast'), path: '/forecast', icon: TrendingUp },
     { name: t('Profile'), path: '/profile', icon: User },
   ];
 

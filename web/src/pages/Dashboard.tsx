@@ -5,24 +5,18 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../hooks/useTranslation';
 import { translateDynamic } from '../lib/translationService';
-import { MetricCard } from '../components/MetricCard';
-import { HealthScoreCard } from '../components/HealthScoreCard';
 import { AlertCard } from '../components/AlertCard';
 import { formatCurrency, formatDate, getStartOfWeek } from '../lib/businessLogic';
 import { 
-  IndianRupee, 
   TrendingUp, 
-  CheckCircle, 
-  BellRing, 
-  Umbrella, 
   Store, 
   Package, 
   Lightbulb, 
   ArrowRight, 
   Loader2,
-  ChevronRight
+  ChevronRight,
+  Umbrella
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from 'recharts';
 
 const INSIGHT_VARIATIONS: Record<string, Array<{ title: string; desc: string }>> = {
   'Revenue Drop': [
@@ -57,8 +51,6 @@ export function Dashboard() {
   const [metrics, setMetrics] = useState({ revenue: 0, profit: 0, itemsOnTrack: 0, activeAlerts: 0 });
   const [health, setHealth] = useState({ score: 0, components: { revenue_growth: 0, profit_margin: 0, target_achievement: 0, expense_control: 0 } });
   const [alerts, setAlerts] = useState<any[]>([]);
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [translatedUsername, setTranslatedUsername] = useState('');
   const [isTodayLeave, setIsTodayLeave] = useState(false);
   
   // New States
@@ -68,11 +60,6 @@ export function Dashboard() {
   const loadDashboardData = async () => {
     if (!owner) return;
     try {
-      // Translate username dynamically based on language choice
-      const name = owner.username || owner.shop_name || 'Owner';
-      const transName = await translateDynamic(name, language);
-      setTranslatedUsername(transName);
-
       const now = new Date();
       const todayStr = formatDate(now);
 
@@ -333,8 +320,6 @@ export function Dashboard() {
           }
         });
       }
-
-      setChartData(Array.from(chartMap.values()));
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     }
@@ -401,13 +386,6 @@ export function Dashboard() {
     if (score >= 40) return '#EF4444';
     if (score >= 30) return '#DC2626';
     return '#7F1D1D';
-  };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return t('Good morning');
-    if (hour < 17) return t('Good afternoon');
-    return t('Good evening');
   };
 
   if (loading) {
@@ -596,6 +574,26 @@ export function Dashboard() {
               <p className="text-xs sm:text-sm text-[#4B5563] leading-relaxed">{growthTip.desc}</p>
             </div>
           )}
+
+          {/* AI SALES FORECAST CARD */}
+          <div
+            onClick={() => navigate('/forecast')}
+            className="rounded-2xl border border-blue-200 overflow-hidden cursor-pointer hover-lift shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50/60 p-5"
+          >
+            <div className="flex justify-between items-center mb-2.5">
+              <div className="flex items-center gap-2">
+                <div className="bg-blue-600 p-2 rounded-xl text-white shadow-sm">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-blue-900">{t('AI Sales Forecast')}</span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-blue-600" />
+            </div>
+            <h4 className="font-bold text-blue-950 mb-1 text-base sm:text-lg">{t('Predict Next Week Sales per Item')}</h4>
+            <p className="text-xs sm:text-sm text-blue-800/80 leading-relaxed">
+              {t('Machine learning demand predictions with target tracking & confidence scores.')}
+            </p>
+          </div>
 
         </div>
 
