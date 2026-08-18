@@ -12,7 +12,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://sklmxtvmpmudofuqtsxq.s
 const SUPABASE_KEY = process.env.SUPABASE_KEY || 'sb_publishable__6sdUhbPyp__VzpxJP14HQ_Id2n-DRo';
 
 const CONCURRENT_USERS = 300;
-const DURATION_IN_SECONDS = 60; // 1 minute
+const DURATION_IN_SECONDS = process.env.DURATION ? parseInt(process.env.DURATION) : 5; // default to 5 for fast runs
 
 // Target the Supabase REST health check — no auth needed for this route.
 // All other REST endpoints need the apikey header (added below).

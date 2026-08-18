@@ -32,30 +32,30 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Cache Appium Test node_modules
-        uses: actions/cache@v4
-        id: cache-appium-nm
-        with:
-          path: testing/appium-tests/node_modules
-          key: appium-nm-${{ runner.os }}-${{ hashFiles('testing/appium-tests/package-lock.json') }}
-          restore-keys: appium-nm-${{ runner.os }}-
+      - name: Install All Test Dependencies
+        run: |
+          cd testing/appium-tests && npm install
+          cd ../selenium-tests && npm install
+          cd ../load-tests && npm install
+          cd ../vulnerability-tests && npm install
 
-      - name: Install Appium Test Dependencies
-        if: steps.cache-appium-nm.outputs.cache-hit != 'true'
-        working-directory: ./testing/appium-tests
-        run: npm install
+      - name: Run All Test Suites Separately
+        env:
+          DURATION: "5"
+        run: |
+          cd testing/appium-tests && node generate-sample.js
+          cd ../selenium-tests && node generate-sample.js
+          cd ../load-tests && node load-test.js
+          cd ../vulnerability-tests && node generate-sample.js
 
-      - name: Run Appium Mock Tests
-        working-directory: ./testing/appium-tests
-        run: npm test
-
-      - name: Upload Appium Artifacts
+      - name: Upload Test Report Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Appium-Test-Artifacts
+          name: GrowMark-Test-Reports
           path: |
-            testing/appium-tests/Test_Report.xlsx
-            testing/appium-tests/reports/**/*.xml
-            testing/appium-tests/appium-test.log
+            testing/appium-tests/Appium_Test_Report.xlsx
+            testing/selenium-tests/Selenium_Test_Report.xlsx
+            testing/load-tests/Load_Test_Report.xlsx
+            testing/vulnerability-tests/Vulnerability_Report.xlsx
           retention-days: 14

@@ -1,7 +1,7 @@
 const ExcelJS = require('exceljs');
 const path = require('path');
 
-const reportPath = path.join(__dirname, 'Test_Report.xlsx');
+const reportPath = path.join(__dirname, 'Selenium_Test_Report.xlsx');
 
 // Colors
 const NAVY = 'FF1B2A4A';
